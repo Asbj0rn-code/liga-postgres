@@ -3,20 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Liga PostgreSQL - Región de Kanto (Dark Mode)</title>
+    <title>Liga PostgreSQL - Región de Kanto (Hardcore)</title>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=Fira+Code:wght@400;500;700&display=swap" rel="stylesheet">
-
-    <!-- Application Structure Plan: 
-         - Theme: Pokémon Kanto Region Gyms (Dark Mode UI).
-         - Fallback Logic: Uses a clean, global handleImgError function.
-         - Procedural Generation: 240 UNIQUE questions across all 8 gyms. No repetitions.
-    -->
-    <!-- CONFIRMATION: NO SVG graphics used. Uploaded images handled via clean fallback architecture. -->
 
     <style>
         /* Dark Mode Base */
@@ -25,7 +18,7 @@
 
         /* Drag & Drop Styles */
         .dropzone {
-            display: inline-block; min-width: 140px; min-height: 32px; vertical-align: middle;
+            display: inline-block; min-width: 130px; min-height: 32px; vertical-align: middle;
             border: 2px dashed #475569; background-color: #020617; border-radius: 0.375rem;
             margin: 0 4px; padding: 2px 8px; transition: all 0.2s ease;
             text-align: center; color: #94a3b8; font-weight: 600;
@@ -112,7 +105,14 @@
                 </h1>
             </div>
             
-            <!-- Contextual Controls (Active Quiz Only) -->
+            <!-- Controls (Menu View) -->
+            <div id="menu-header-controls" class="flex flex-wrap justify-center items-center gap-3">
+                <button onclick="clearSave()" class="text-xs font-bold text-slate-400 hover:text-red-400 uppercase tracking-wider transition-colors">
+                    &#9888; Borrar Partida
+                </button>
+            </div>
+
+            <!-- Controls (Active Quiz View) -->
             <div id="quiz-header-controls" class="hidden flex flex-wrap justify-center items-center gap-3">
                 <button onclick="quitToMenu()" class="text-xs font-bold text-slate-300 hover:text-white uppercase tracking-wider bg-slate-800 hover:bg-red-600 px-3 py-2 rounded-full transition-colors border border-slate-600 shadow-md">
                     &#8592; Huir
@@ -137,16 +137,15 @@
     <!-- Main Workspace -->
     <main class="flex-grow max-w-7xl mx-auto px-4 py-8 w-full flex flex-col no-select relative">
         
-        <!-- VIEW 1: MAIN MENU (Kanto Map / Gyms) -->
+        <!-- VIEW 1: MAIN MENU -->
         <div id="view-menu" class="w-full fade-in">
             
-            <!-- Estuche de Medallas (Badge Case) -->
             <div class="mb-12 max-w-4xl mx-auto">
                 <h2 class="text-center text-xl font-black text-slate-200 uppercase tracking-widest mb-4 drop-shadow-md">Estuche de Medallas</h2>
                 <div class="badge-case p-6 sm:p-8 flex justify-center flex-wrap gap-4 sm:gap-6">
                     <div id="badge-case-container" class="flex flex-wrap justify-center gap-4 sm:gap-6"></div>
                 </div>
-                <p class="text-center text-slate-400 text-sm mt-4 font-semibold">Derrota a los 8 Líderes de Gimnasio completando sus 30 desafíos ÚNICOS de PostgreSQL.</p>
+                <p class="text-center text-slate-400 text-sm mt-4 font-semibold">Derrota a los 8 Líderes completando sus desafíos de dificultad aumentada. <br><span class="text-amber-500">Tu progreso se guarda automáticamente de forma local.</span></p>
             </div>
 
             <div id="gyms-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -154,11 +153,10 @@
             </div>
         </div>
 
-        <!-- VIEW 2: ACTIVE GYM BATTLE (Quiz) -->
+        <!-- VIEW 2: ACTIVE GYM BATTLE -->
         <div id="view-quiz" class="w-full hidden-view">
             <div class="flex flex-col gap-6 max-w-5xl mx-auto">
                 
-                <!-- Gym Leader Intro Header -->
                 <div id="gym-leader-header" class="bg-slate-800 rounded-2xl p-4 flex items-center gap-4 border border-slate-600 shadow-xl mb-2 relative overflow-hidden">
                     <img id="active-gym-image" src="" alt="Líder" class="w-20 h-20 rounded-full border-4 border-slate-900 leader-img shadow-lg z-10">
                     <div class="z-10">
@@ -170,7 +168,6 @@
                     </div>
                 </div>
 
-                <!-- Instruction Box -->
                 <div class="bg-slate-800 p-6 rounded-2xl shadow-lg border border-slate-700 relative overflow-hidden">
                     <div class="absolute top-0 left-0 w-2 h-full bg-red-600"></div>
                     <div class="flex justify-between items-start mb-4">
@@ -181,10 +178,8 @@
                     <p class="text-sm text-red-400 mt-3 font-semibold hidden bg-red-950/50 p-2 rounded-md inline-block border border-red-900" id="mc-instruction-hint"></p>
                 </div>
 
-                <!-- Dynamic Content Container -->
                 <div id="dynamic-content-container" class="w-full"></div>
 
-                <!-- Footer Actions -->
                 <div class="flex flex-col sm:flex-row justify-between items-center mt-2 p-5 bg-slate-800 rounded-2xl border border-slate-700 shadow-lg gap-4">
                     <div id="feedback-msg" class="font-bold text-lg opacity-0 transition-opacity text-center sm:text-left flex-grow"></div>
                     <div class="flex gap-4 w-full sm:w-auto shrink-0">
@@ -199,12 +194,12 @@
             </div>
         </div>
 
-        <!-- VIEW 3: END SCREEN (Victory) -->
+        <!-- VIEW 3: END SCREEN -->
         <div id="view-end" class="w-full hidden-view text-center py-16 bg-slate-800 rounded-3xl shadow-2xl border border-slate-600 px-6 max-w-4xl mx-auto relative overflow-hidden">
             <div class="absolute top-0 left-0 w-full h-32 bg-slate-900 skew-y-3 transform origin-top-left -z-10"></div>
             
             <h2 class="text-4xl sm:text-5xl font-black text-white mt-8 mb-4 uppercase tracking-tight drop-shadow-md" id="end-title">¡Líder Derrotado!</h2>
-            <p class="text-xl text-slate-300 mb-8 max-w-2xl mx-auto font-medium">Has superado los 30 desafíos sin repetir de este gimnasio.</p>
+            <p class="text-xl text-slate-300 mb-8 max-w-2xl mx-auto font-medium">Has superado los 30 desafíos tácticos de alta dificultad.</p>
             
             <div class="flex flex-col items-center mb-12">
                 <div class="text-sm font-bold text-slate-400 uppercase tracking-widest mb-4">Medalla Obtenida</div>
@@ -230,7 +225,7 @@
             </div>
 
             <button onclick="quitToMenu()" class="px-10 py-4 bg-slate-950 text-white font-black rounded-full hover:bg-red-600 transition-all shadow-lg text-lg uppercase tracking-wider border border-slate-700 hover:border-red-400">
-                Guardar y Volver
+                Continuar Viaje
             </button>
         </div>
 
@@ -269,7 +264,7 @@
         };
 
         // =========================================================================
-        // POKÉMON KANTO GYM DATA (With Direct Google Drive Link for Brock)
+        // POKÉMON KANTO GYM DATA 
         // =========================================================================
         const kantoGyms = [
             { id: 1, city: "Ciudad Plateada", type: "Roca", leader: "Brock", image: "https://images.wikidexcdn.net/mwuploads/wikidex/9/99/latest/20230902182628/Cara_de_Brock_LGPE.png", fallback: "https://play.pokemonshowdown.com/sprites/trainers/brock.png", badgeName: "Medalla Roca", badgeImage: "https://images.wikidexcdn.net/mwuploads/wikidex/3/39/latest/20180812014627/Medalla_Roca.png", badgeFallback: "https://img.pokemondb.net/sprites/items/boulder-badge.png" },
@@ -283,50 +278,43 @@
         ];
 
         // =========================================================================
-        // PROCEDURAL GENERATOR FOR 240 STRICTLY UNIQUE QUESTIONS
+        // PROCEDURAL GENERATOR (HARDCORE DIFFICULTY - MORE BLANKS)
         // =========================================================================
         const dict = {
-            tables: ['entrenadores', 'pokemon', 'movimientos', 'cajas_pc', 'objetos', 'medallas', 'pokedex', 'gimnasios', 'rutas', 'tiendas', 'curaciones', 'encuentros', 'equipos', 'estadisticas', 'bayas', 'fósiles', 'mt_mo', 'centros_pkmn', 'ligas', 'campeones'],
-            cols: ['nombre', 'nivel', 'tipo', 'hp_max', 'ataque', 'defensa', 'velocidad', 'cantidad', 'precio', 'estado', 'id_entrenador', 'fecha_captura', 'exp_base', 'id_objeto', 'fidelidad'],
-            users: ['red', 'blue', 'oak', 'brock', 'misty', 'giovanni', 'enfermera_joy', 'oficial_jenny', 'soldado_rocket', 'gary', 'ash', 'lance', 'lorelei', 'bruno', 'agatha'],
-            roles: ['rol_liga', 'rol_lider', 'rol_novato', 'rol_admin_pc', 'rol_criador', 'rol_investigador', 'rol_villano', 'rol_campeon', 'rol_alto_mando', 'rol_profesor'],
-            views: ['v_pokemon_fuertes', 'v_kanto_dex', 'v_mi_equipo', 'v_cajas_llenas', 'v_ranking', 'v_legendarios', 'v_ventas_mart', 'v_log_batallas', 'v_estadisticas_top', 'v_movimientos_raros'],
-            seqs: ['seq_id_pkmn', 'seq_batalla', 'seq_ticket', 'seq_log', 'seq_ruta', 'seq_pc', 'seq_item', 'seq_transaccion', 'seq_caja', 'seq_medalla', 'seq_curacion']
+            tables: ['entrenadores', 'pokemon', 'movimientos', 'cajas_pc', 'objetos', 'pokedex', 'gimnasios', 'rutas', 'tiendas', 'equipos', 'bayas', 'fósiles', 'mt_mo', 'ligas'],
+            cols: ['nombre', 'nivel', 'tipo', 'hp_max', 'ataque', 'defensa', 'velocidad', 'cantidad', 'precio', 'id_entrenador', 'fecha_captura', 'id_objeto', 'estado'],
+            users: ['red', 'blue', 'oak', 'giovanni', 'enfermera_joy', 'soldado_rocket', 'ash', 'lance', 'bruno', 'agatha'],
+            roles: ['rol_liga', 'rol_lider', 'rol_novato', 'rol_admin', 'rol_criador', 'rol_villano', 'rol_campeon'],
+            views: ['v_pokemon_fuertes', 'v_kanto_dex', 'v_mi_equipo', 'v_cajas_llenas', 'v_legendarios', 'v_log_batallas', 'v_movimientos_raros'],
+            seqs: ['seq_id_pkmn', 'seq_batalla', 'seq_ticket', 'seq_ruta', 'seq_pc', 'seq_transaccion', 'seq_caja', 'seq_medalla']
         };
 
         function randItem(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
         function shuffle(arr) { return [...arr].sort(() => Math.random() - 0.5); }
 
         const questionFactories = [
-            // DDL
-            () => { const t = randItem(dict.tables); const c = randItem(dict.cols); return { type: 'dd', topic: 'DDL - Tablas', instruction: `Crea la tabla "${t}". Define su ID como autonumérico estricto y la columna "${c}" como obligatoria.`, template: [`CREATE TABLE ${t} (\n  id INTEGER `, { id: "d1", answer: "GENERATED ALWAYS AS IDENTITY" }, ` PRIMARY KEY,\n  ${c} VARCHAR(100) `, { id: "d2", answer: "NOT NULL" }, `\n);`], options: ["GENERATED ALWAYS AS IDENTITY", "NOT NULL", "SERIAL", "AUTO_INCREMENT"] }; },
-            () => { const t = randItem(dict.tables); const c = randItem(dict.cols); return { type: 'dd', topic: 'DDL - Columnas', instruction: `Añade a la tabla "${t}" una nueva columna llamada "${c}".`, template: [`ALTER TABLE ${t}\n  `, { id: "d1", answer: "ADD COLUMN" }, ` ${c} VARCHAR(50);`], options: ["ADD COLUMN", "INSERT COLUMN", "NEW COLUMN", "APPEND"] }; },
-            () => { const t = randItem(dict.tables); const c = randItem(dict.cols); return { type: 'dd', topic: 'DDL - Modificar Tipo', instruction: `Modifica la columna "${c}" de la tabla "${t}" para que sea de tipo TEXT.`, template: [`ALTER TABLE ${t}\n  `, { id: "d1", answer: "ALTER COLUMN" }, ` ${c} `, { id: "d2", answer: "TYPE" }, ` TEXT;`], options: ["ALTER COLUMN", "TYPE", "MODIFY COLUMN", "CHANGE"] }; },
-            () => { const t = randItem(dict.tables); const c = randItem(dict.cols); return { type: 'dd', topic: 'DDL - Valores por Defecto', instruction: `Establece el valor '0' por defecto para la columna "${c}" en la tabla "${t}".`, template: [`ALTER TABLE ${t}\n  ALTER COLUMN ${c} `, { id: "d1", answer: "SET DEFAULT" }, ` '0';`], options: ["SET DEFAULT", "ADD DEFAULT", "DEFAULT VALUE", "UPDATE DEFAULT"] }; },
-            () => { const t = randItem(dict.tables); const c = randItem(dict.cols); return { type: 'dd', topic: 'DDL - Borrar Columnas', instruction: `Elimina permanentemente la columna "${c}" de la tabla "${t}".`, template: [`ALTER TABLE ${t}\n  `, { id: "d1", answer: "DROP COLUMN" }, ` ${c};`], options: ["DROP COLUMN", "DELETE COLUMN", "REMOVE", "CLEAR COLUMN"] }; },
-            () => { const t = randItem(dict.tables); return { type: 'dd', topic: 'DDL - Truncado', instruction: `Vacía la tabla "${t}", reinicia sus secuencias y fuerza borrado en dependencias.`, template: [``, { id: "d1", answer: "TRUNCATE TABLE" }, ` ${t}\n  `, { id: "d2", answer: "RESTART IDENTITY" }, `\n  `, { id: "d3", answer: "CASCADE" }, `;`], options: ["TRUNCATE TABLE", "RESTART IDENTITY", "CASCADE", "DELETE FROM", "RESTRICT"] }; },
-            () => { const t = randItem(dict.tables); return { type: 'dd', topic: 'DDL - Eliminación', instruction: `Elimina la tabla "${t}" de la base de datos únicamente si esta existe.`, template: [`DROP TABLE `, { id: "d1", answer: "IF EXISTS" }, ` ${t};`], options: ["IF EXISTS", "WHEN EXISTS", "CASCADE EXISTS", "FORCE"] }; },
-            // SEQUENCES
-            () => { const s = randItem(dict.seqs); return { type: 'dd', topic: 'Secuencias - Creación', instruction: `Crea la secuencia aislada "${s}" empezando en 500 y con saltos de 5 en 5.`, template: [`CREATE `, { id: "d1", answer: "SEQUENCE" }, ` ${s}\n  `, { id: "d2", answer: "START WITH" }, ` 500\n  `, { id: "d3", answer: "INCREMENT BY" }, ` 5;`], options: ["SEQUENCE", "START WITH", "INCREMENT BY", "BEGIN AT", "STEP"] }; },
-            () => { const s = randItem(dict.seqs); return { type: 'dd', topic: 'Secuencias - Ciclos', instruction: `Altera la secuencia "${s}" para que, al llegar a su máximo, vuelva a iniciar.`, template: [`ALTER SEQUENCE ${s}\n  `, { id: "d1", answer: "CYCLE" }, `;`], options: ["CYCLE", "NO CYCLE", "LOOP", "RESTART"] }; },
-            () => { const s = randItem(dict.seqs); return { type: 'dd', topic: 'Secuencias - Funciones', instruction: `Avanza la secuencia "${s}" y obtén el nuevo valor generado.`, template: [`SELECT `, { id: "d1", answer: "nextval" }, `('${s}');`], options: ["nextval", "currval", "setval", "lastval"] }; },
-            () => { const s = randItem(dict.seqs); return { type: 'dd', topic: 'Secuencias - Lectura', instruction: `Lee el valor actual generado por la secuencia "${s}" en la sesión activa.`, template: [`SELECT `, { id: "d1", answer: "currval" }, `('${s}');`], options: ["currval", "nextval", "session_val", "lastval"] }; },
-            () => { const s = randItem(dict.seqs); return { type: 'dd', topic: 'Secuencias - Reinicio', instruction: `Fuerza a la secuencia "${s}" a empezar a repartir identificadores desde el 1.`, template: [`ALTER SEQUENCE ${s}\n  `, { id: "d1", answer: "RESTART WITH" }, ` 1;`], options: ["RESTART WITH", "START WITH", "SET VALUE", "RESET TO"] }; },
-            // VIEWS
-            () => { const v = randItem(dict.views); const t = randItem(dict.tables); return { type: 'dd', topic: 'Vistas - Creación', instruction: `Crea o actualiza la vista "${v}" leyendo todos los campos de "${t}".`, template: [`CREATE `, { id: "d1", answer: "OR REPLACE VIEW" }, ` ${v} `, { id: "d2", answer: "AS" }, `\nSELECT * FROM ${t};`], options: ["OR REPLACE VIEW", "AS", "VIEW", "IS", "THEN"] }; },
-            () => { const v = randItem(dict.views); return { type: 'dd', topic: 'Vistas - Concatenación', instruction: `Usa el operador de PostgreSQL para concatenar cadenas al generar la vista "${v}".`, template: [`CREATE VIEW ${v} AS\nSELECT 'Pkmn: ' `, { id: "d1", answer: "||" }, ` nombre AS info\nFROM pokemon;`], options: ["||", "CONCAT", "&&", "+"] }; },
-            () => { const v = randItem(dict.views); return { type: 'dd', topic: 'Vistas - Seguridad DML', instruction: `Asegura la vista "${v}" para que los INSERT rechacen datos que incumplan el WHERE.`, template: [`CREATE VIEW ${v} AS\nSELECT * FROM pokemon WHERE hp_max > 100\n`, { id: "d1", answer: "WITH LOCAL CHECK OPTION" }, `;`], options: ["WITH LOCAL CHECK OPTION", "WITH CASCADED CHECK OPTION", "CHECK VALIDATION"] }; },
-            () => { const v = randItem(dict.views); return { type: 'dd', topic: 'Vistas - Eliminación', instruction: `Borra del sistema la vista virtual "${v}".`, template: [``, { id: "d1", answer: "DROP VIEW" }, ` ${v};`], options: ["DROP VIEW", "DELETE VIEW", "REMOVE VIEW", "TRUNCATE VIEW"] }; },
-            // PRIVILEGES
-            () => { const u = randItem(dict.users); return { type: 'dd', topic: 'Privilegios - Crear Usuario', instruction: `Crea al entrenador (usuario) "${u}" asignándole una contraseña.`, template: [`CREATE `, { id: "d1", answer: "USER" }, ` ${u} `, { id: "d2", answer: "WITH PASSWORD" }, ` 'secreta';`], options: ["USER", "WITH PASSWORD", "ROLE", "IDENTIFIED BY"] }; },
-            () => { const t = randItem(dict.tables); const r = randItem(dict.roles); return { type: 'dd', topic: 'Privilegios - Grant a Tabla', instruction: `Da permisos de lectura y actualización sobre la tabla "${t}" al rol "${r}".`, template: [``, { id: "d1", answer: "GRANT" }, ` SELECT, UPDATE ON ${t} `, { id: "d2", answer: "TO" }, ` ${r};`], options: ["GRANT", "TO", "GIVE", "FOR"] }; },
-            () => { const u = randItem(dict.users); const r = randItem(dict.roles); return { type: 'dd', topic: 'Privilegios - Asignar Roles', instruction: `Otorga los permisos del grupo (rol) "${r}" al usuario "${u}".`, template: [`GRANT ${r} `, { id: "d1", answer: "TO" }, ` ${u};`], options: ["TO", "FOR", "ASSIGN", "INTO"] }; },
-            () => { const t = randItem(dict.tables); const r = randItem(dict.roles); return { type: 'dd', topic: 'Privilegios - Revocar', instruction: `Retira el permiso de inserción sobre la tabla "${t}" al rol "${r}".`, template: [``, { id: "d1", answer: "REVOKE" }, ` INSERT ON ${t}\n`, { id: "d2", answer: "FROM" }, ` ${r};`], options: ["REVOKE", "FROM", "REMOVE", "DENY"] }; },
-            () => { const u = randItem(dict.users); return { type: 'dd', topic: 'Privilegios - Reasignar', instruction: `Antes de borrar al usuario "${u}", transfiere sus posesiones al usuario "oak".`, template: [``, { id: "d1", answer: "REASSIGN OWNED" }, ` BY ${u}\n`, { id: "d2", answer: "TO" }, ` oak;`], options: ["REASSIGN OWNED", "TO", "TRANSFER", "GIVE"] }; },
-            () => { const u = randItem(dict.users); return { type: 'dd', topic: 'Privilegios - Borrar Usuario', instruction: `Destruye los objetos residuales del usuario "${u}" y finalmente elimínalo del sistema.`, template: [``, { id: "d1", answer: "DROP OWNED" }, ` BY ${u};\n`, { id: "d2", answer: "DROP USER" }, ` ${u};`], options: ["DROP OWNED", "DROP USER", "DELETE OWNED", "REMOVE USER"] }; }
+            // DDL (Very Hard) - Multiple definitions in CREATE TABLE
+            () => { const t = randItem(dict.tables); const c = randItem(dict.cols); return { type: 'dd', topic: 'DDL - Creación Avanzada', instruction: `Crea la tabla "${t}". El ID debe ser autonumérico estricto, la columna "${c}" única y obligatoria, y debe haber una columna estado con valor por defecto.`, template: [`CREATE TABLE ${t} (\n  id INTEGER `, { id: "d1", answer: "GENERATED ALWAYS AS IDENTITY" }, ` PRIMARY KEY,\n  ${c} VARCHAR(100) `, { id: "d2", answer: "UNIQUE" }, ` `, { id: "d3", answer: "NOT NULL" }, `,\n  estado BOOLEAN `, { id: "d4", answer: "DEFAULT" }, ` TRUE\n);`], options: ["GENERATED ALWAYS AS IDENTITY", "UNIQUE", "NOT NULL", "DEFAULT", "SERIAL", "AUTO_INCREMENT", "SET DEFAULT", "PRIMARY"] }; },
+            
+            // DDL - Multiple ALTERs in one
+            () => { const t = randItem(dict.tables); const c = randItem(dict.cols); return { type: 'dd', topic: 'DDL - Modificación Múltiple', instruction: `Altera la tabla "${t}" en una sola sentencia: añade una columna, cambia el tipo de otra, y pon un valor por defecto.`, template: [`ALTER TABLE ${t}\n  `, { id: "d1", answer: "ADD COLUMN" }, ` new_${c} VARCHAR(50),\n  `, { id: "d2", answer: "ALTER COLUMN" }, ` old_${c} `, { id: "d3", answer: "TYPE" }, ` TEXT,\n  ALTER COLUMN p_base `, { id: "d4", answer: "SET DEFAULT" }, ` 0;`], options: ["ADD COLUMN", "ALTER COLUMN", "TYPE", "SET DEFAULT", "MODIFY COLUMN", "CHANGE", "DEFAULT VALUE"] }; },
+            
+            // DDL - Extreme Truncate
+            () => { const t = randItem(dict.tables); return { type: 'dd', topic: 'DDL - Truncado Extremo', instruction: `Vacía la tabla "${t}" forzosamente, reiniciando su ID interno y propagando el borrado por las claves foráneas.`, template: [``, { id: "d1", answer: "TRUNCATE TABLE" }, ` ${t}\n  `, { id: "d2", answer: "RESTART IDENTITY" }, `\n  `, { id: "d3", answer: "CASCADE" }, `;`], options: ["TRUNCATE TABLE", "RESTART IDENTITY", "CASCADE", "DELETE FROM", "RESTRICT", "CONTINUE IDENTITY"] }; },
+            
+            // SEQUENCES - Full creation
+            () => { const s = randItem(dict.seqs); return { type: 'dd', topic: 'Secuencias - Macro Creación', instruction: `Construye la secuencia aislada "${s}" con inicio en 100, salto de 10, máximo de 9000, y que sea cíclica.`, template: [``, { id: "d1", answer: "CREATE SEQUENCE" }, ` ${s}\n  `, { id: "d2", answer: "START WITH" }, ` 100\n  `, { id: "d3", answer: "INCREMENT BY" }, ` 10\n  `, { id: "d4", answer: "MAXVALUE" }, ` 9000\n  `, { id: "d5", answer: "CYCLE" }, `;`], options: ["CREATE SEQUENCE", "START WITH", "INCREMENT BY", "MAXVALUE", "CYCLE", "BEGIN AT", "STEP", "LOOP", "LIMIT"] }; },
+            
+            // VIEWS - Complex creation with options
+            () => { const v = randItem(dict.views); const t = randItem(dict.tables); const c = randItem(dict.cols); return { type: 'dd', topic: 'Vistas - Seguridad DML', instruction: `Reemplaza la vista "${v}" usando concatenación en el SELECT y añade un muro local contra INSERTS ilegales.`, template: [``, { id: "d1", answer: "CREATE OR REPLACE VIEW" }, ` ${v} `, { id: "d2", answer: "AS" }, `\nSELECT id `, { id: "d3", answer: "||" }, ` '-' `, { id: "d4", answer: "||" }, ` ${c} AS ref\nFROM ${t}\nWHERE id > 10\n`, { id: "d5", answer: "WITH LOCAL CHECK OPTION" }, `;`], options: ["CREATE OR REPLACE VIEW", "AS", "||", "||", "WITH LOCAL CHECK OPTION", "CONCAT", "+", "CHECK VALIDATION", "VIEW"] }; },
+            
+            // PRIVILEGES - Grants and Defaults
+            () => { const u = randItem(dict.users); return { type: 'dd', topic: 'Privilegios - Asignación Múltiple', instruction: `Otorga permisos de esquema al usuario "${u}" y establece que todas las tablas futuras sean legibles por todos.`, template: [``, { id: "d1", answer: "GRANT" }, ` USAGE ON SCHEMA public `, { id: "d2", answer: "TO" }, ` ${u};\n`, { id: "d3", answer: "ALTER DEFAULT PRIVILEGES" }, `\n  IN SCHEMA public\n  GRANT SELECT ON TABLES TO `, { id: "d4", answer: "PUBLIC" }, `;`], options: ["GRANT", "TO", "ALTER DEFAULT PRIVILEGES", "PUBLIC", "GIVE", "FOR", "SET DEFAULT PERMISSIONS", "ALL USERS"] }; },
+            
+            // PRIVILEGES - Purge System
+            () => { const u = randItem(dict.users); return { type: 'dd', topic: 'Privilegios - Purgatorio Absoluto', instruction: `El usuario "${u}" va a ser borrado. Transfiere sus objetos a "postgres", borra dependencias y elimínalo.`, template: [``, { id: "d1", answer: "REASSIGN OWNED" }, ` BY ${u} `, { id: "d2", answer: "TO" }, ` postgres;\n`, { id: "d3", answer: "DROP OWNED" }, ` BY ${u};\n`, { id: "d4", answer: "DROP USER" }, ` ${u};`], options: ["REASSIGN OWNED", "TO", "DROP OWNED", "DROP USER", "TRANSFER", "DELETE OWNED", "REMOVE USER", "GIVE"] }; }
         ];
 
-        // Static Theoretical MC Questions
         const staticTheoryQuestions = [
             { type: 'mc', topic: 'Teoría DDL', selectionType: 'single', instruction: '¿Cuál es la diferencia fundamental entre una "Base de Datos" y un "Esquema" en PostgreSQL?', options: ["Son sinónimos absolutos.", "La BD es compartida sin reconexión; el Esquema requiere reconexión.", "La BD está aislada lógicamente (requiere reconexión), mientras que los Esquemas comparten el entorno dentro de una BD.", "La BD almacena los datos físicos; el Esquema solo permisos."], correct: [2] },
             { type: 'mc', topic: 'Teoría Secuencias', selectionType: 'single', instruction: 'Si una secuencia ha sido definida con "NO CYCLE" y alcanza su valor MAXVALUE, ¿qué ocurre si usamos nextval()?', options: ["Reinicia al MINVALUE ignorando la restricción.", "Devuelve un error indicando que se alcanzó el límite.", "Devuelve NULL.", "Aumenta dinámicamente el MAXVALUE en 1."], correct: [1] },
@@ -387,7 +375,7 @@
         });
 
         // =========================================================================
-        // APP STATE & STORAGE
+        // APP STATE & LOCAL STORAGE
         // =========================================================================
         let userProgress = {}; 
         let currentGym = null;
@@ -398,14 +386,46 @@
         let timeSeconds = 0;
         let selectedOptionsMC = [];
 
+        const STORAGE_KEY = 'pgLigaKantoProgress';
+
+        function loadProgress() {
+            try {
+                const stored = localStorage.getItem(STORAGE_KEY);
+                if (stored) {
+                    userProgress = JSON.parse(stored);
+                }
+            } catch (e) {
+                console.error("Error loading progress", e);
+            }
+        }
+
+        function saveProgress() {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(userProgress));
+            } catch (e) {
+                console.error("Error saving progress", e);
+            }
+        }
+
+        function clearSave() {
+            if(confirm("¿Estás seguro de querer borrar tu partida? Perderás todas tus medallas.")) {
+                localStorage.removeItem(STORAGE_KEY);
+                location.reload();
+            }
+        }
+
         // =========================================================================
         // CORE LOGIC & RENDERING
         // =========================================================================
-        function initApp() { renderMenu(); }
+        function initApp() { 
+            loadProgress();
+            renderMenu(); 
+        }
 
         function renderMenu() {
             switchView('view-menu');
             stopTimer();
+            document.getElementById('menu-header-controls').classList.remove('hidden');
             
             const badgeCase = document.getElementById('badge-case-container');
             badgeCase.innerHTML = '';
@@ -418,7 +438,7 @@
                 const badgeEl = document.createElement('img');
                 badgeEl.src = gym.badgeImage;
                 badgeEl.title = isCompleted ? `${gym.badgeName} (Gimnasio ${gym.city})` : `Medalla Desconocida`;
-                badgeEl.setAttribute('onerror', `handleImgError(this, '${gym.badgeFallback}')`);
+                badgeEl.setAttribute('onerror', `handleImgError(this, '${gym.badgeFallback}', true)`);
                 
                 badgeEl.className = isCompleted ? 'w-12 h-12 sm:w-14 sm:h-14 badge-img badge-earned' : 'w-12 h-12 sm:w-14 sm:h-14 badge-img badge-locked';
                 
@@ -488,6 +508,7 @@
             badgePreview.src = currentGym.badgeImage;
             badgePreview.setAttribute('onerror', `handleImgError(this, '${currentGym.badgeFallback}')`);
             
+            document.getElementById('menu-header-controls').classList.add('hidden');
             document.getElementById('quiz-header-controls').classList.remove('hidden');
             document.getElementById('progress-bar-container').classList.remove('hidden');
             
@@ -706,7 +727,9 @@
             document.getElementById('quiz-header-controls').classList.add('hidden');
             document.getElementById('progress-bar-container').classList.add('hidden');
             
+            // Save Progress locally
             userProgress[currentGym.id] = { completed: true, correct: sessionCorrect, errors: sessionErrors, timeSeconds: timeSeconds };
+            saveProgress();
 
             document.getElementById('end-title').textContent = `¡Has derrotado a ${currentGym.leader}!`;
             document.getElementById('end-badge-name').textContent = `Obtuviste la ${currentGym.badgeName}`;
