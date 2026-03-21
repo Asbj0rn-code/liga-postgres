@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Liga PostgreSQL - Región de Kanto (Dark Mode)</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=Fira+Code:wght@400;500;700&display=swap" rel="stylesheet">
+
+    <!-- Application Structure Plan: 
+         - Theme: Pokémon Kanto Region Gyms (Dark Mode UI).
+         - Fallback Logic: Uses a clean, global handleImgError function.
+         - Procedural Generation: 240 UNIQUE questions across all 8 gyms. No repetitions.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. Uploaded images handled via clean fallback architecture. -->
+
+    <style>
+        /* Dark Mode Base */
+        body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: #e2e8f0; }
+        .font-mono { font-family: 'Fira Code', monospace; }
+
+        /* Drag & Drop Styles */
+        .dropzone {
+            display: inline-block; min-width: 140px; min-height: 32px; vertical-align: middle;
+            border: 2px dashed #475569; background-color: #020617; border-radius: 0.375rem;
+            margin: 0 4px; padding: 2px 8px; transition: all 0.2s ease;
+            text-align: center; color: #94a3b8; font-weight: 600;
+        }
+        .dropzone.drag-over { border-color: #ef4444; background-color: #1e293b; transform: scale(1.05); box-shadow: 0 0 10px rgba(239, 68, 68, 0.4); }
+        .dropzone.correct { border-color: #10b981; border-style: solid; background-color: rgba(16, 185, 129, 0.15); color: #34d399; }
+        .dropzone.incorrect { border-color: #ef4444; border-style: solid; background-color: rgba(239, 68, 68, 0.15); color: #f87171; }
+
+        .draggable-chip {
+            display: inline-flex; align-items: center; justify-content: center;
+            cursor: grab; background-color: #dc2626; color: white;
+            font-family: 'Fira Code', monospace; font-size: 0.85rem;
+            padding: 0.35rem 0.75rem; border-radius: 9999px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
+            transition: transform 0.1s, background-color 0.2s; user-select: none; white-space: nowrap;
+            border: 2px solid #991b1b;
+        }
+        .draggable-chip:active { cursor: grabbing; transform: scale(0.95); background-color: #991b1b; }
+        .draggable-chip:hover { background-color: #ef4444; }
+        
+        .word-bank {
+            min-height: 100px; border: 2px dashed #475569; border-radius: 0.5rem;
+            padding: 1.25rem; display: flex; flex-wrap: wrap; gap: 0.75rem;
+            align-items: center; justify-content: center; background-color: #1e293b;
+            transition: background-color 0.2s;
+        }
+        .word-bank.drag-over { background-color: #0f172a; border-color: #64748b; }
+
+        /* Multiple Choice Styles (Dark) */
+        .mc-option { transition: all 0.2s; border: 2px solid #334155; background-color: #1e293b; color: #f8fafc; }
+        .mc-option:hover { border-color: #ef4444; background-color: #27272a; }
+        .mc-option.selected { border-color: #ef4444; background-color: #450a0a; box-shadow: 0 4px 6px -1px rgba(239, 68, 68, 0.3); }
+        .mc-option.correct-reveal { border-color: #10b981; background-color: #064e3b; color: #6ee7b7; }
+        .mc-option.incorrect-reveal { border-color: #ef4444; background-color: #7f1d1d; color: #fca5a5; }
+
+        /* General & Animations */
+        .no-select { user-select: none; }
+        .fade-in { animation: fadeIn 0.4s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .hidden-view { display: none !important; }
+        
+        /* Pokémon Theme Elements - Dark Ball Style */
+        .pokeball-header {
+            background: linear-gradient(to bottom, #b91c1c 0%, #b91c1c 48%, #020617 48%, #020617 52%, #1e293b 52%, #1e293b 100%);
+            border-bottom: 4px solid #020617;
+        }
+        
+        .gym-card { transition: transform 0.2s, box-shadow 0.2s; background-color: #1e293b; border: 2px solid #334155; }
+        .gym-card:hover { transform: translateY(-5px); box-shadow: 0 10px 25px -5px rgba(239, 68, 68, 0.3); border-color: #ef4444; }
+        .gym-completed { border-color: #f59e0b; background-color: #27272a; }
+        .gym-completed:hover { border-color: #d97706; box-shadow: 0 10px 25px -5px rgba(245, 158, 11, 0.2); }
+
+        /* Images & Badges */
+        .leader-img { object-fit: cover; object-position: top; background-color: #334155; image-rendering: auto; }
+        .fallback-active { image-rendering: pixelated; object-fit: contain; background-color: #0f172a; padding: 4px; }
+        
+        .badge-case { background: radial-gradient(circle, #1e293b 0%, #020617 100%); border: 8px solid #0f172a; border-radius: 1rem; box-shadow: inset 0 10px 20px rgba(0,0,0,0.8); }
+        .badge-slot { background-color: rgba(2, 6, 23, 0.6); border: 2px solid rgba(51, 65, 85, 0.8); border-radius: 50%; box-shadow: inset 0 4px 8px rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center;}
+        
+        .badge-img { object-fit: contain; transition: all 0.3s ease; }
+        .badge-locked { filter: grayscale(100%) brightness(0.2) opacity(0.5); }
+        .badge-earned { 
+            filter: drop-shadow(0 0 8px rgba(251, 191, 36, 0.8));
+            animation: badgeShineImg 2s infinite alternate; 
+        }
+
+        @keyframes badgeShineImg { 
+            from { filter: drop-shadow(0 0 3px rgba(251, 191, 36, 0.5)); } 
+            to { filter: drop-shadow(0 0 15px rgba(251, 191, 36, 1)); } 
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <!-- Global Header -->
+    <header class="pokeball-header shadow-2xl sticky top-0 z-20">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="flex items-center space-x-3 cursor-pointer bg-slate-900/90 px-4 py-2 rounded-full backdrop-blur-md border border-slate-700" onclick="quitToMenu()">
+                <div class="w-8 h-8 rounded-full bg-slate-800 border-4 border-slate-950 flex items-center justify-center shadow-inner">
+                    <div class="w-3 h-3 rounded-full bg-red-500 shadow-[0_0_5px_rgba(239,68,68,0.8)]"></div>
+                </div>
+                <h1 class="text-xl sm:text-2xl font-black uppercase tracking-wider text-white">
+                    Liga <span class="text-red-500">PostgreSQL</span>
+                </h1>
+            </div>
+            
+            <!-- Contextual Controls (Active Quiz Only) -->
+            <div id="quiz-header-controls" class="hidden flex flex-wrap justify-center items-center gap-3">
+                <button onclick="quitToMenu()" class="text-xs font-bold text-slate-300 hover:text-white uppercase tracking-wider bg-slate-800 hover:bg-red-600 px-3 py-2 rounded-full transition-colors border border-slate-600 shadow-md">
+                    &#8592; Huir
+                </button>
+                <div class="flex items-center gap-2 bg-slate-950 px-4 py-2 rounded-full border border-slate-700 shadow-inner">
+                    <span class="text-lg text-slate-300">&#9202;</span>
+                    <span id="timer-display" class="font-mono text-slate-200 font-bold tracking-widest text-lg">00:00</span>
+                </div>
+                <div class="text-sm font-bold text-slate-200 bg-slate-950 px-4 py-2 rounded-full border border-slate-700 shadow-inner">
+                    PS Perdidos: <span id="error-counter" class="text-red-500 ml-1 text-lg">0</span>
+                </div>
+                <div class="text-sm font-bold text-white bg-red-700 px-4 py-2 rounded-full border border-red-900 shadow-[0_0_10px_rgba(185,28,28,0.8)] tracking-wide" id="progress-text">
+                    0 / 30
+                </div>
+            </div>
+        </div>
+        <div id="progress-bar-container" class="w-full bg-slate-950 h-1.5 hidden">
+            <div id="progress-bar" class="bg-red-500 h-1.5 transition-all duration-300" style="width: 0%"></div>
+        </div>
+    </header>
+
+    <!-- Main Workspace -->
+    <main class="flex-grow max-w-7xl mx-auto px-4 py-8 w-full flex flex-col no-select relative">
+        
+        <!-- VIEW 1: MAIN MENU (Kanto Map / Gyms) -->
+        <div id="view-menu" class="w-full fade-in">
+            
+            <!-- Estuche de Medallas (Badge Case) -->
+            <div class="mb-12 max-w-4xl mx-auto">
+                <h2 class="text-center text-xl font-black text-slate-200 uppercase tracking-widest mb-4 drop-shadow-md">Estuche de Medallas</h2>
+                <div class="badge-case p-6 sm:p-8 flex justify-center flex-wrap gap-4 sm:gap-6">
+                    <div id="badge-case-container" class="flex flex-wrap justify-center gap-4 sm:gap-6"></div>
+                </div>
+                <p class="text-center text-slate-400 text-sm mt-4 font-semibold">Derrota a los 8 Líderes de Gimnasio completando sus 30 desafíos ÚNICOS de PostgreSQL.</p>
+            </div>
+
+            <div id="gyms-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Gym Cards injected via JS -->
+            </div>
+        </div>
+
+        <!-- VIEW 2: ACTIVE GYM BATTLE (Quiz) -->
+        <div id="view-quiz" class="w-full hidden-view">
+            <div class="flex flex-col gap-6 max-w-5xl mx-auto">
+                
+                <!-- Gym Leader Intro Header -->
+                <div id="gym-leader-header" class="bg-slate-800 rounded-2xl p-4 flex items-center gap-4 border border-slate-600 shadow-xl mb-2 relative overflow-hidden">
+                    <img id="active-gym-image" src="" alt="Líder" class="w-20 h-20 rounded-full border-4 border-slate-900 leader-img shadow-lg z-10">
+                    <div class="z-10">
+                        <h3 class="text-white font-black uppercase tracking-wider text-xl drop-shadow-md" id="active-gym-name">Gimnasio</h3>
+                        <p class="text-slate-300 text-sm font-semibold" id="active-gym-leader">Líder: ???</p>
+                    </div>
+                    <div class="absolute right-4 opacity-10 z-0">
+                        <img id="active-gym-badge" class="w-24 h-24 badge-img badge-locked" src="" alt="Medalla">
+                    </div>
+                </div>
+
+                <!-- Instruction Box -->
+                <div class="bg-slate-800 p-6 rounded-2xl shadow-lg border border-slate-700 relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-2 h-full bg-red-600"></div>
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="inline-block px-3 py-1 bg-red-900/40 text-red-400 text-xs font-black rounded-full uppercase tracking-wider border border-red-800" id="question-topic">Tema</div>
+                        <div class="inline-block px-3 py-1 bg-slate-700/50 text-slate-300 text-xs font-black rounded-full uppercase tracking-wider border border-slate-600" id="question-type-badge">Tipo</div>
+                    </div>
+                    <h2 class="text-xl sm:text-2xl font-bold text-white leading-relaxed" id="question-instruction">¡Un SQL salvaje apareció!</h2>
+                    <p class="text-sm text-red-400 mt-3 font-semibold hidden bg-red-950/50 p-2 rounded-md inline-block border border-red-900" id="mc-instruction-hint"></p>
+                </div>
+
+                <!-- Dynamic Content Container -->
+                <div id="dynamic-content-container" class="w-full"></div>
+
+                <!-- Footer Actions -->
+                <div class="flex flex-col sm:flex-row justify-between items-center mt-2 p-5 bg-slate-800 rounded-2xl border border-slate-700 shadow-lg gap-4">
+                    <div id="feedback-msg" class="font-bold text-lg opacity-0 transition-opacity text-center sm:text-left flex-grow"></div>
+                    <div class="flex gap-4 w-full sm:w-auto shrink-0">
+                        <button id="btn-check" onclick="checkAnswers()" class="w-full sm:w-auto px-8 py-3.5 bg-slate-950 text-white font-black rounded-full hover:bg-slate-700 transition-colors shadow-md disabled:opacity-50 disabled:cursor-not-allowed border border-slate-600">
+                            Usar Ataque &#9876;
+                        </button>
+                        <button id="btn-next" onclick="nextQuestion()" class="hidden w-full sm:w-auto px-8 py-3.5 bg-red-600 text-white font-black rounded-full hover:bg-red-500 transition-colors shadow-[0_0_15px_rgba(220,38,38,0.6)] border border-red-400">
+                            Siguiente &#10140;
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- VIEW 3: END SCREEN (Victory) -->
+        <div id="view-end" class="w-full hidden-view text-center py-16 bg-slate-800 rounded-3xl shadow-2xl border border-slate-600 px-6 max-w-4xl mx-auto relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-32 bg-slate-900 skew-y-3 transform origin-top-left -z-10"></div>
+            
+            <h2 class="text-4xl sm:text-5xl font-black text-white mt-8 mb-4 uppercase tracking-tight drop-shadow-md" id="end-title">¡Líder Derrotado!</h2>
+            <p class="text-xl text-slate-300 mb-8 max-w-2xl mx-auto font-medium">Has superado los 30 desafíos sin repetir de este gimnasio.</p>
+            
+            <div class="flex flex-col items-center mb-12">
+                <div class="text-sm font-bold text-slate-400 uppercase tracking-widest mb-4">Medalla Obtenida</div>
+                <div id="end-badge-showcase" class="mb-4 drop-shadow-[0_0_20px_rgba(251,191,36,0.4)]">
+                    <img id="end-badge-image" class="w-32 h-32 badge-img badge-earned" src="" alt="Medalla Obtenida">
+                </div>
+                <h3 class="text-2xl font-black text-amber-400 uppercase tracking-wider drop-shadow-sm" id="end-badge-name">Medalla</h3>
+            </div>
+            
+            <div class="flex flex-wrap justify-center gap-6 mb-12">
+                <div class="bg-slate-900 border border-emerald-500/30 rounded-2xl p-6 w-40 shadow-inner">
+                    <p class="text-emerald-500 font-bold text-sm uppercase mb-2">Efectivos</p>
+                    <p class="text-4xl font-black text-emerald-400" id="end-correct">0</p>
+                </div>
+                <div class="bg-slate-900 border border-red-500/30 rounded-2xl p-6 w-40 shadow-inner">
+                    <p class="text-red-500 font-bold text-sm uppercase mb-2">PS Perdidos</p>
+                    <p class="text-4xl font-black text-red-400" id="end-errors">0</p>
+                </div>
+                <div class="bg-slate-900 border border-sky-500/30 rounded-2xl p-6 w-40 shadow-inner">
+                    <p class="text-sky-500 font-bold text-sm uppercase mb-2">Tiempo</p>
+                    <p class="text-3xl font-black text-sky-400 mt-2" id="end-time">00:00</p>
+                </div>
+            </div>
+
+            <button onclick="quitToMenu()" class="px-10 py-4 bg-slate-950 text-white font-black rounded-full hover:bg-red-600 transition-all shadow-lg text-lg uppercase tracking-wider border border-slate-700 hover:border-red-400">
+                Guardar y Volver
+            </button>
+        </div>
+
+    </main>
+
+    <!-- HTML TEMPLATES -->
+    <template id="tpl-drag-drop">
+        <div class="bg-slate-950 rounded-2xl shadow-inner overflow-hidden border border-slate-800 flex flex-col">
+            <div class="bg-slate-900 px-4 py-2 flex items-center border-b border-slate-800">
+                <span class="text-sm font-bold text-slate-500 uppercase tracking-widest">Pokedex_Terminal.sql</span>
+            </div>
+            <div class="p-6 overflow-x-auto flex-grow">
+                <div id="code-container" class="font-mono text-base sm:text-lg leading-[3.5rem] text-sky-100 whitespace-pre-wrap"></div>
+            </div>
+        </div>
+        <div class="mt-6">
+            <h3 class="text-sm font-black text-slate-400 mb-3 uppercase tracking-wider flex items-center">
+                <span class="mr-2 text-red-500">&#129520;</span> Mochila de Fragmentos
+            </h3>
+            <div id="word-bank" class="word-bank shadow-inner" ondragover="allowDrop(event)" ondragleave="dragLeave(event)" ondrop="drop(event, 'bank')"></div>
+        </div>
+    </template>
+
+    <template id="tpl-multiple-choice">
+        <div id="mc-container" class="space-y-4"></div>
+    </template>
+
+    <script>
+        // =========================================================================
+        // GLOBAL IMAGE FALLBACK HANDLER
+        // =========================================================================
+        window.handleImgError = function(img, fallbackUrl) {
+            img.onerror = null; 
+            img.src = fallbackUrl;
+            img.classList.add('fallback-active');
+        };
+
+        // =========================================================================
+        // POKÉMON KANTO GYM DATA (With Direct Google Drive Link for Brock)
+        // =========================================================================
+        const kantoGyms = [
+            { id: 1, city: "Ciudad Plateada", type: "Roca", leader: "Brock", image: "https://images.wikidexcdn.net/mwuploads/wikidex/9/99/latest/20230902182628/Cara_de_Brock_LGPE.png", fallback: "https://play.pokemonshowdown.com/sprites/trainers/brock.png", badgeName: "Medalla Roca", badgeImage: "https://images.wikidexcdn.net/mwuploads/wikidex/3/39/latest/20180812014627/Medalla_Roca.png", badgeFallback: "https://img.pokemondb.net/sprites/items/boulder-badge.png" },
+            { id: 2, city: "Ciudad Celeste", type: "Agua", leader: "Misty", image: "https://images.wikidexcdn.net/mwuploads/wikidex/7/7f/latest/20230902182717/Cara_de_Misty_LGPE.png", fallback: "https://play.pokemonshowdown.com/sprites/trainers/misty.png", badgeName: "Medalla Cascada", badgeImage: "https://images.wikidexcdn.net/mwuploads/wikidex/6/60/latest/20180812013531/Medalla_Cascada.png", badgeFallback: "https://img.pokemondb.net/sprites/items/cascade-badge.png" },
+            { id: 3, city: "Ciudad Carmín", type: "Eléctrico", leader: "Lt. Surge", image: "https://images.wikidexcdn.net/mwuploads/wikidex/b/b7/latest/20230902182607/Cara_de_Teniente_Surge_LGPE.png", fallback: "https://play.pokemonshowdown.com/sprites/trainers/ltsurge.png", badgeName: "Medalla Trueno", badgeImage: "https://images.wikidexcdn.net/mwuploads/wikidex/e/e6/latest/20180812014833/Medalla_Trueno.png", badgeFallback: "https://img.pokemondb.net/sprites/items/thunder-badge.png" },
+            { id: 4, city: "Ciudad Azulona", type: "Planta", leader: "Erika", image: "https://images.wikidexcdn.net/mwuploads/wikidex/3/38/latest/20230902182638/Cara_de_Erika_LGPE.png", fallback: "https://play.pokemonshowdown.com/sprites/trainers/erika.png", badgeName: "Medalla Arcoíris", badgeImage: "https://images.wikidexcdn.net/mwuploads/wikidex/0/09/latest/20180812034547/Medalla_Arco%C3%ADris.png", badgeFallback: "https://img.pokemondb.net/sprites/items/rainbow-badge.png" },
+            { id: 5, city: "Ciudad Fucsia", type: "Veneno", leader: "Koga", image: "https://images.wikidexcdn.net/mwuploads/wikidex/0/01/latest/20230902182705/Cara_de_Koga_LGPE.png", fallback: "https://play.pokemonshowdown.com/sprites/trainers/koga.png", badgeName: "Medalla Alma", badgeImage: "https://images.wikidexcdn.net/mwuploads/wikidex/c/c5/latest/20180812035225/Medalla_Alma.png", badgeFallback: "https://img.pokemondb.net/sprites/items/soul-badge.png" },
+            { id: 6, city: "Ciudad Azafrán", type: "Psíquico", leader: "Sabrina", image: "https://images.wikidexcdn.net/mwuploads/wikidex/b/be/latest/20230902182727/Cara_de_Sabrina_LGPE.png", fallback: "https://play.pokemonshowdown.com/sprites/trainers/sabrina.png", badgeName: "Medalla Pantano", badgeImage: "https://images.wikidexcdn.net/mwuploads/wikidex/c/c2/latest/20180812035607/Medalla_Pantano.png", badgeFallback: "https://img.pokemondb.net/sprites/items/marsh-badge.png" },
+            { id: 7, city: "Isla Canela", type: "Fuego", leader: "Blaine", image: "https://images.wikidexcdn.net/mwuploads/wikidex/7/7b/latest/20230902182618/Cara_de_Blaine_LGPE.png", fallback: "https://play.pokemonshowdown.com/sprites/trainers/blaine.png", badgeName: "Medalla Volcán", badgeImage: "https://images.wikidexcdn.net/mwuploads/wikidex/9/93/latest/20180812035749/Medalla_Volc%C3%A1n.png", badgeFallback: "https://img.pokemondb.net/sprites/items/volcano-badge.png" },
+            { id: 8, city: "Ciudad Verde", type: "Tierra", leader: "Giovanni", image: "https://images.wikidexcdn.net/mwuploads/wikidex/b/b4/latest/20230616195118/Giovanni_en_RFVH.png", fallback: "https://play.pokemonshowdown.com/sprites/trainers/giovanni.png", badgeName: "Medalla Tierra", badgeImage: "https://images.wikidexcdn.net/mwuploads/wikidex/1/16/latest/20180812035006/Medalla_Tierra.png", badgeFallback: "https://img.pokemondb.net/sprites/items/earth-badge.png" }
+        ];
+
+        // =========================================================================
+        // PROCEDURAL GENERATOR FOR 240 STRICTLY UNIQUE QUESTIONS
+        // =========================================================================
+        const dict = {
+            tables: ['entrenadores', 'pokemon', 'movimientos', 'cajas_pc', 'objetos', 'medallas', 'pokedex', 'gimnasios', 'rutas', 'tiendas', 'curaciones', 'encuentros', 'equipos', 'estadisticas', 'bayas', 'fósiles', 'mt_mo', 'centros_pkmn', 'ligas', 'campeones'],
+            cols: ['nombre', 'nivel', 'tipo', 'hp_max', 'ataque', 'defensa', 'velocidad', 'cantidad', 'precio', 'estado', 'id_entrenador', 'fecha_captura', 'exp_base', 'id_objeto', 'fidelidad'],
+            users: ['red', 'blue', 'oak', 'brock', 'misty', 'giovanni', 'enfermera_joy', 'oficial_jenny', 'soldado_rocket', 'gary', 'ash', 'lance', 'lorelei', 'bruno', 'agatha'],
+            roles: ['rol_liga', 'rol_lider', 'rol_novato', 'rol_admin_pc', 'rol_criador', 'rol_investigador', 'rol_villano', 'rol_campeon', 'rol_alto_mando', 'rol_profesor'],
+            views: ['v_pokemon_fuertes', 'v_kanto_dex', 'v_mi_equipo', 'v_cajas_llenas', 'v_ranking', 'v_legendarios', 'v_ventas_mart', 'v_log_batallas', 'v_estadisticas_top', 'v_movimientos_raros'],
+            seqs: ['seq_id_pkmn', 'seq_batalla', 'seq_ticket', 'seq_log', 'seq_ruta', 'seq_pc', 'seq_item', 'seq_transaccion', 'seq_caja', 'seq_medalla', 'seq_curacion']
+        };
+
+        function randItem(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+        function shuffle(arr) { return [...arr].sort(() => Math.random() - 0.5); }
+
+        const questionFactories = [
+            // DDL
+            () => { const t = randItem(dict.tables); const c = randItem(dict.cols); return { type: 'dd', topic: 'DDL - Tablas', instruction: `Crea la tabla "${t}". Define su ID como autonumérico estricto y la columna "${c}" como obligatoria.`, template: [`CREATE TABLE ${t} (\n  id INTEGER `, { id: "d1", answer: "GENERATED ALWAYS AS IDENTITY" }, ` PRIMARY KEY,\n  ${c} VARCHAR(100) `, { id: "d2", answer: "NOT NULL" }, `\n);`], options: ["GENERATED ALWAYS AS IDENTITY", "NOT NULL", "SERIAL", "AUTO_INCREMENT"] }; },
+            () => { const t = randItem(dict.tables); const c = randItem(dict.cols); return { type: 'dd', topic: 'DDL - Columnas', instruction: `Añade a la tabla "${t}" una nueva columna llamada "${c}".`, template: [`ALTER TABLE ${t}\n  `, { id: "d1", answer: "ADD COLUMN" }, ` ${c} VARCHAR(50);`], options: ["ADD COLUMN", "INSERT COLUMN", "NEW COLUMN", "APPEND"] }; },
+            () => { const t = randItem(dict.tables); const c = randItem(dict.cols); return { type: 'dd', topic: 'DDL - Modificar Tipo', instruction: `Modifica la columna "${c}" de la tabla "${t}" para que sea de tipo TEXT.`, template: [`ALTER TABLE ${t}\n  `, { id: "d1", answer: "ALTER COLUMN" }, ` ${c} `, { id: "d2", answer: "TYPE" }, ` TEXT;`], options: ["ALTER COLUMN", "TYPE", "MODIFY COLUMN", "CHANGE"] }; },
+            () => { const t = randItem(dict.tables); const c = randItem(dict.cols); return { type: 'dd', topic: 'DDL - Valores por Defecto', instruction: `Establece el valor '0' por defecto para la columna "${c}" en la tabla "${t}".`, template: [`ALTER TABLE ${t}\n  ALTER COLUMN ${c} `, { id: "d1", answer: "SET DEFAULT" }, ` '0';`], options: ["SET DEFAULT", "ADD DEFAULT", "DEFAULT VALUE", "UPDATE DEFAULT"] }; },
+            () => { const t = randItem(dict.tables); const c = randItem(dict.cols); return { type: 'dd', topic: 'DDL - Borrar Columnas', instruction: `Elimina permanentemente la columna "${c}" de la tabla "${t}".`, template: [`ALTER TABLE ${t}\n  `, { id: "d1", answer: "DROP COLUMN" }, ` ${c};`], options: ["DROP COLUMN", "DELETE COLUMN", "REMOVE", "CLEAR COLUMN"] }; },
+            () => { const t = randItem(dict.tables); return { type: 'dd', topic: 'DDL - Truncado', instruction: `Vacía la tabla "${t}", reinicia sus secuencias y fuerza borrado en dependencias.`, template: [``, { id: "d1", answer: "TRUNCATE TABLE" }, ` ${t}\n  `, { id: "d2", answer: "RESTART IDENTITY" }, `\n  `, { id: "d3", answer: "CASCADE" }, `;`], options: ["TRUNCATE TABLE", "RESTART IDENTITY", "CASCADE", "DELETE FROM", "RESTRICT"] }; },
+            () => { const t = randItem(dict.tables); return { type: 'dd', topic: 'DDL - Eliminación', instruction: `Elimina la tabla "${t}" de la base de datos únicamente si esta existe.`, template: [`DROP TABLE `, { id: "d1", answer: "IF EXISTS" }, ` ${t};`], options: ["IF EXISTS", "WHEN EXISTS", "CASCADE EXISTS", "FORCE"] }; },
+            // SEQUENCES
+            () => { const s = randItem(dict.seqs); return { type: 'dd', topic: 'Secuencias - Creación', instruction: `Crea la secuencia aislada "${s}" empezando en 500 y con saltos de 5 en 5.`, template: [`CREATE `, { id: "d1", answer: "SEQUENCE" }, ` ${s}\n  `, { id: "d2", answer: "START WITH" }, ` 500\n  `, { id: "d3", answer: "INCREMENT BY" }, ` 5;`], options: ["SEQUENCE", "START WITH", "INCREMENT BY", "BEGIN AT", "STEP"] }; },
+            () => { const s = randItem(dict.seqs); return { type: 'dd', topic: 'Secuencias - Ciclos', instruction: `Altera la secuencia "${s}" para que, al llegar a su máximo, vuelva a iniciar.`, template: [`ALTER SEQUENCE ${s}\n  `, { id: "d1", answer: "CYCLE" }, `;`], options: ["CYCLE", "NO CYCLE", "LOOP", "RESTART"] }; },
+            () => { const s = randItem(dict.seqs); return { type: 'dd', topic: 'Secuencias - Funciones', instruction: `Avanza la secuencia "${s}" y obtén el nuevo valor generado.`, template: [`SELECT `, { id: "d1", answer: "nextval" }, `('${s}');`], options: ["nextval", "currval", "setval", "lastval"] }; },
+            () => { const s = randItem(dict.seqs); return { type: 'dd', topic: 'Secuencias - Lectura', instruction: `Lee el valor actual generado por la secuencia "${s}" en la sesión activa.`, template: [`SELECT `, { id: "d1", answer: "currval" }, `('${s}');`], options: ["currval", "nextval", "session_val", "lastval"] }; },
+            () => { const s = randItem(dict.seqs); return { type: 'dd', topic: 'Secuencias - Reinicio', instruction: `Fuerza a la secuencia "${s}" a empezar a repartir identificadores desde el 1.`, template: [`ALTER SEQUENCE ${s}\n  `, { id: "d1", answer: "RESTART WITH" }, ` 1;`], options: ["RESTART WITH", "START WITH", "SET VALUE", "RESET TO"] }; },
+            // VIEWS
+            () => { const v = randItem(dict.views); const t = randItem(dict.tables); return { type: 'dd', topic: 'Vistas - Creación', instruction: `Crea o actualiza la vista "${v}" leyendo todos los campos de "${t}".`, template: [`CREATE `, { id: "d1", answer: "OR REPLACE VIEW" }, ` ${v} `, { id: "d2", answer: "AS" }, `\nSELECT * FROM ${t};`], options: ["OR REPLACE VIEW", "AS", "VIEW", "IS", "THEN"] }; },
+            () => { const v = randItem(dict.views); return { type: 'dd', topic: 'Vistas - Concatenación', instruction: `Usa el operador de PostgreSQL para concatenar cadenas al generar la vista "${v}".`, template: [`CREATE VIEW ${v} AS\nSELECT 'Pkmn: ' `, { id: "d1", answer: "||" }, ` nombre AS info\nFROM pokemon;`], options: ["||", "CONCAT", "&&", "+"] }; },
+            () => { const v = randItem(dict.views); return { type: 'dd', topic: 'Vistas - Seguridad DML', instruction: `Asegura la vista "${v}" para que los INSERT rechacen datos que incumplan el WHERE.`, template: [`CREATE VIEW ${v} AS\nSELECT * FROM pokemon WHERE hp_max > 100\n`, { id: "d1", answer: "WITH LOCAL CHECK OPTION" }, `;`], options: ["WITH LOCAL CHECK OPTION", "WITH CASCADED CHECK OPTION", "CHECK VALIDATION"] }; },
+            () => { const v = randItem(dict.views); return { type: 'dd', topic: 'Vistas - Eliminación', instruction: `Borra del sistema la vista virtual "${v}".`, template: [``, { id: "d1", answer: "DROP VIEW" }, ` ${v};`], options: ["DROP VIEW", "DELETE VIEW", "REMOVE VIEW", "TRUNCATE VIEW"] }; },
+            // PRIVILEGES
+            () => { const u = randItem(dict.users); return { type: 'dd', topic: 'Privilegios - Crear Usuario', instruction: `Crea al entrenador (usuario) "${u}" asignándole una contraseña.`, template: [`CREATE `, { id: "d1", answer: "USER" }, ` ${u} `, { id: "d2", answer: "WITH PASSWORD" }, ` 'secreta';`], options: ["USER", "WITH PASSWORD", "ROLE", "IDENTIFIED BY"] }; },
+            () => { const t = randItem(dict.tables); const r = randItem(dict.roles); return { type: 'dd', topic: 'Privilegios - Grant a Tabla', instruction: `Da permisos de lectura y actualización sobre la tabla "${t}" al rol "${r}".`, template: [``, { id: "d1", answer: "GRANT" }, ` SELECT, UPDATE ON ${t} `, { id: "d2", answer: "TO" }, ` ${r};`], options: ["GRANT", "TO", "GIVE", "FOR"] }; },
+            () => { const u = randItem(dict.users); const r = randItem(dict.roles); return { type: 'dd', topic: 'Privilegios - Asignar Roles', instruction: `Otorga los permisos del grupo (rol) "${r}" al usuario "${u}".`, template: [`GRANT ${r} `, { id: "d1", answer: "TO" }, ` ${u};`], options: ["TO", "FOR", "ASSIGN", "INTO"] }; },
+            () => { const t = randItem(dict.tables); const r = randItem(dict.roles); return { type: 'dd', topic: 'Privilegios - Revocar', instruction: `Retira el permiso de inserción sobre la tabla "${t}" al rol "${r}".`, template: [``, { id: "d1", answer: "REVOKE" }, ` INSERT ON ${t}\n`, { id: "d2", answer: "FROM" }, ` ${r};`], options: ["REVOKE", "FROM", "REMOVE", "DENY"] }; },
+            () => { const u = randItem(dict.users); return { type: 'dd', topic: 'Privilegios - Reasignar', instruction: `Antes de borrar al usuario "${u}", transfiere sus posesiones al usuario "oak".`, template: [``, { id: "d1", answer: "REASSIGN OWNED" }, ` BY ${u}\n`, { id: "d2", answer: "TO" }, ` oak;`], options: ["REASSIGN OWNED", "TO", "TRANSFER", "GIVE"] }; },
+            () => { const u = randItem(dict.users); return { type: 'dd', topic: 'Privilegios - Borrar Usuario', instruction: `Destruye los objetos residuales del usuario "${u}" y finalmente elimínalo del sistema.`, template: [``, { id: "d1", answer: "DROP OWNED" }, ` BY ${u};\n`, { id: "d2", answer: "DROP USER" }, ` ${u};`], options: ["DROP OWNED", "DROP USER", "DELETE OWNED", "REMOVE USER"] }; }
+        ];
+
+        // Static Theoretical MC Questions
+        const staticTheoryQuestions = [
+            { type: 'mc', topic: 'Teoría DDL', selectionType: 'single', instruction: '¿Cuál es la diferencia fundamental entre una "Base de Datos" y un "Esquema" en PostgreSQL?', options: ["Son sinónimos absolutos.", "La BD es compartida sin reconexión; el Esquema requiere reconexión.", "La BD está aislada lógicamente (requiere reconexión), mientras que los Esquemas comparten el entorno dentro de una BD.", "La BD almacena los datos físicos; el Esquema solo permisos."], correct: [2] },
+            { type: 'mc', topic: 'Teoría Secuencias', selectionType: 'single', instruction: 'Si una secuencia ha sido definida con "NO CYCLE" y alcanza su valor MAXVALUE, ¿qué ocurre si usamos nextval()?', options: ["Reinicia al MINVALUE ignorando la restricción.", "Devuelve un error indicando que se alcanzó el límite.", "Devuelve NULL.", "Aumenta dinámicamente el MAXVALUE en 1."], correct: [1] },
+            { type: 'mc', topic: 'Teoría Vistas', selectionType: 'multiple', instruction: 'Selecciona las afirmaciones VERDADERAS sobre las Vistas en PostgreSQL:', options: ["Almacenan físicamente los datos para acelerar la lectura.", "Son tablas virtuales basadas en el resultado de una consulta SQL.", "Sirven para simplificar consultas complejas como los JOINs.", "No admiten DML (Insert/Update) bajo ninguna circunstancia."], correct: [1, 2] },
+            { type: 'mc', topic: 'Teoría Privilegios', selectionType: 'single', instruction: '¿Cuál es el superusuario por defecto de PostgreSQL (equivalente a "root" en MySQL)?', options: ["admin", "postgres", "sysdba", "root_pg"], correct: [1] },
+            { type: 'mc', topic: 'Teoría Monitoreo', selectionType: 'single', instruction: '¿Qué vista de sistema debes consultar para saber qué usuarios están conectados en tiempo real?', options: ["pg_stat_activity", "pg_user", "pg_hba_conf", "current_connections"], correct: [0] },
+            { type: 'mc', topic: 'Teoría DDL', selectionType: 'multiple', instruction: 'Al usar TRUNCATE TABLE, ¿qué modificadores son válidos en PostgreSQL?', options: ["RESTART IDENTITY", "CONTINUE IDENTITY", "CASCADE", "RESTRICT", "DELETE ROWS"], correct: [0, 1, 2, 3] },
+            { type: 'mc', topic: 'Teoría DDL', selectionType: 'single', instruction: '¿Qué hace la opción WITH (FORCE) al ejecutar un DROP DATABASE (desde PG 13)?', options: ["Borra la base de datos aunque contenga datos.", "Termina todas las conexiones activas a esa base de datos y la borra.", "Ignora las comprobaciones de seguridad del sistema.", "Borra los archivos físicos directamente del disco."], correct: [1] },
+            { type: 'mc', topic: 'Teoría Privilegios', selectionType: 'single', instruction: '¿Cuál es el orden lógico para eliminar un usuario que posee tablas?', options: ["DROP USER, luego DROP TABLES.", "DROP OWNED, y luego DROP USER.", "REASSIGN OWNED, luego DROP OWNED, y finalmente DROP USER.", "Solo hacer DROP USER CASCADE."], correct: [2] },
+            { type: 'mc', topic: 'Teoría Identidad', selectionType: 'single', instruction: '¿Cuál es la diferencia entre GENERATED ALWAYS y GENERATED BY DEFAULT?', options: ["ALWAYS impide insertar valores manuales; BY DEFAULT lo permite.", "BY DEFAULT es más rápido.", "ALWAYS es un estándar de MySQL; BY DEFAULT es de PostgreSQL.", "No hay diferencia, son alias."], correct: [0] },
+            { type: 'mc', topic: 'Teoría Secuencias', selectionType: 'single', instruction: '¿Qué significa el parámetro CACHE 10 al crear una secuencia?', options: ["Que la secuencia dura 10 segundos en memoria.", "Que preasigna y guarda 10 valores en memoria para mejorar el rendimiento.", "Que la secuencia puede retroceder 10 valores.", "Que se guardan los últimos 10 valores para consultas con currval()."], correct: [1] },
+            { type: 'mc', topic: 'Teoría Vistas', selectionType: 'single', instruction: '¿Para qué sirve la opción WITH CHECK OPTION al crear una vista?', options: ["Para comprobar si hay errores de sintaxis en el SELECT.", "Impide que un UPDATE/INSERT a través de la vista viole el WHERE de dicha vista.", "Para verificar los permisos del usuario que la crea.", "Es un bloqueo de solo lectura."], correct: [1] },
+            { type: 'mc', topic: 'Teoría DDL', selectionType: 'single', instruction: 'En PostgreSQL, si añado columnas con ALTER TABLE ADD COLUMN, ¿dónde se sitúan?', options: ["Al principio de la tabla.", "Puedo usar FIRST o AFTER como en MySQL.", "Siempre se añaden al final de la tabla.", "Se ordenan alfabéticamente."], correct: [2] },
+            { type: 'mc', topic: 'Teoría Constraints', selectionType: 'multiple', instruction: 'En PostgreSQL, la restricción PRIMARY KEY implica implícitamente:', options: ["UNIQUE", "NOT NULL", "CHECK", "FOREIGN KEY"], correct: [0, 1] },
+            { type: 'mc', topic: 'Teoría Privilegios', selectionType: 'single', instruction: '¿Qué permisos previos necesita un usuario para acceder a una tabla específica de un esquema?', options: ["Solo SELECT en la tabla.", "CONNECT en la BD y USAGE en el esquema.", "ALL PRIVILEGES.", "Ninguno, el esquema public es de acceso libre por defecto."], correct: [1] },
+            { type: 'mc', topic: 'Teoría ENUM', selectionType: 'single', instruction: '¿Cómo se implementan los tipos ENUM en PostgreSQL?', options: ["Se definen directamente en la columna al hacer CREATE TABLE.", "Deben crearse explícitamente como tipos de datos con CREATE TYPE antes de usarse.", "No existen en PostgreSQL, se usa VARCHAR con CHECK.", "Se usa un trigger para validarlos."], correct: [1] },
+            { type: 'mc', topic: 'Teoría Claves Ajenas', selectionType: 'single', instruction: 'En PostgreSQL, ¿qué hace ON DELETE NO ACTION con la adición DEFERRABLE INITIALLY DEFERRED?', options: ["Borra los datos de forma asíncrona.", "Ignora la clave ajena por completo.", "Pospone la validación de la integridad referencial hasta el final de la transacción (COMMIT).", "Hace que el error no se muestre hasta reiniciar el servidor."], correct: [2] },
+            { type: 'mc', topic: 'Teoría DDL', selectionType: 'single', instruction: '¿Cuál es la longitud máxima para el nombre de una tabla en PostgreSQL por defecto?', options: ["30 caracteres", "63 caracteres", "255 caracteres", "Ilimitado"], correct: [1] },
+            { type: 'mc', topic: 'Teoría Vistas', selectionType: 'single', instruction: '¿Se puede usar ALTER VIEW para modificar la consulta SELECT interna de una vista?', options: ["Sí, usando ALTER VIEW ... SET QUERY.", "No, hay que usar CREATE OR REPLACE VIEW o borrarla y crearla de nuevo.", "Sí, siempre que no cambien los tipos de datos.", "Solo el superusuario puede hacerlo."], correct: [1] },
+            { type: 'mc', topic: 'Teoría Secuencias', selectionType: 'single', instruction: 'Si uso nextval() y luego hago un ROLLBACK de la transacción, ¿qué pasa con el valor de la secuencia?', options: ["El valor se recupera y el siguiente insert usará ese mismo número.", "El valor se pierde permanentemente y quedará un hueco en la numeración.", "La secuencia se corrompe.", "Se lanza un error en el ROLLBACK."], correct: [1] },
+            { type: 'mc', topic: 'Teoría Privilegios', selectionType: 'single', instruction: '¿Existe en PostgreSQL el comando FLUSH PRIVILEGES como en MySQL?', options: ["Sí, se usa después de cada GRANT.", "No, los cambios de privilegios se aplican de forma inmediata.", "Sí, pero se llama COMMIT PRIVILEGES.", "Solo es necesario si se cambian contraseñas."], correct: [1] },
+            { type: 'mc', topic: 'Teoría DDL', selectionType: 'single', instruction: 'Si borras una tabla con "DROP TABLE t CASCADE", ¿qué ocurre con las tablas que tienen Foreign Keys hacia "t"?', options: ["Se borran también.", "Se borran todas sus filas.", "Se elimina la restricción (Foreign Key) de esas tablas, pero sus datos y estructura se mantienen.", "Da error y no deja borrar."], correct: [2] },
+            { type: 'mc', topic: 'Teoría Privilegios', selectionType: 'single', instruction: '¿Qué indica CURRENT_USER frente a SESSION_USER?', options: ["Son siempre idénticos.", "CURRENT_USER puede cambiar durante la ejecución si se usan funciones SECURITY DEFINER.", "SESSION_USER es solo para conexiones web.", "CURRENT_USER no existe en PG."], correct: [1] },
+            { type: 'mc', topic: 'Teoría Roles', selectionType: 'single', instruction: '¿Cuál es el comando correcto para hacer que "cristina" herede los permisos del rol "rol_admin"?', options: ["ADD rol_admin TO cristina", "GRANT rol_admin TO cristina", "ASSIGN rol_admin TO cristina", "SET ROLE rol_admin FOR cristina"], correct: [1] },
+            { type: 'mc', topic: 'Teoría DDL', selectionType: 'single', instruction: '¿Cómo se desactiva temporalmente la comprobación de claves foráneas para una carga masiva en PostgreSQL?', options: ["SET FOREIGN_KEY_CHECKS = 0;", "DISABLE KEYS;", "ALTER TABLE t DISABLE TRIGGER ALL;", "No se puede en absoluto."], correct: [2] }
+        ];
+
+        // Generation Algorithm ensuring EXACTLY 240 unique questions
+        let allGeneratedQuestions = [];
+        let usedSignatures = new Set();
+        
+        staticTheoryQuestions.forEach(q => {
+            allGeneratedQuestions.push(q);
+            usedSignatures.add(q.instruction);
+        });
+
+        const targetQuestions = 240;
+        let infiniteLoopGuard = 0;
+
+        while (allGeneratedQuestions.length < targetQuestions && infiniteLoopGuard < 20000) {
+            infiniteLoopGuard++;
+            const factory = randItem(questionFactories);
+            const q = factory();
+            
+            if (!usedSignatures.has(q.instruction)) {
+                usedSignatures.add(q.instruction);
+                allGeneratedQuestions.push(q);
+            }
+        }
+
+        allGeneratedQuestions = shuffle(allGeneratedQuestions);
+
+        const gymsData = kantoGyms.map((gym, index) => {
+            return {
+                ...gym,
+                questions: allGeneratedQuestions.slice(index * 30, (index + 1) * 30)
+            };
+        });
+
+        // =========================================================================
+        // APP STATE & STORAGE
+        // =========================================================================
+        let userProgress = {}; 
+        let currentGym = null;
+        let currentQuestionIndex = 0;
+        let sessionErrors = 0;
+        let sessionCorrect = 0;
+        let timerInterval;
+        let timeSeconds = 0;
+        let selectedOptionsMC = [];
+
+        // =========================================================================
+        // CORE LOGIC & RENDERING
+        // =========================================================================
+        function initApp() { renderMenu(); }
+
+        function renderMenu() {
+            switchView('view-menu');
+            stopTimer();
+            
+            const badgeCase = document.getElementById('badge-case-container');
+            badgeCase.innerHTML = '';
+            gymsData.forEach(gym => {
+                const isCompleted = userProgress[gym.id] && userProgress[gym.id].completed;
+                
+                const slotEl = document.createElement('div');
+                slotEl.className = 'w-16 h-16 sm:w-20 sm:h-20 badge-slot';
+                
+                const badgeEl = document.createElement('img');
+                badgeEl.src = gym.badgeImage;
+                badgeEl.title = isCompleted ? `${gym.badgeName} (Gimnasio ${gym.city})` : `Medalla Desconocida`;
+                badgeEl.setAttribute('onerror', `handleImgError(this, '${gym.badgeFallback}')`);
+                
+                badgeEl.className = isCompleted ? 'w-12 h-12 sm:w-14 sm:h-14 badge-img badge-earned' : 'w-12 h-12 sm:w-14 sm:h-14 badge-img badge-locked';
+                
+                slotEl.appendChild(badgeEl);
+                badgeCase.appendChild(slotEl);
+            });
+
+            const grid = document.getElementById('gyms-grid');
+            grid.innerHTML = '';
+
+            gymsData.forEach(gym => {
+                const p = userProgress[gym.id];
+                const isCompleted = p && p.completed;
+                
+                let statsHtml = `<p class="text-sm text-slate-400 mt-2 font-medium">Estado: <span class="text-red-500 font-bold">Líder Esperando</span></p>`;
+                if (isCompleted) {
+                    statsHtml = `
+                        <div class="mt-4 flex flex-wrap gap-2 text-xs font-bold uppercase">
+                            <span class="bg-emerald-900/50 text-emerald-400 border border-emerald-700 px-2 py-1 rounded-full">✓ ${p.correct}</span>
+                            <span class="bg-red-900/50 text-red-400 border border-red-700 px-2 py-1 rounded-full">✗ ${p.errors}</span>
+                            <span class="bg-slate-800 text-slate-300 border border-slate-600 px-2 py-1 rounded-full">⏱ ${formatTime(p.timeSeconds)}</span>
+                        </div>
+                    `;
+                }
+
+                const card = document.createElement('div');
+                card.className = `gym-card rounded-2xl p-5 flex flex-col h-full cursor-pointer ${isCompleted ? 'gym-completed' : ''}`;
+                card.onclick = () => startGymBattle(gym.id);
+                
+                card.innerHTML = `
+                    <div class="flex-grow flex flex-col items-center text-center">
+                        <div class="w-full flex justify-between items-start mb-2 absolute px-5 pt-1 left-0 top-2">
+                            <span class="text-xs font-black ${isCompleted ? 'text-amber-500' : 'text-slate-400'} uppercase tracking-widest bg-slate-900/80 px-2 py-0.5 rounded border border-slate-700 shadow-sm">Gimnasio ${gym.id}</span>
+                            ${isCompleted ? '<span class="text-amber-500 text-xl drop-shadow-[0_0_5px_rgba(245,158,11,0.8)]" title="Completado">&#10004;</span>' : '<span class="text-slate-500 text-xl">&#128274;</span>'}
+                        </div>
+                        <img src="${gym.image}" onerror="handleImgError(this, '${gym.fallback}')" alt="${gym.leader}" class="w-24 h-24 rounded-full border-4 ${isCompleted ? 'border-amber-500' : 'border-slate-600'} leader-img mb-3 mt-4 shadow-lg">
+                        <h3 class="text-xl font-black text-slate-100">${gym.city}</h3>
+                        <p class="text-sm font-bold text-slate-400 mb-1">Líder: <span class="text-red-400">${gym.leader}</span></p>
+                        <span class="text-xs font-bold px-2 py-0.5 bg-slate-800 text-slate-200 rounded-md border border-slate-600 uppercase">Tipo ${gym.type}</span>
+                        <div class="mt-auto w-full text-left">
+                            ${statsHtml}
+                        </div>
+                    </div>
+                    <button class="mt-5 w-full py-3 ${isCompleted ? 'bg-amber-600 text-white hover:bg-amber-500' : 'bg-slate-700 text-white hover:bg-red-600 border border-slate-600 hover:border-red-500'} rounded-full font-black transition-all shadow-md uppercase tracking-wider text-sm">
+                        ${isCompleted ? 'Revancha' : 'Desafiar'}
+                    </button>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function startGymBattle(id) {
+            currentGym = gymsData.find(c => c.id === id);
+            currentQuestionIndex = 0;
+            sessionErrors = 0;
+            sessionCorrect = 0;
+            
+            document.getElementById('active-gym-name').textContent = `Gimnasio ${currentGym.city}`;
+            document.getElementById('active-gym-leader').textContent = `Líder: ${currentGym.leader} - Especialidad: Sintaxis PostgreSQL`;
+            
+            const gymImg = document.getElementById('active-gym-image');
+            gymImg.classList.remove('fallback-active');
+            gymImg.src = currentGym.image;
+            gymImg.setAttribute('onerror', `handleImgError(this, '${currentGym.fallback}')`);
+            
+            const badgePreview = document.getElementById('active-gym-badge');
+            badgePreview.src = currentGym.badgeImage;
+            badgePreview.setAttribute('onerror', `handleImgError(this, '${currentGym.badgeFallback}')`);
+            
+            document.getElementById('quiz-header-controls').classList.remove('hidden');
+            document.getElementById('progress-bar-container').classList.remove('hidden');
+            
+            startTimer();
+            switchView('view-quiz');
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            if (currentQuestionIndex >= currentGym.questions.length) {
+                endGymBattle();
+                return;
+            }
+
+            const q = currentGym.questions[currentQuestionIndex];
+            
+            document.getElementById('question-topic').textContent = q.topic;
+            document.getElementById('question-type-badge').textContent = q.type === 'dd' ? 'Constructor DDL' : 'Teoría SQL';
+            document.getElementById('question-instruction').textContent = q.instruction;
+            
+            document.getElementById('error-counter').textContent = sessionErrors;
+            document.getElementById('progress-text').textContent = `${currentQuestionIndex} / ${currentGym.questions.length}`;
+            document.getElementById('progress-bar').style.width = `${(currentQuestionIndex / currentGym.questions.length) * 100}%`;
+
+            document.getElementById('btn-check').classList.remove('hidden');
+            document.getElementById('btn-check').disabled = false;
+            document.getElementById('btn-next').classList.add('hidden');
+            
+            const feedbackMsg = document.getElementById('feedback-msg');
+            feedbackMsg.className = 'font-bold text-lg opacity-0 transition-opacity flex-grow text-center sm:text-left';
+            
+            const container = document.getElementById('dynamic-content-container');
+            container.innerHTML = ''; 
+            const mcHint = document.getElementById('mc-instruction-hint');
+
+            if (q.type === 'dd') {
+                mcHint.classList.add('hidden');
+                renderDragDrop(q, container);
+            } else {
+                mcHint.classList.remove('hidden');
+                mcHint.textContent = q.selectionType === 'single' ? "Selecciona 1 sola respuesta correcta." : "Selecciona TODAS las respuestas correctas.";
+                renderMultipleChoice(q, container);
+            }
+        }
+
+        function renderDragDrop(q, container) {
+            const tpl = document.getElementById('tpl-drag-drop').content.cloneNode(true);
+            container.appendChild(tpl);
+            const codeContainer = document.getElementById('code-container');
+            
+            q.template.forEach(part => {
+                if (typeof part === 'string') {
+                    codeContainer.appendChild(document.createTextNode(part));
+                } else {
+                    const dropzone = document.createElement('div');
+                    dropzone.id = part.id;
+                    dropzone.className = 'dropzone';
+                    dropzone.dataset.answer = part.answer;
+                    dropzone.textContent = '...';
+                    dropzone.ondragover = allowDrop;
+                    dropzone.ondragleave = dragLeave;
+                    dropzone.ondrop = (e) => drop(e, 'zone');
+                    codeContainer.appendChild(dropzone);
+                }
+            });
+
+            const wordBank = document.getElementById('word-bank');
+            const shuffledOptions = shuffle([...q.options]);
+            shuffledOptions.forEach((opt, idx) => {
+                const chip = document.createElement('div');
+                chip.id = `chip-${currentQuestionIndex}-${idx}`;
+                chip.className = 'draggable-chip';
+                chip.draggable = true;
+                chip.ondragstart = drag;
+                chip.textContent = opt;
+                wordBank.appendChild(chip);
+            });
+        }
+
+        function renderMultipleChoice(q, container) {
+            selectedOptionsMC = []; 
+            const tpl = document.getElementById('tpl-multiple-choice').content.cloneNode(true);
+            container.appendChild(tpl);
+            const mcContainer = document.getElementById('mc-container');
+            
+            q.options.forEach((optText, idx) => {
+                const btn = document.createElement('button');
+                btn.className = 'mc-option w-full text-left p-4 rounded-xl font-bold shadow-sm';
+                btn.dataset.idx = idx;
+                btn.innerHTML = `<span class="text-red-500 mr-2 opacity-50">▶</span> ${optText}`;
+                btn.onclick = () => {
+                    if (q.selectionType === 'single') {
+                        selectedOptionsMC = [idx];
+                        document.querySelectorAll('.mc-option').forEach(el => el.classList.remove('selected'));
+                        btn.classList.add('selected');
+                    } else {
+                        const pos = selectedOptionsMC.indexOf(idx);
+                        if (pos === -1) { selectedOptionsMC.push(idx); btn.classList.add('selected'); }
+                        else { selectedOptionsMC.splice(pos, 1); btn.classList.remove('selected'); }
+                    }
+                };
+                mcContainer.appendChild(btn);
+            });
+        }
+
+        // --- Drag & Drop Core ---
+        function drag(ev) { ev.dataTransfer.setData("text", ev.target.id); ev.dataTransfer.effectAllowed = "move"; }
+        function allowDrop(ev) { ev.preventDefault(); if(ev.currentTarget.classList.contains('dropzone') || ev.currentTarget.id === 'word-bank') ev.currentTarget.classList.add('drag-over'); }
+        function dragLeave(ev) { ev.currentTarget.classList.remove('drag-over'); }
+        function drop(ev, targetType) {
+            ev.preventDefault();
+            const target = ev.currentTarget;
+            target.classList.remove('drag-over');
+            const dataId = ev.dataTransfer.getData("text");
+            const draggedElement = document.getElementById(dataId);
+            if (!draggedElement) return;
+
+            if (targetType === 'zone') {
+                if (target.children.length > 0 && target.firstChild.nodeType === 1) document.getElementById('word-bank').appendChild(target.firstChild);
+                if (target.childNodes.length > 0 && target.firstChild.nodeType === 3) target.innerHTML = '';
+                target.appendChild(draggedElement);
+                target.classList.remove('correct', 'incorrect');
+            } else if (targetType === 'bank') {
+                target.appendChild(draggedElement);
+                document.querySelectorAll('.dropzone').forEach(z => {
+                    if(z.children.length === 0) z.textContent = '...';
+                    z.classList.remove('correct', 'incorrect');
+                });
+            }
+        }
+
+        // --- Validation ---
+        function checkAnswers() {
+            const q = currentGym.questions[currentQuestionIndex];
+            let isCorrect = false, missingFields = false;
+
+            if (q.type === 'dd') {
+                const dropzones = document.querySelectorAll('.dropzone');
+                let allCorrect = true;
+                dropzones.forEach(zone => {
+                    if (zone.children.length === 0 || zone.textContent === '...') {
+                        missingFields = true; zone.classList.add('incorrect');
+                    } else {
+                        if (zone.firstChild.textContent === zone.dataset.answer) {
+                            zone.classList.add('correct'); zone.classList.remove('incorrect');
+                        } else {
+                            zone.classList.add('incorrect'); zone.classList.remove('correct'); allCorrect = false;
+                        }
+                    }
+                });
+                if (!missingFields) isCorrect = allCorrect;
+            } else {
+                if (selectedOptionsMC.length === 0) missingFields = true;
+                else {
+                    const userSorted = [...selectedOptionsMC].sort(), correctSorted = [...q.correct].sort();
+                    isCorrect = userSorted.length === correctSorted.length && userSorted.every((val, i) => val === correctSorted[i]);
+                    document.querySelectorAll('.mc-option').forEach((n, i) => {
+                        if(isCorrect && q.correct.includes(i)) n.classList.add('correct-reveal');
+                        if(!isCorrect && selectedOptionsMC.includes(i)) n.classList.add('incorrect-reveal');
+                    });
+                }
+            }
+
+            const fb = document.getElementById('feedback-msg');
+            fb.classList.remove('opacity-0');
+
+            if (missingFields) {
+                fb.textContent = "⚠️ Selecciona una opción o completa los huecos.";
+                fb.className = "font-bold text-lg text-amber-500 opacity-100 flex-grow text-center sm:text-left";
+                return;
+            }
+
+            if (isCorrect) {
+                fb.innerHTML = "&#10024; ¡Ataque Súper Efectivo!";
+                fb.className = "font-bold text-lg text-emerald-500 opacity-100 flex-grow text-center sm:text-left";
+                sessionCorrect++;
+                if(q.type === 'dd') document.querySelectorAll('.draggable-chip').forEach(c => c.draggable = false);
+                else document.querySelectorAll('.mc-option').forEach(c => c.onclick = null);
+                document.getElementById('btn-check').classList.add('hidden');
+                document.getElementById('btn-next').classList.remove('hidden');
+            } else {
+                sessionErrors++;
+                document.getElementById('error-counter').textContent = sessionErrors;
+                fb.innerHTML = "&#10060; ¡El ataque falló! Revisa tu sintaxis.";
+                fb.className = "font-bold text-lg text-red-500 opacity-100 flex-grow text-center sm:text-left";
+                if (q.type === 'mc') setTimeout(() => document.querySelectorAll('.mc-option').forEach(el => el.classList.remove('incorrect-reveal')), 1500);
+            }
+        }
+
+        function nextQuestion() { currentQuestionIndex++; renderQuestion(); }
+
+        // --- Timers & View Management ---
+        function startTimer() {
+            clearInterval(timerInterval); timeSeconds = 0; updateTimerUI();
+            timerInterval = setInterval(() => { timeSeconds++; updateTimerUI(); }, 1000);
+        }
+        function stopTimer() { clearInterval(timerInterval); }
+        function updateTimerUI() { document.getElementById('timer-display').textContent = formatTime(timeSeconds); }
+        function formatTime(s) { return `${Math.floor(s / 60).toString().padStart(2, '0')}:${(s % 60).toString().padStart(2, '0')}`; }
+
+        function switchView(viewId) {
+            ['view-menu', 'view-quiz', 'view-end'].forEach(id => document.getElementById(id).classList.add('hidden-view'));
+            const target = document.getElementById(viewId);
+            target.classList.remove('hidden-view', 'fade-in'); void target.offsetWidth; target.classList.add('fade-in');
+        }
+
+        function quitToMenu() {
+            stopTimer();
+            document.getElementById('quiz-header-controls').classList.add('hidden');
+            document.getElementById('progress-bar-container').classList.add('hidden');
+            renderMenu();
+        }
+
+        function endGymBattle() {
+            stopTimer();
+            document.getElementById('quiz-header-controls').classList.add('hidden');
+            document.getElementById('progress-bar-container').classList.add('hidden');
+            
+            userProgress[currentGym.id] = { completed: true, correct: sessionCorrect, errors: sessionErrors, timeSeconds: timeSeconds };
+
+            document.getElementById('end-title').textContent = `¡Has derrotado a ${currentGym.leader}!`;
+            document.getElementById('end-badge-name').textContent = `Obtuviste la ${currentGym.badgeName}`;
+            
+            const badgeImg = document.getElementById('end-badge-image');
+            badgeImg.classList.remove('fallback-active');
+            badgeImg.src = currentGym.badgeImage;
+            badgeImg.setAttribute('onerror', `handleImgError(this, '${currentGym.badgeFallback}')`);
+
+            document.getElementById('end-correct').textContent = sessionCorrect;
+            document.getElementById('end-errors').textContent = sessionErrors;
+            document.getElementById('end-time').textContent = formatTime(timeSeconds);
+
+            switchView('view-end');
+        }
+
+        window.onload = initApp;
+    </script>
+</body>
+</html>
