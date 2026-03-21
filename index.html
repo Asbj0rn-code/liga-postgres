@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Liga PostgreSQL - Región de Kanto (Definitiva)</title>
+    <title>Liga PostgreSQL - Región de Kanto</title>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -12,13 +12,13 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=Fira+Code:wght@400;500;700&display=swap" rel="stylesheet">
 
     <style>
-        /* Base de Modo Oscuro */
+        /* Base Dark Mode */
         body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: #e2e8f0; overflow-x: hidden; }
         .font-mono { font-family: 'Fira Code', monospace; }
 
-        /* Estilos de Drag & Drop */
+        /* Drag & Drop Zones */
         .dropzone {
-            display: inline-block; min-width: 120px; min-height: 30px; vertical-align: middle;
+            display: inline-block; min-width: 130px; min-height: 32px; vertical-align: middle;
             border: 2px dashed #475569; background-color: #020617; border-radius: 0.375rem;
             margin: 0 4px; padding: 2px 8px; transition: all 0.2s ease;
             text-align: center; color: #94a3b8; font-weight: 600;
@@ -27,34 +27,34 @@
         .dropzone.correct { border-color: #10b981; border-style: solid; background-color: rgba(16, 185, 129, 0.15); color: #34d399; }
         .dropzone.incorrect { border-color: #ef4444; border-style: solid; background-color: rgba(239, 68, 68, 0.15); color: #f87171; }
 
+        /* Draggable Items */
         .draggable-chip {
             display: inline-flex; align-items: center; justify-content: center;
             cursor: grab; background-color: #dc2626; color: white;
-            font-family: 'Fira Code', monospace; font-size: 0.8rem;
-            padding: 0.25rem 0.65rem; border-radius: 9999px;
+            font-family: 'Fira Code', monospace; font-size: 0.85rem;
+            padding: 0.35rem 0.75rem; border-radius: 9999px;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
             transition: transform 0.1s, background-color 0.2s; user-select: none; white-space: nowrap;
-            border: 2px solid #991b1b; margin-bottom: 0.25rem;
+            border: 2px solid #991b1b; margin-bottom: 0.35rem;
         }
         .draggable-chip:active { cursor: grabbing; transform: scale(0.95); background-color: #991b1b; }
         .draggable-chip:hover { background-color: #ef4444; }
         
         .word-bank {
-            min-height: 90px; border: 2px dashed #475569; border-radius: 0.5rem;
-            padding: 1rem; display: flex; flex-wrap: wrap; gap: 0.5rem;
+            min-height: 100px; border: 2px dashed #475569; border-radius: 0.5rem;
+            padding: 1.25rem; display: flex; flex-wrap: wrap; gap: 0.5rem;
             align-items: center; justify-content: center; background-color: #1e293b;
-            transition: background-color 0.2s;
         }
         .word-bank.drag-over { background-color: #0f172a; border-color: #64748b; }
 
-        /* Estilos de Selección Múltiple */
+        /* Multiple Choice Options */
         .mc-option { transition: all 0.2s; border: 2px solid #334155; background-color: #1e293b; color: #f8fafc; }
         .mc-option:hover { border-color: #ef4444; background-color: #27272a; }
         .mc-option.selected { border-color: #ef4444; background-color: #450a0a; box-shadow: 0 4px 6px -1px rgba(239, 68, 68, 0.3); }
         .mc-option.correct-reveal { border-color: #10b981; background-color: #064e3b; color: #6ee7b7; }
         .mc-option.incorrect-reveal { border-color: #ef4444; background-color: #7f1d1d; color: #fca5a5; }
 
-        /* Elementos Generales y de Tema */
+        /* Utilities */
         .no-select { user-select: none; }
         .fade-in { animation: fadeIn 0.4s ease-out forwards; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
@@ -65,40 +65,34 @@
             border-bottom: 4px solid #020617;
         }
         
-        /* Tarjetas de Gimnasio */
+        /* Cards */
         .gym-card { transition: border-color 0.2s, background-color 0.2s; background-color: #1e293b; border: 2px solid #334155; }
         .gym-card:hover { border-color: #ef4444; background-color: #1c2438; }
         .gym-completed { border-color: #f59e0b; background-color: #27272a; }
         .gym-completed:hover { border-color: #d97706; }
 
-        /* Manejadores de Imagen */
+        /* Images */
         .leader-img { object-fit: cover; object-position: top; background-color: #334155; image-rendering: auto; }
         .fallback-active { image-rendering: pixelated; object-fit: contain; background-color: #0f172a; padding: 4px; }
         
-        /* Estuche de Medallas */
+        /* Badge Case */
         .badge-case { background: radial-gradient(circle, #1e293b 0%, #020617 100%); border: 8px solid #0f172a; border-radius: 1rem; box-shadow: inset 0 10px 20px rgba(0,0,0,0.8); }
         .badge-slot { background-color: rgba(2, 6, 23, 0.6); border: 2px solid rgba(51, 65, 85, 0.8); border-radius: 50%; box-shadow: inset 0 4px 8px rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center;}
         
         .badge-img { object-fit: contain; transition: all 0.3s ease; }
         .badge-locked { filter: grayscale(100%) brightness(0.2) opacity(0.5); }
-        .badge-earned { 
-            filter: drop-shadow(0 0 8px rgba(251, 191, 36, 0.8));
-            animation: badgeShineImg 2s infinite alternate; 
-        }
-        @keyframes badgeShineImg { 
-            from { filter: drop-shadow(0 0 3px rgba(251, 191, 36, 0.5)); } 
-            to { filter: drop-shadow(0 0 15px rgba(251, 191, 36, 1)); } 
-        }
+        .badge-earned { filter: drop-shadow(0 0 8px rgba(251, 191, 36, 0.8)); animation: badgeShineImg 2s infinite alternate; }
+        @keyframes badgeShineImg { from { filter: drop-shadow(0 0 3px rgba(251, 191, 36, 0.5)); } to { filter: drop-shadow(0 0 15px rgba(251, 191, 36, 1)); } }
     </style>
 </head>
 <body class="min-h-screen flex flex-col relative">
 
-    <!-- Botón Borrar Partida: Esquina inferior izquierda flotante -->
-    <button onclick="clearSave()" class="fixed bottom-4 left-4 z-50 bg-slate-900 text-slate-400 hover:text-white hover:bg-red-700 text-xs font-bold uppercase px-4 py-3 rounded-xl border-2 border-slate-700 hover:border-red-500 transition-all shadow-2xl flex items-center gap-2">
-        ⚠️ Borrar Partida
+    <!-- Botón Borrar Partida: Esquina Inferior Izquierda -->
+    <button onclick="clearSave()" class="fixed bottom-4 left-4 z-50 bg-slate-950 text-slate-400 hover:text-white hover:bg-red-700 text-xs font-black uppercase px-4 py-3 rounded-2xl border-2 border-slate-700 hover:border-red-500 transition-all shadow-2xl flex items-center gap-2">
+        &#9888; Borrar Partida
     </button>
 
-    <!-- Cabecera Global -->
+    <!-- Cabecera -->
     <header class="pokeball-header shadow-2xl sticky top-0 z-40">
         <div class="max-w-7xl mx-auto px-4 py-3 flex flex-col md:flex-row justify-between items-center gap-4">
             <div class="flex items-center space-x-3 cursor-pointer bg-slate-900/90 px-4 py-2 rounded-full backdrop-blur-md border border-slate-700" onclick="quitToMenu()">
@@ -131,7 +125,7 @@
         </div>
     </header>
 
-    <!-- Espacio de Trabajo Principal -->
+    <!-- Espacio Principal -->
     <main class="flex-grow max-w-7xl mx-auto px-4 py-8 w-full flex flex-col no-select relative">
         
         <!-- VISTA 1: MENÚ -->
@@ -141,15 +135,16 @@
                 <div class="badge-case p-6 sm:p-8 flex justify-center flex-wrap gap-4 sm:gap-6">
                     <div id="badge-case-container" class="flex flex-wrap justify-center gap-4 sm:gap-6"></div>
                 </div>
-                <p class="text-center text-slate-400 text-sm mt-4 font-semibold">240 preguntas 100% únicas. Sin repetición de estructuras. Tu progreso se guarda automáticamente.</p>
+                <p class="text-center text-slate-400 text-sm mt-4 font-semibold">240 preguntas 100% únicas. Entrena con sintaxis y teoría real de PostgreSQL.</p>
             </div>
             <div id="gyms-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 pb-16"></div>
         </div>
 
-        <!-- VISTA 2: COMBATE ACTIVO -->
+        <!-- VISTA 2: COMBATE (QUIZ) -->
         <div id="view-quiz" class="w-full hidden-view">
             <div class="flex flex-col gap-4 max-w-5xl mx-auto pb-16">
                 
+                <!-- Gym Header -->
                 <div id="gym-leader-header" class="bg-slate-800 rounded-2xl p-4 flex items-center gap-4 border border-slate-600 shadow-xl relative overflow-hidden">
                     <img id="active-gym-image" src="" alt="Líder" class="w-16 h-16 rounded-full border-2 border-slate-900 leader-img shadow-lg z-10">
                     <div class="z-10">
@@ -161,14 +156,15 @@
                     </div>
                 </div>
 
+                <!-- Instruction Box -->
                 <div class="bg-slate-800 p-5 rounded-2xl shadow-lg border border-slate-700 relative overflow-hidden">
                     <div class="absolute top-0 left-0 w-2 h-full bg-red-600"></div>
                     <div class="flex justify-between items-start mb-2">
                         <div class="inline-block px-2 py-1 bg-red-900/40 text-red-400 text-xs font-black rounded-full uppercase tracking-wider border border-red-800" id="question-topic">Tema</div>
                         <div class="inline-block px-2 py-1 bg-slate-700/50 text-slate-300 text-xs font-black rounded-full uppercase tracking-wider border border-slate-600" id="question-type-badge">Tipo</div>
                     </div>
-                    <h2 class="text-lg sm:text-xl font-bold text-white leading-relaxed" id="question-instruction">Instrucción</h2>
-                    <p class="text-xs text-red-400 mt-2 font-semibold hidden bg-red-950/50 p-2 rounded-md inline-block border border-red-900" id="mc-instruction-hint"></p>
+                    <h2 class="text-lg sm:text-xl font-bold text-white leading-relaxed mt-2" id="question-instruction">Instrucción</h2>
+                    <p class="text-xs text-red-400 mt-3 font-semibold hidden bg-red-950/50 p-2 rounded-md inline-block border border-red-900" id="mc-instruction-hint"></p>
                 </div>
 
                 <div id="dynamic-content-container" class="w-full"></div>
@@ -187,11 +183,11 @@
             </div>
         </div>
 
-        <!-- VISTA 3: PANTALLA FINAL -->
+        <!-- VISTA 3: PANTALLA DE VICTORIA -->
         <div id="view-end" class="w-full hidden-view text-center py-12 bg-slate-800 rounded-3xl shadow-2xl border border-slate-600 px-6 max-w-4xl mx-auto relative overflow-hidden mb-16">
             <div class="absolute top-0 left-0 w-full h-32 bg-slate-900 skew-y-3 transform origin-top-left -z-10"></div>
             <h2 class="text-4xl sm:text-5xl font-black text-white mt-4 mb-2 uppercase tracking-tight drop-shadow-md" id="end-title">¡Líder Derrotado!</h2>
-            <p class="text-lg text-slate-300 mb-6 font-medium">Has superado la prueba de este gimnasio.</p>
+            <p class="text-lg text-slate-300 mb-6 font-medium">Has superado los 30 desafíos de este gimnasio.</p>
             
             <div class="flex flex-col items-center mb-8">
                 <div id="end-badge-showcase" class="mb-2 drop-shadow-[0_0_20px_rgba(251,191,36,0.4)]">
@@ -222,37 +218,31 @@
 
     </main>
 
-    <!-- PLANTILLAS HTML -->
+    <!-- TEMPLATES DE INYECCIÓN -->
     <template id="tpl-drag-drop">
         <div class="bg-slate-950 rounded-2xl shadow-inner overflow-hidden border border-slate-800 flex flex-col">
             <div class="bg-slate-900 px-4 py-2 flex items-center border-b border-slate-800">
-                <span class="text-xs font-bold text-slate-500 uppercase tracking-widest">Terminal_PostgreSQL.sql</span>
+                <span class="text-xs font-bold text-slate-500 uppercase tracking-widest">Postgres_Terminal.sql</span>
             </div>
-            <div class="p-5 overflow-x-auto flex-grow">
+            <div class="p-6 overflow-x-auto flex-grow">
                 <div id="code-container" class="font-mono text-sm sm:text-base leading-[2.5rem] text-sky-100 whitespace-pre-wrap"></div>
             </div>
         </div>
-        <div class="mt-4">
+        <div class="mt-5">
             <h3 class="text-xs font-black text-slate-400 mb-2 uppercase tracking-wider flex items-center">
                 <span class="mr-2 text-red-500">&#129520;</span> Mochila de Fragmentos
             </h3>
-            <div id="word-bank" class="word-bank shadow-inner" ondragover="allowDrop(event)" ondragleave="dragLeave(event)" ondrop="drop(event, 'bank')"></div>
+            <div id="word-bank" class="word-bank shadow-inner"></div>
         </div>
     </template>
-    <template id="tpl-multiple-choice"><div id="mc-container" class="space-y-3"></div></template>
+    
+    <template id="tpl-multiple-choice">
+        <div id="mc-container" class="space-y-3"></div>
+    </template>
 
     <script>
         // =========================================================================
-        // MANEJADOR GLOBAL DE ERRORES DE IMAGEN (Evita problemas de parseo HTML)
-        // =========================================================================
-        window.handleImgError = function(img, fallbackUrl) {
-            img.onerror = null; // Previene bucles infinitos
-            img.src = fallbackUrl;
-            img.classList.add('fallback-active');
-        };
-
-        // =========================================================================
-        // DATOS DE GIMNASIOS POKÉMON KANTO 
+        // DATOS DE GIMNASIOS KANTO
         // =========================================================================
         const kantoGyms = [
             { id: 1, city: "Ciudad Plateada", type: "Roca", leader: "Brock", image: "https://images.wikidexcdn.net/mwuploads/wikidex/9/99/latest/20230902182628/Cara_de_Brock_LGPE.png", fallback: "https://play.pokemonshowdown.com/sprites/trainers/brock.png", badgeName: "Medalla Roca", badgeImage: "https://images.wikidexcdn.net/mwuploads/wikidex/3/39/latest/20180812014627/Medalla_Roca.png", badgeFallback: "https://img.pokemondb.net/sprites/items/boulder-badge.png" },
@@ -266,206 +256,192 @@
         ];
 
         // =========================================================================
-        // BASE DE DATOS DURA DE 240 PREGUNTAS (ESTRICTAMENTE ÚNICAS, SIN REPETICIONES)
-        // Formato: type|topic|instruction|template_or_opts|answers_or_distractors|correctIdx
+        // RAW DATABASE DE CONCEPTOS POSTGRESQL (MÁS DE 25 TEORÍAS Y 50 CÓDIGOS BÁSICOS)
+        // Todos tienen mínimo 4 opciones.
         // =========================================================================
-        const rawDB = `
-mc|Teoría DDL|¿Cuál es la diferencia fundamental entre una "Base de Datos" y un "Esquema" en PostgreSQL?|La BD es compartida sin reconexión; el Esquema requiere reconexión.|La BD está aislada lógicamente (requiere reconexión); los Esquemas comparten el entorno.|Son sinónimos absolutos y se usan igual.|La BD almacena los datos físicos; el Esquema solo controla permisos.|1
-mc|Teoría Secuencias|Si una secuencia definida con "NO CYCLE" alcanza su MAXVALUE, ¿qué ocurre al llamar a nextval()?|Reinicia al MINVALUE ignorando la restricción por defecto.|Devuelve un error indicando que se alcanzó el límite.|Devuelve NULL silenciosamente.|Aumenta dinámicamente el MAXVALUE en 1.|1
-mc|Teoría Vistas|Selecciona la afirmación correcta sobre las Vistas en PostgreSQL:|Almacenan físicamente los datos para acelerar la lectura.|Son tablas virtuales basadas en el resultado de una consulta SQL.|Sirven para evitar por completo el uso de JOINs.|No admiten DML (Insert/Update) bajo ninguna circunstancia.|1
-mc|Teoría Privilegios|¿Cuál es el superusuario por defecto de PostgreSQL (equivalente a "root" en MySQL)?|admin|postgres|sysdba|root_pg|1
-mc|Teoría Monitoreo|¿Qué vista de sistema debes consultar para saber qué usuarios están conectados en tiempo real?|pg_stat_activity|pg_user|pg_hba_conf|current_connections|0
-mc|Teoría DDL|Al usar TRUNCATE TABLE, ¿qué modificador reinicia las secuencias asociadas?|RESTART IDENTITY|CONTINUE IDENTITY|CASCADE|RESTRICT|0
-mc|Teoría DDL|¿Qué hace la opción WITH (FORCE) al ejecutar un DROP DATABASE (desde PG 13)?|Borra la base de datos aunque contenga datos.|Termina todas las conexiones activas a esa base de datos y la borra.|Ignora las comprobaciones de seguridad del sistema.|Borra los archivos físicos directamente del disco.|1
-mc|Teoría Privilegios|¿Cuál es el orden lógico para eliminar a un usuario que posee tablas y objetos?|DROP USER, luego DROP TABLES.|DROP OWNED, y luego DROP USER.|REASSIGN OWNED, luego DROP OWNED, y finalmente DROP USER.|Solo hacer DROP USER CASCADE.|2
-mc|Teoría Identidad|¿Cuál es la diferencia entre GENERATED ALWAYS y GENERATED BY DEFAULT?|ALWAYS impide insertar valores manuales; BY DEFAULT lo permite.|BY DEFAULT es más rápido en inserciones masivas.|ALWAYS es un estándar de MySQL; BY DEFAULT es de PostgreSQL.|No hay diferencia, son alias.|0
-mc|Teoría Secuencias|¿Qué significa el parámetro CACHE 10 al crear una secuencia?|Que la secuencia dura 10 segundos en memoria.|Que preasigna y guarda 10 valores en memoria para mejorar el rendimiento.|Que la secuencia puede retroceder 10 valores.|Que se guardan los últimos 10 valores para consultas con currval().|1
-mc|Teoría Vistas|¿Para qué sirve la opción WITH CHECK OPTION al crear una vista?|Para comprobar si hay errores de sintaxis en el SELECT.|Impide que un UPDATE/INSERT a través de la vista viole el WHERE de dicha vista.|Para verificar los permisos del usuario que la crea.|Es un bloqueo de solo lectura automático.|1
-mc|Teoría DDL|En PostgreSQL, si añado columnas con ALTER TABLE ADD COLUMN, ¿dónde se sitúan?|Al principio de la tabla.|Puedo usar FIRST o AFTER como en MySQL.|Siempre se añaden al final de la tabla por defecto estructural.|Se ordenan alfabéticamente.|2
-mc|Teoría Constraints|En PostgreSQL, la restricción PRIMARY KEY implica automáticamente...|UNIQUE y CHECK|UNIQUE y NOT NULL|Solo NOT NULL|FOREIGN KEY y UNIQUE|1
-mc|Teoría Privilegios|¿Qué permisos previos necesita un usuario para acceder a una tabla específica de un nuevo esquema?|Solo SELECT en la tabla.|CONNECT en la BD y USAGE en el esquema.|ALL PRIVILEGES en la BD.|Ninguno, el esquema public es de acceso libre.|1
-mc|Teoría ENUM|¿Cómo se implementan los tipos ENUM (enumerados) en PostgreSQL?|Se definen directamente en la columna al hacer CREATE TABLE.|Deben crearse explícitamente como tipos de datos con CREATE TYPE antes de usarse.|No existen en PostgreSQL, se usa VARCHAR con CHECK.|Se usa un trigger para validarlos.|1
-mc|Teoría Claves Ajenas|En PostgreSQL, ¿qué hace ON DELETE NO ACTION combinado con DEFERRABLE INITIALLY DEFERRED?|Borra los datos de forma asíncrona en segundo plano.|Ignora la clave ajena por completo.|Pospone la validación de la integridad referencial hasta el final de la transacción (COMMIT).|Hace que el error no se muestre hasta reiniciar el servidor.|2
-mc|Teoría DDL|¿Cuál es la longitud máxima para el nombre de una tabla o identificador en PostgreSQL por defecto?|30 caracteres|63 caracteres|255 caracteres|Ilimitado|1
-mc|Teoría Vistas|¿Se puede usar ALTER VIEW para modificar la consulta SELECT interna de una vista existente?|Sí, usando ALTER VIEW ... SET QUERY.|No, hay que usar CREATE OR REPLACE VIEW o borrarla y crearla de nuevo.|Sí, siempre que no cambien los tipos de datos de salida.|Solo el superusuario postgres puede hacerlo.|1
-mc|Teoría Secuencias|Si uso nextval() y luego hago un ROLLBACK de la transacción, ¿qué pasa con el valor de la secuencia?|El valor se recupera y el siguiente insert usará ese mismo número.|El valor se pierde permanentemente y quedará un hueco en la numeración.|La secuencia se corrompe y requiere RESTART.|Se lanza un error en el ROLLBACK.|1
-mc|Teoría Privilegios|¿Existe en PostgreSQL el comando FLUSH PRIVILEGES como en MySQL?|Sí, se usa después de cada GRANT.|No, los cambios de privilegios (GRANT/REVOKE) se aplican de forma inmediata.|Sí, pero se llama COMMIT PRIVILEGES.|Solo es necesario si se cambian contraseñas.|1
-mc|Teoría DDL|Si borras una tabla con "DROP TABLE t CASCADE", ¿qué ocurre con las tablas que tienen Foreign Keys hacia "t"?|Se borran también las tablas dependientes completas.|Se borran todas sus filas asociadas.|Se elimina la restricción (Foreign Key) de esas tablas, pero sus datos y estructura se mantienen.|Da error y no deja borrar la tabla inicial.|2
-mc|Teoría Privilegios|¿Qué diferencia principal hay entre CURRENT_USER y SESSION_USER?|Son siempre idénticos.|CURRENT_USER puede cambiar durante la ejecución si se invocan funciones con SECURITY DEFINER.|SESSION_USER es solo para conexiones web (pgbouncer).|CURRENT_USER no existe en PG, solo en Oracle.|1
-mc|Teoría Roles|¿Cuál es el comando correcto para hacer que un usuario herede los permisos del rol "rol_admin"?|ADD rol_admin TO user|GRANT rol_admin TO user|ASSIGN rol_admin TO user|SET ROLE rol_admin FOR user|1
-mc|Teoría DDL|¿Cómo se desactiva temporalmente la comprobación de claves foráneas para una carga masiva de datos en PostgreSQL?|SET FOREIGN_KEY_CHECKS = 0;|DISABLE KEYS;|ALTER TABLE tabla DISABLE TRIGGER ALL;|No se puede desactivar de ninguna manera.|2
-mc|Teoría Tablas|¿Para qué sirve el modificador UNLOGGED al crear una tabla?|Evita que los datos se guarden en el disco duro.|Mejora el rendimiento al no escribir en el WAL, pero pierde los datos ante un crash.|Impide que los usuarios sin permisos la vean.|Es un sinónimo de TEMPORARY TABLE.|1
-mc|Teoría Indices|¿Qué tipo de índice se crea por defecto en PG al ejecutar CREATE INDEX?|Hash|B-Tree|GiST|GIN|1
-mc|Teoría Privilegios|¿Qué permiso se necesita para poder usar el comando TRUNCATE sobre una tabla?|SELECT|DELETE|TRUNCATE|ALL PRIVILEGES obligatoriamente|2
-mc|Teoría Vistas|¿Cuál es la función de una "Materialized View" frente a una vista normal?|Las materializadas ocupan menos espacio en disco.|Las normales se ejecutan más rápido.|Almacenan físicamente los datos calculados para acceso rápido, requiriendo un REFRESH.|Son exactamente lo mismo, es un alias de sintaxis.|2
-mc|Teoría DDL|Si creas una tabla con CREATE TABLE t (id INT PRIMARY KEY), PostgreSQL automáticamente crea...|Un índice Unique B-Tree subyacente para esa columna.|Un trigger de validación de nulos.|Una secuencia llamada t_id_seq.|Un esquema nuevo temporal.|0
-mc|Teoría RLS|¿Qué significa habilitar RLS (Row Level Security) en una tabla?|Bloquea la tabla entera si detecta intrusiones.|Permite aplicar políticas (CREATE POLICY) que filtran qué filas específicas puede ver cada usuario.|Cifra las filas en la base de datos.|Es un sistema de bloqueo por concurrencia de transacciones.|1
-mc|Teoría Privilegios|¿Qué hace el modificador WITH ADMIN OPTION en una sentencia GRANT de roles?|Otorga el permiso de borrar la base de datos.|Permite al usuario receptor conceder ese mismo rol a otros usuarios.|Hace que el rol tenga permisos de superusuario temporalmente.|Obliga a que el usuario cambie su contraseña al iniciar sesión.|1
-mc|Teoría Funciones|¿Cuál es la diferencia principal entre PROCEDURE y FUNCTION en PostgreSQL 11+?|Son exactamente lo mismo, PROCEDURE es para Oracle.|Un PROCEDURE permite hacer COMMIT/ROLLBACK internos (transacciones), una FUNCTION no.|Una FUNCTION no puede retornar datos, un PROCEDURE sí.|Las FUNCTION solo sirven para calcular números enteros.|1
-mc|Teoría Secuencias|Al hacer un ALTER SEQUENCE, ¿cuál de los siguientes NO es un comando válido?|RESTART WITH|INCREMENT BY|CHANGE CURRENT TO|MINVALUE|2
-mc|Teoría Restricciones|Una restricción (constraint) EXCLUDE en PostgreSQL se utiliza para...|Garantizar que si dos filas son comparadas por columnas, no se solapen (ej: rangos de fechas).|Excluir usuarios de ver la tabla.|Excluir la tabla de los backups de pg_dump.|Es lo mismo que un NOT NULL avanzado.|0
-mc|Teoría Tipos|¿Qué tipo de dato de PostgreSQL se utiliza universalmente para texto de longitud variable sin límite estricto?|VARCHAR2|STRING|TEXT|CLOB|2
-mc|Teoría Vistas|Si intento hacer un INSERT a una vista normal sin CHECK OPTION, y el dato no cumple el WHERE de la vista:|El dato se inserta en la tabla base, pero no lo veré al consultar la vista.|Da un error de seguridad.|El dato se inserta en una tabla temporal.|Falla silenciosamente devolviendo NULL.|0
-mc|Teoría Reglas|En versiones antiguas de PG se usaba CREATE RULE. ¿Qué se recomienda usar en PG moderno en su lugar para interceptar operaciones DML?|Stored Procedures|Triggers de tipo INSTEAD OF.|Views Materializadas.|Macros SQL.|1
-mc|Teoría Privilegios|¿Qué ocurre si revocas un permiso de un usuario usando el modificador CASCADE?|Borra la tabla a la que hace referencia el permiso.|Revoca el permiso también a los usuarios a quienes este se lo hubiera concedido (vía GRANT OPTION).|Desconecta a todos los usuarios de la base de datos.|Da un error de seguridad crítica.|1
-mc|Teoría Esquemas|¿Qué es el "search_path" en PostgreSQL?|Un índice especial para búsquedas full-text.|La lista de esquemas en los que PostgreSQL busca una tabla cuando no se especifica explícitamente.|Un directorio del disco duro donde se guardan los datos físicos.|Un comando para buscar errores en la sintaxis SQL.|1
-mc|Teoría DDL|¿Se puede añadir una columna a una tabla en una posición específica (ej. "AFTER id") en PostgreSQL?|Sí, es estándar en SQL.|Sí, usando el modificador INSERT AFTER.|No, las nuevas columnas siempre se añaden físicamente al final de la estructura de la tabla.|Sí, pero requiere ser superusuario.|2
-dd|DDL Básico 1|Crea la tabla indicando explícitamente que la columna ID es llave primaria.|CREATE TABLE r (id INT {PRIMARY KEY});|UNIQUE,INDEX,KEY
-dd|DDL Básico 2|Crea tabla exigiendo que el nombre sea obligatorio y no permita valores nulos.|CREATE TABLE i (n VARCHAR {NOT NULL});|REQUIRE,UNIQUE,SERIAL
-dd|DDL Básico 3|Crea tabla asegurando que el código no pueda repetirse en otra fila.|CREATE TABLE dx (cod INT {UNIQUE});|DISTINCT,NOT NULL,PRIMARY
-dd|DDL Básico 4|Añade una nueva columna llamada "lvl" de tipo INT a la tabla.|ALTER TABLE pk {ADD COLUMN} lvl INT;|INSERT COL,NEW COL,APPEND
-dd|DDL Básico 5|Modifica la columna "exp" para que su tipo de dato pase a ser NUMERIC.|ALTER TABLE pkm {ALTER COLUMN} exp {TYPE} NUMERIC;|MODIFY COLUMN,CHANGE,SET TYPE
-dd|DDL Básico 6|Renombra la tabla "viejos_objetos" para que ahora se llame "nuevos".|ALTER TABLE viejos_objetos {RENAME TO} nuevos;|CHANGE NAME,MODIFY TO,SET NAME
-dd|DDL Básico 7|Cambia el nombre de la columna "fecha" a "captura" en la tabla.|ALTER TABLE enc {RENAME COLUMN} fecha TO captura;|CHANGE COL,ALTER NAME,MODIFY
-dd|DDL Básico 8|Borra definitivamente la columna "notas" de la tabla.|ALTER TABLE pc {DROP COLUMN} notas;|DELETE COL,REMOVE COL,TRUNCATE
-dd|DDL Básico 9|Establece el valor 'Sano' por defecto para la columna "sts".|ALTER TABLE eq ALTER COLUMN sts {SET DEFAULT} 'Sano';|ADD DEFAULT,DEFAULT,UPDATE
-dd|DDL Básico 10|Elimina el valor por defecto que tenía la columna "sts".|ALTER TABLE eq ALTER COLUMN sts {DROP DEFAULT};|REMOVE DEFAULT,DELETE DEFAULT,CLEAR
-dd|DDL Básico 11|Borra la tabla "log_combates" permanentemente de la base de datos.|{DROP TABLE} log_combates;|DELETE TABLE,TRUNCATE,REMOVE
-dd|DDL Básico 12|Borra la tabla "stats_v" solo si existe previamente en el esquema.|DROP TABLE {IF EXISTS} stats_v;|WHEN EXISTS,CASCADE,FORCE
-dd|DDL Básico 13|Vacía todo el contenido de la tabla "cajas" sin registrar filas borradas individualmente.|{TRUNCATE TABLE} cajas;|DELETE ALL,DROP DATA,CLEAR TABLE
-dd|DDL Básico 14|Vacía la tabla "entr" y reinicia cualquier secuencia numérica vinculada a ella.|TRUNCATE TABLE entr {RESTART IDENTITY};|RESET IDs,CONTINUE IDENTITY,CASCADE
-dd|DDL Básico 15|Crea una tabla "tmp_p" que desaparecerá sola al cerrar la sesión actual.|CREATE {TEMPORARY} TABLE tmp_p (id INT);|VOLATILE,SESSION,TRANSIENT
-dd|Secuencias 1|Crea una secuencia simple llamada "sq_c" para generar números.|CREATE {SEQUENCE} sq_c;|TABLE,INDEX,COUNTER
-dd|Secuencias 2|Crea la secuencia "sq_r" especificando que empiece directamente en el número 15.|CREATE SEQUENCE sq_r {START WITH} 15;|BEGIN AT,INIT,FROM
-dd|Secuencias 3|Altera la secuencia "sq_p" para que avance de 5 en 5 cada vez que se llame.|ALTER SEQUENCE sq_p {INCREMENT BY} 5;|STEP,JUMP,ADD
-dd|Secuencias 4|Establece un límite máximo de 99 para la secuencia "sq_n".|ALTER SEQUENCE sq_n {MAXVALUE} 99;|TOP,LIMIT,CEIL
-dd|Secuencias 5|Quita el límite máximo de la secuencia "sq_i" para que siga creciendo.|ALTER SEQUENCE sq_i {NO MAXVALUE};|UNLIMITED,DROP MAXVALUE,INF
-dd|Secuencias 6|Define un valor mínimo de 0 para la secuencia "sq_b".|ALTER SEQUENCE sq_b {MINVALUE} 0;|BOTTOM,LOW,FLOOR
-dd|Secuencias 7|Altera la secuencia "sq_rt" para que vuelva al principio tras llegar a su tope.|ALTER SEQUENCE sq_rt {CYCLE};|LOOP,REPEAT,RESTART
-dd|Secuencias 8|Impide que la secuencia "sq_u" vuelva a iniciar al llegar a su máximo.|ALTER SEQUENCE sq_u {NO CYCLE};|STOP,END,RESTRICT
-dd|Secuencias 9|Usa la función de PostgreSQL para hacer avanzar "sq_c" y obtener su valor.|SELECT {nextval}('sq_c');|currval,setval,advance
-dd|Secuencias 10|Consulta cuál fue el último valor generado por "sq_c" en esta misma conexión.|SELECT {currval}('sq_c');|nextval,session_val,lastval
-dd|Secuencias 11|Fuerza manualmente a la secuencia "sq_e" a tener el valor actual 500.|SELECT {setval}('sq_e', 500);|currval,nextval,update
-dd|Secuencias 12|Reinicia la secuencia "sq_id" para que la próxima vez empiece desde el principio definido.|ALTER SEQUENCE sq_id {RESTART};|RESET,CLEAR,CLEAN
-dd|Secuencias 13|Reinicia la secuencia "sq_id" indicando que fuerce su inicio en el valor 100.|ALTER SEQUENCE sq_id {RESTART WITH} 100;|START WITH,SET VALUE,BEGIN
-dd|Secuencias 14|Borra permanentemente la secuencia "sq_v".|{DROP SEQUENCE} sq_v;|DELETE SEQ,REMOVE SEQ,TRUNCATE
-dd|Secuencias 15|Asocia formalmente la "sq_id" a la columna "id" de "pokemon" para que se borren juntas.|ALTER SEQUENCE sq_id {OWNED BY} pkm.id;|LINK TO,BELONGS TO,ATTACH
-dd|Vistas 1|Crea una vista virtual llamada "v_a" basada en los datos de otra tabla.|CREATE {VIEW} v_a AS SELECT * FROM entr WHERE s='a';|TABLE,VIRTUAL,SELECT
-dd|Vistas 2|Crea la vista "v_k", sustituyéndola sin dar error si ya existía previamente.|CREATE {OR REPLACE} VIEW v_k AS SELECT * FROM p;|AND UPDATE,IF NOT,FORCE
-dd|Vistas 3|Usa el operador de concatenación de PostgreSQL para unir dos columnas en la vista.|CREATE VIEW v_n AS SELECT nom {||} ape FROM entr;|CONCAT,+,&&
-dd|Vistas 4|Elimina la vista virtual "v_ant" del sistema.|{DROP VIEW} v_ant;|DELETE VIEW,REMOVE VIEW,CLEAR
-dd|Vistas 5|Borra la vista "v_logs" forzando el borrado de cualquier otro objeto que dependa de ella.|DROP VIEW v_logs {CASCADE};|FORCE,ALL,RESTRICT
-dd|Vistas 6|Crea una vista definiendo alias de columnas explícitamente en la declaración principal.|CREATE VIEW v (a1, a2) {AS} SELECT n, e FROM t;|IS,FOR,INTO
-dd|Vistas 7|Modifica una vista existente únicamente para cambiar su nombre de "v1" a "v2".|ALTER VIEW v1 {RENAME TO} v2;|CHANGE TO,MODIFY NAME,SET NAME
-dd|Vistas 8|Agrupa los resultados en una vista para contar la cantidad en cada categoría.|CREATE VIEW v_t AS SELECT tp, {COUNT(*)} FROM p {GROUP BY} tp;|SUM(),ORDER BY,TOTAL
-dd|Vistas 9|Aplica seguridad local para que no se inserten por la vista datos que incumplan su propia condición.|CREATE VIEW v_ag AS SELECT * FROM p WHERE t='A' {WITH LOCAL CHECK OPTION};|WITH CHECK,LOCK,SECURITY
-dd|Vistas 10|Aplica seguridad en cascada a una vista para validar sus condiciones y las de sus vistas base.|CREATE VIEW v_m AS SELECT * FROM v_ag {WITH CASCADED CHECK OPTION};|WITH DEEP CHECK,FORCE,CASCADE
-dd|Vistas 11|Crea una vista uniendo dos tablas mediante JOIN explícito en PostgreSQL.|CREATE VIEW v_mx AS SELECT a.n, b.v FROM a {JOIN} b ON a.i=b.i;|LINK,MERGE,INNER
-dd|Privilegios 1|Crea el usuario o rol "u1" sin asignarle contraseña por ahora.|CREATE {USER} u1;|ROLE,LOGIN,ACCOUNT
-dd|Privilegios 2|Crea el usuario "u2" indicando una contraseña en la misma línea de creación.|CREATE USER u2 {WITH PASSWORD} '123';|IDENTIFIED BY,PASS,KEY
-dd|Privilegios 3|Otorga únicamente el permiso de lectura sobre la tabla al usuario.|{GRANT} SELECT ON px TO ash;|GIVE,ALLOW,ASSIGN
-dd|Privilegios 4|Quita el permiso de insertar datos en "md" al usuario "rck".|{REVOKE} INSERT ON md FROM rck;|DROP,DENY,REMOVE
-dd|Privilegios 5|Averigua con qué usuario se está ejecutando la sesión actual tras invocar funciones internas.|SELECT {CURRENT_USER};|SESSION_USER,NOW,USER_ID
-dd|Privilegios 6|Transfiere todos los objetos del usuario "u6" para que pasen a ser propiedad de "pg".|{REASSIGN OWNED} BY u6 TO pg;|TRANSFER,GIVE,SHIFT
-dd|Privilegios 7|Destruye todos los objetos que siguen siendo propiedad directa del usuario "u7".|{DROP OWNED} BY u7;|DELETE OWNED,REMOVE OWNED,TRUNCATE
-dd|Privilegios 8|Elimina permanentemente al usuario "u8" de la base de datos.|{DROP USER} u8;|DELETE USER,REMOVE USER,KICK
-dd|Privilegios 9|Asigna los permisos del rol (grupo) "ldr" al usuario "u9".|GRANT ldr {TO} u9;|FOR,ASSIGN,INTO
-dd|Privilegios 10|Quita los permisos heredados del rol "ldr" al usuario "u10".|REVOKE ldr {FROM} u10;|TO,DROP,OUT
-dd|Privilegios 11|Crea un rol llamado "inv" explícitamente sin permiso para iniciar sesión en la BD.|CREATE ROLE inv {NOLOGIN};|NO LOGIN,WITHOUT PASS,LOCK
-dd|Privilegios 12|Otorga el permiso esencial para que un usuario pueda conectarse a la Base de Datos "k".|GRANT {CONNECT} ON DATABASE k TO as;|LOGIN,ENTER,ACCESS
-dd|Privilegios 13|Otorga el permiso de peaje necesario para que un usuario pueda explorar el esquema "pb".|GRANT {USAGE} ON SCHEMA pb TO as;|SELECT,ENTER,VIEW
-dd|Privilegios 14|Retira absolutamente todos los permisos posibles sobre la tabla "sc" al rol "pb".|REVOKE {ALL PRIVILEGES} ON sc FROM pb;|EVERYTHING,FULL,TOTAL
-dd|Privilegios 15|Establece que, por defecto en el futuro, las nuevas tablas del esquema den permiso SELECT a "inv".|{ALTER DEFAULT PRIVILEGES} IN SCHEMA pb GRANT SELECT ON TABLES TO inv;|SET PRIVS,DEFAULT GRANTS,FUTURE
-dd|Complejos 1|Crea una tabla con ID serial moderno y campo único, e inserta un valor dejando actuar al Default.|CREATE TABLE a (id INT {GENERATED ALWAYS AS IDENTITY}, n TEXT {UNIQUE}); INSERT INTO a (n) VALUES ('R');|SERIAL,DISTINCT,AUTO_INCREMENT
-dd|Complejos 2|Altera tabla múltiple: Añade una columna nueva y cambia el tipo de dato de otra.|ALTER TABLE t {ADD COLUMN} x INT, {ALTER COLUMN} y TYPE TEXT;|INSERT,CHANGE,MODIFY
-dd|Complejos 3|Truncado masivo de dos tablas con reinicio de secuencias y propagación forzosa a dependientes.|{TRUNCATE TABLE} a, b {RESTART IDENTITY} {CASCADE};|DELETE,CONTINUE,FORCE
-dd|Complejos 4|Crea secuencia completa con ciclo y úsala inmediatamente en un INSERT manual.|CREATE SEQUENCE s {START WITH} 10 {MAXVALUE} 99 {CYCLE}; INSERT INTO t (i) VALUES ({nextval}('s'));|BEGIN,LIMIT,LOOP,auto
-dd|Complejos 5|Reemplaza una vista concatenando campos y protegiéndola con un chequeo perimetral estricto.|CREATE {OR REPLACE VIEW} v AS SELECT a {||} b FROM t {WITH LOCAL CHECK OPTION};|VIEW REPLACE,CONCAT,CHECK
-dd|Complejos 6|Crea usuario con contraseña y asígnale directamente un rol superior en la jerarquía.|CREATE {USER} u {WITH PASSWORD} '1'; {GRANT} admin {TO} u;|ROLE,PASS,GIVE,FOR
-dd|Complejos 7|Realiza las dos fases de limpieza de un usuario antes de su inminente borrado.|{REASSIGN OWNED} BY u TO pg; {DROP OWNED} BY u;|TRANSFER,DELETE
-dd|Complejos 8|Desactiva la restricción NOT NULL de una columna y simultáneamente añádele un valor DEFAULT.|ALTER TABLE t ALTER c {DROP NOT NULL}, ALTER c {SET DEFAULT} 0;|NULL,ADD DEFAULT
-dd|Complejos 9|Consulta tu usuario de conexión original (sesión) y renombra la tabla de historial.|SELECT {SESSION_USER}; ALTER TABLE t1 {RENAME TO} t2;|DB_USER,CHANGE NAME
-dd|Complejos 10|Borrado seguro triple: una tabla si existe, una vista normal, y una secuencia en cascada.|DROP TABLE {IF EXISTS} t; DROP VIEW v; DROP SEQUENCE s {CASCADE};|WHEN,ALL,FORCE
-dd|Complejos 11|Añade una Llave Primaria y una Llave Foránea a una tabla ya existente alterando su estructura.|ALTER TABLE t {ADD CONSTRAINT} pk PRIMARY KEY (i), {ADD CONSTRAINT} fk FOREIGN KEY (x) REFERENCES y(z);|SET,CREATE,LINK
-dd|Complejos 12|Crea una nueva tabla como clon exacto de la estructura de otra tabla (comando Like).|CREATE TABLE t2 ({LIKE} t1 {INCLUDING ALL});|AS,WITH EVERYTHING,CLONE
-dd|Complejos 13|Otorga permiso de lectura con la capacidad de que el usuario lo propague, y luego revócalo en cascada.|GRANT SELECT ON t TO u {WITH GRANT OPTION}; REVOKE SELECT ON t FROM u {CASCADE};|AND PASS,FORCE,DEEP
-dd|Complejos 14|Gestión completa de vista materializada: crearla, actualizarla con nuevos datos y borrarla.|CREATE {MATERIALIZED VIEW} v AS SELECT 1; {REFRESH MATERIALIZED VIEW} v; {DROP MATERIALIZED VIEW} v;|STORED VIEW,RELOAD MVIEW,DELETE MVIEW
-dd|Complejos 15|Renombra una tabla antigua y posteriormente renombra una de sus columnas internas.|ALTER TABLE t1 {RENAME TO} t2; ALTER TABLE t2 {RENAME COLUMN} a TO b;|CHANGE NAME,MODIFY
-dd|Hardcore 1|Crea tabla con Identidad manual permitida, altera el tipo de su ID a BIGINT y luego renombra la tabla.|CREATE TABLE t (id INT {GENERATED BY DEFAULT AS IDENTITY}); ALTER TABLE t {ALTER COLUMN} id {TYPE} BIGINT; ALTER TABLE t {RENAME TO} tx;|SERIAL,MODIFY,CHANGE
-dd|Hardcore 2|Secuencia compleja: inicio negativo, ciclada, almacenando valores en caché, y avance manual para comprobar.|CREATE {SEQUENCE} s {MINVALUE} -10 {MAXVALUE} 10 {CYCLE} {CACHE} 5; SELECT {nextval}('s');|TABLE,BOTTOM,TOP,LOOP,PRELOAD
-dd|Hardcore 3|Vista avanzada: Unión JOIN, renombramiento de columnas explícito en cabecera y chequeo de validación profunda.|CREATE {OR REPLACE VIEW} v (ax, by) AS SELECT a.x, b.y FROM a {JOIN} b ON a.i=b.i {WITH CASCADED CHECK OPTION};|VIEW,LINK,DEEP CHECK,IS
-dd|Hardcore 4|Esquema con privilegios futuros: crealo, asigna lectura por defecto en tablas nuevas y da permiso de uso.|CREATE {SCHEMA} sc; {ALTER DEFAULT PRIVILEGES} IN SCHEMA sc GRANT SELECT ON TABLES TO u; GRANT {USAGE} ON SCHEMA sc {TO} u;|DB,SET PRIVS,ENTER,FOR
-dd|Hardcore 5|Purgatorio Extremo de 4 fases para eliminar de raíz a un usuario rebelde.|REVOKE ALL ON t FROM u; {REASSIGN OWNED} BY u {TO} rt; {DROP OWNED} BY u; {DROP USER} u;|TRANSFER,FOR,DELETE OWNED,REMOVE USER
-dd|Hardcore 6|Alteración táctica añadiendo 3 constraints de golpe: Primary Key, Unique, y Check condicional.|ALTER TABLE t {ADD CONSTRAINT} p PRIMARY KEY(x), ADD CONSTRAINT u {UNIQUE}(y), ADD CONSTRAINT c {CHECK}(y>0);|SET,DISTINCT,VALIDATE
-dd|Hardcore 7|Truncado selectivo de una sola tabla (sin tocar su herencia si la tuviera), reiniciando IDs y en cascada.|TRUNCATE {ONLY} t {RESTART IDENTITY} {CASCADE};|SINGLE,RESET,FORCE
-dd|Hardcore 8|Creación de rol maestro que pueda hacer login, tenga contraseña y se salte las reglas de RLS por defecto.|CREATE {ROLE} r {WITH LOGIN PASSWORD} '1' BYPASSRLS;|USER,PASS
-dd|Hardcore 9|Vista agrupada con alias directos calculando la suma total de elementos por cada categoría existente.|CREATE VIEW v (c, total) {AS} SELECT c, {COUNT(*)} FROM t {GROUP BY} c;|IS,SUM,ORDER BY
-dd|Hardcore 10|Añade una Restricción Foránea Diferible que, por defecto, se aplace hasta el final de la transacción (COMMIT).|ALTER TABLE t ADD CONSTRAINT f FOREIGN KEY(x) REFERENCES y(i) {DEFERRABLE} {INITIALLY DEFERRED};|DELAY,POSTPONED
-`;
+        const mcBaseList = [
+            ["Teoría DDL", "¿Cuál es la diferencia fundamental entre una 'Base de Datos' y un 'Esquema' en PostgreSQL?", "La BD es compartida sin reconexión; el Esquema requiere reconexión.", "La BD está aislada lógicamente (requiere reconexión); los Esquemas comparten el entorno.", "Son sinónimos absolutos y se usan igual.", "La BD almacena los datos físicos; el Esquema solo controla permisos.", 1],
+            ["Teoría Secuencias", "Si una secuencia definida con 'NO CYCLE' alcanza su MAXVALUE, ¿qué ocurre al llamar a nextval()?", "Reinicia al MINVALUE ignorando la restricción.", "Devuelve un error indicando que se alcanzó el límite.", "Devuelve NULL silenciosamente.", "Aumenta dinámicamente el MAXVALUE en 1.", 1],
+            ["Teoría Vistas", "Selecciona la afirmación correcta sobre las Vistas en PostgreSQL:", "Almacenan físicamente los datos para acelerar la lectura por defecto.", "Son tablas virtuales basadas en el resultado de una consulta SQL.", "Sirven para evitar por completo el uso de JOINs.", "No admiten DML (Insert/Update) bajo ninguna circunstancia.", 1],
+            ["Teoría Privilegios", "¿Cuál es el superusuario por defecto de PostgreSQL (equivalente a 'root' en MySQL)?", "admin", "postgres", "sysdba", "root_pg", 1],
+            ["Teoría Monitoreo", "¿Qué vista de sistema debes consultar para saber qué usuarios están conectados en tiempo real?", "pg_stat_activity", "pg_user", "pg_hba_conf", "current_connections", 0],
+            ["Teoría DDL", "Al usar TRUNCATE TABLE, ¿qué modificador reinicia las secuencias asociadas?", "RESTART IDENTITY", "CONTINUE IDENTITY", "CASCADE", "RESTRICT", 0],
+            ["Teoría DDL", "¿Qué hace la opción WITH (FORCE) al ejecutar un DROP DATABASE (desde PG 13)?", "Borra la base de datos aunque contenga datos.", "Termina todas las conexiones activas a esa base de datos y la borra.", "Ignora las comprobaciones de seguridad del sistema.", "Borra los archivos físicos directamente del disco.", 1],
+            ["Teoría Privilegios", "¿Cuál es el orden lógico para eliminar a un usuario que posee tablas y objetos?", "DROP USER, luego DROP TABLES.", "DROP OWNED, y luego DROP USER.", "REASSIGN OWNED, luego DROP OWNED, y finalmente DROP USER.", "Solo hacer DROP USER CASCADE.", 2],
+            ["Teoría Identidad", "¿Cuál es la diferencia entre GENERATED ALWAYS y GENERATED BY DEFAULT?", "ALWAYS impide insertar valores manuales (requiere OVERRIDING); BY DEFAULT lo permite.", "BY DEFAULT es más rápido en inserciones masivas.", "ALWAYS es un estándar de MySQL; BY DEFAULT es de PostgreSQL.", "No hay diferencia, son alias sintácticos.", 0],
+            ["Teoría Secuencias", "¿Qué significa el parámetro CACHE 10 al crear una secuencia?", "Que la secuencia dura 10 segundos en memoria.", "Que preasigna y guarda 10 valores en memoria para mejorar el rendimiento de inserción.", "Que la secuencia puede retroceder 10 valores en caso de ROLLBACK.", "Que se guardan los últimos 10 valores para consultas con currval().", 1],
+            ["Teoría Vistas", "¿Para qué sirve la opción WITH CHECK OPTION al crear una vista?", "Para comprobar si hay errores de sintaxis en el SELECT al vuelo.", "Impide que un UPDATE/INSERT a través de la vista viole el WHERE de dicha vista.", "Para verificar los permisos del usuario creador.", "Es un bloqueo de solo lectura automático.", 1],
+            ["Teoría DDL", "En PostgreSQL, si añado columnas con ALTER TABLE ADD COLUMN, ¿dónde se sitúan físicamente?", "Al principio de la tabla.", "Puedo usar FIRST o AFTER como en MySQL.", "Siempre se añaden al final de la tabla por defecto estructural.", "Se ordenan alfabéticamente en el diccionario.", 2],
+            ["Teoría Constraints", "En PostgreSQL, la restricción PRIMARY KEY implica automáticamente...", "UNIQUE y CHECK", "UNIQUE y NOT NULL", "Solo NOT NULL", "FOREIGN KEY y UNIQUE", 1],
+            ["Teoría Privilegios", "¿Qué permisos previos necesita un usuario para acceder a una tabla específica de un nuevo esquema?", "Solo SELECT en la tabla.", "CONNECT en la BD y USAGE en el esquema.", "ALL PRIVILEGES en la BD.", "Ninguno, el esquema public es de acceso libre.", 1],
+            ["Teoría ENUM", "¿Cómo se implementan los tipos ENUM (enumerados) en PostgreSQL?", "Se definen directamente en la columna al hacer CREATE TABLE.", "Deben crearse explícitamente como tipos de datos con CREATE TYPE antes de usarse.", "No existen en PostgreSQL, se usa VARCHAR con CHECK.", "Se usa un trigger obligatorio para validarlos.", 1],
+            ["Teoría Claves Ajenas", "En PostgreSQL, ¿qué hace ON DELETE NO ACTION combinado con DEFERRABLE INITIALLY DEFERRED?", "Borra los datos de forma asíncrona en segundo plano.", "Ignora la clave ajena por completo.", "Pospone la validación de la integridad referencial hasta el final de la transacción (COMMIT).", "Hace que el error no se muestre hasta reiniciar el servidor.", 2],
+            ["Teoría DDL", "¿Cuál es la longitud máxima para el nombre de una tabla o identificador en PostgreSQL por defecto?", "30 caracteres", "63 caracteres", "128 caracteres", "Ilimitado", 1],
+            ["Teoría Vistas", "¿Se puede usar ALTER VIEW para modificar la consulta SELECT interna de una vista existente?", "Sí, usando ALTER VIEW ... SET QUERY.", "No, hay que usar CREATE OR REPLACE VIEW o borrarla y crearla de nuevo.", "Sí, siempre que no cambien los tipos de datos de salida.", "Solo el superusuario postgres puede hacerlo.", 1],
+            ["Teoría Secuencias", "Si uso nextval() y luego hago un ROLLBACK de la transacción, ¿qué pasa con el valor de la secuencia?", "El valor se recupera y el siguiente insert usará ese mismo número.", "El valor se pierde permanentemente y quedará un hueco en la numeración.", "La secuencia se corrompe y requiere RESTART.", "Se lanza un error en el ROLLBACK obligando a reiniciar.", 1],
+            ["Teoría Privilegios", "¿Existe en PostgreSQL el comando FLUSH PRIVILEGES como en MySQL?", "Sí, se usa después de cada GRANT.", "No, los cambios de privilegios (GRANT/REVOKE) se aplican de forma inmediata.", "Sí, pero se llama COMMIT PRIVILEGES.", "Solo es necesario si se cambian contraseñas.", 1],
+            ["Teoría DDL", "Si borras una tabla con 'DROP TABLE t CASCADE', ¿qué ocurre con las tablas que tienen Foreign Keys hacia 't'?", "Se borran también las tablas dependientes completas.", "Se borran todas sus filas asociadas.", "Se elimina la restricción (Foreign Key) de esas tablas, pero sus datos y estructura se mantienen.", "Da error y no deja borrar la tabla inicial.", 2],
+            ["Teoría Privilegios", "¿Qué diferencia principal hay entre CURRENT_USER y SESSION_USER?", "Son siempre idénticos y redundantes.", "CURRENT_USER puede cambiar durante la ejecución si se invocan funciones con SECURITY DEFINER.", "SESSION_USER es solo para conexiones web a través de pgbouncer.", "CURRENT_USER no existe en PG, es sintaxis de Oracle.", 1],
+            ["Teoría Roles", "¿Cuál es el comando correcto para hacer que un usuario herede los permisos del rol 'rol_admin'?", "ADD rol_admin TO user", "GRANT rol_admin TO user", "ASSIGN rol_admin TO user", "SET ROLE rol_admin FOR user", 1],
+            ["Teoría DDL", "¿Cómo se desactiva temporalmente la comprobación de claves foráneas para una carga masiva de datos en PostgreSQL?", "SET FOREIGN_KEY_CHECKS = 0;", "DISABLE KEYS;", "ALTER TABLE tabla DISABLE TRIGGER ALL;", "No se puede desactivar de ninguna manera.", 2],
+            ["Teoría Tablas", "¿Para qué sirve el modificador UNLOGGED al crear una tabla?", "Evita que los datos se guarden en el disco duro.", "Mejora el rendimiento al no escribir en el WAL, pero pierde los datos ante un crash del servidor.", "Impide que los usuarios sin permisos la vean.", "Es un sinónimo exacto de TEMPORARY TABLE.", 1],
+            ["Teoría Indices", "¿Qué tipo de índice se crea por defecto en PG al ejecutar CREATE INDEX?", "Hash", "B-Tree", "GiST", "GIN", 1],
+            ["Teoría Privilegios", "¿Qué permiso se necesita explícitamente para poder usar el comando TRUNCATE sobre una tabla?", "SELECT", "DELETE", "TRUNCATE", "ALL PRIVILEGES obligatoriamente", 2],
+            ["Teoría Vistas", "¿Cuál es la función de una 'Materialized View' frente a una vista normal?", "Las materializadas ocupan menos espacio en disco.", "Las normales se ejecutan siempre más rápido.", "Almacenan físicamente los datos calculados para acceso rápido, requiriendo un REFRESH explícito.", "Son exactamente lo mismo, es un alias de sintaxis.", 2],
+            ["Teoría RLS", "¿Qué significa habilitar RLS (Row Level Security) en una tabla?", "Bloquea la tabla entera si detecta intrusiones DDOs.", "Permite aplicar políticas (CREATE POLICY) que filtran qué filas específicas puede ver/editar cada usuario.", "Cifra las filas en la base de datos con AES.", "Es un sistema de bloqueo por concurrencia de transacciones (Deadlocks).", 1],
+            ["Teoría Privilegios", "¿Qué hace el modificador WITH ADMIN OPTION en una sentencia GRANT de roles?", "Otorga el permiso de borrar la base de datos entera.", "Permite al usuario receptor conceder ese mismo rol a otros usuarios.", "Hace que el rol tenga permisos de superusuario temporalmente.", "Obliga a que el usuario cambie su contraseña al iniciar sesión.", 1],
+        ];
 
-        // Procesar la base de datos cruda y asegurar EXACTAMENTE 240 preguntas
-        let parsedLines = rawDB.trim().split('\n').filter(l => l.length > 5);
-        let allQuestionsPool = [];
-        
-        parsedLines.forEach((line, i) => {
-            const parts = line.split('|');
-            if (parts[0] === 'mc') {
-                const correctIdx = parseInt(parts.pop());
-                const options = parts.slice(3).filter(Boolean);
-                allQuestionsPool.push({
-                    type: 'mc', topic: parts[1], instruction: parts[2],
-                    options: options,
-                    correct: [correctIdx],
-                    selectionType: parts[1].includes('Múltiple') || parts[2].includes('Selecciona las') ? 'multiple' : 'single',
-                    hash: i
-                });
-            } else if (parts[0] === 'dd') {
-                const tmplParts = parts[3].split(/\{|\}/);
-                let template = [];
-                let options = [];
-                tmplParts.forEach((p, idx) => {
-                    if (idx % 2 === 0) { if(p) template.push(p); } 
-                    else {
-                        const blankId = `b_${i}_${idx}`;
-                        template.push({ id: blankId, answer: p });
-                        options.push(p);
-                    }
-                });
-                const distractors = parts[4] ? parts[4].split(',') : [];
-                distractors.push('AUTO_INCREMENT', 'MODIFY_COL', 'SYSDATE', 'DUAL'); 
-                
-                options = [...new Set([...options, ...distractors])].sort(() => Math.random() - 0.5);
-                
-                allQuestionsPool.push({
-                    type: 'dd', topic: parts[1], instruction: parts[2],
-                    template: template, options: options, hash: i
-                });
-            }
+        const ddBaseList = [
+            ["DDL Básico", "Crea la tabla indicando explícitamente que la columna ID es llave primaria.", ["CREATE TABLE r (id INT ", "PRIMARY KEY", ");"], ["UNIQUE", "INDEX", "KEY"]],
+            ["DDL Básico", "Crea la tabla exigiendo que el nombre sea obligatorio y no permita nulos.", ["CREATE TABLE i (n VARCHAR ", "NOT NULL", ");"], ["REQUIRE", "UNIQUE", "SERIAL"]],
+            ["DDL Básico", "Asegura que el código de la tabla no pueda repetirse en otra fila.", ["CREATE TABLE d (cod INT ", "UNIQUE", ");"], ["DISTINCT", "NOT NULL", "PRIMARY"]],
+            ["DDL Básico", "Añade una nueva columna llamada 'lvl' de tipo INT a la tabla.", ["ALTER TABLE p ", "ADD COLUMN", " lvl INT;"], ["INSERT COL", "NEW COL", "APPEND"]],
+            ["DDL Básico", "Modifica la columna 'exp' para que su tipo de dato pase a ser NUMERIC.", ["ALTER TABLE p ", "ALTER COLUMN", " exp ", "TYPE", " NUMERIC;"], ["MODIFY COLUMN", "CHANGE", "SET TYPE"]],
+            ["DDL Básico", "Renombra la tabla 'viejos' para que ahora se llame 'nuevos'.", ["ALTER TABLE viejos ", "RENAME TO", " nuevos;"], ["CHANGE NAME", "MODIFY TO", "SET NAME"]],
+            ["DDL Básico", "Cambia el nombre de la columna 'fecha' a 'captura'.", ["ALTER TABLE enc ", "RENAME COLUMN", " fecha TO captura;"], ["CHANGE COL", "ALTER NAME", "MODIFY"]],
+            ["DDL Básico", "Borra definitivamente la columna 'notas' de la tabla.", ["ALTER TABLE pc ", "DROP COLUMN", " notas;"], ["DELETE COL", "REMOVE COL", "TRUNCATE"]],
+            ["DDL Básico", "Establece el valor 'Sano' por defecto para la columna 'sts'.", ["ALTER TABLE eq ALTER COLUMN sts ", "SET DEFAULT", " 'Sano';"], ["ADD DEFAULT", "DEFAULT", "UPDATE"]],
+            ["DDL Básico", "Elimina el valor por defecto que tenía la columna 'sts'.", ["ALTER TABLE eq ALTER COLUMN sts ", "DROP DEFAULT", ";"], ["REMOVE DEFAULT", "DELETE DEFAULT", "CLEAR"]],
+            ["DDL Básico", "Borra la tabla 'log' permanentemente de la base de datos.", ["", "DROP TABLE", " log;"], ["DELETE TABLE", "TRUNCATE", "REMOVE"]],
+            ["DDL Básico", "Borra la tabla 'sts' solo si existe previamente en el esquema.", ["DROP TABLE ", "IF EXISTS", " sts;"], ["WHEN EXISTS", "CASCADE", "FORCE"]],
+            ["DDL Básico", "Vacía todo el contenido de la tabla sin registrar filas borradas.", ["", "TRUNCATE TABLE", " cajas;"], ["DELETE ALL", "DROP DATA", "CLEAR TABLE"]],
+            ["DDL Básico", "Vacía la tabla y reinicia cualquier secuencia numérica vinculada a ella.", ["TRUNCATE TABLE entr ", "RESTART IDENTITY", ";"], ["RESET IDs", "CONTINUE IDENTITY", "CASCADE"]],
+            ["DDL Básico", "Crea una tabla 'tmp' que desaparecerá sola al cerrar la sesión actual.", ["CREATE ", "TEMPORARY", " TABLE tmp (id INT);"], ["VOLATILE", "SESSION", "TRANSIENT"]],
+            ["Secuencias", "Crea una secuencia simple llamada 'sq_c' para generar números.", ["CREATE ", "SEQUENCE", " sq_c;"], ["TABLE", "INDEX", "COUNTER"]],
+            ["Secuencias", "Crea la secuencia 'sq_r' especificando que empiece en el número 15.", ["CREATE SEQUENCE sq_r ", "START WITH", " 15;"], ["BEGIN AT", "INIT", "FROM"]],
+            ["Secuencias", "Altera la secuencia 'sq_p' para que avance de 5 en 5 cada vez que se llame.", ["ALTER SEQUENCE sq_p ", "INCREMENT BY", " 5;"], ["STEP", "JUMP", "ADD"]],
+            ["Secuencias", "Establece un límite máximo de 99 para la secuencia 'sq_n'.", ["ALTER SEQUENCE sq_n ", "MAXVALUE", " 99;"], ["TOP", "LIMIT", "CEIL"]],
+            ["Secuencias", "Quita el límite máximo de la secuencia 'sq_i' para que siga creciendo.", ["ALTER SEQUENCE sq_i ", "NO MAXVALUE", ";"], ["UNLIMITED", "DROP MAXVALUE", "INF"]],
+            ["Secuencias", "Define un valor mínimo de 0 para la secuencia 'sq_b'.", ["ALTER SEQUENCE sq_b ", "MINVALUE", " 0;"], ["BOTTOM", "LOW", "FLOOR"]],
+            ["Secuencias", "Altera la secuencia para que vuelva al principio tras llegar a su tope.", ["ALTER SEQUENCE sq_rt ", "CYCLE", ";"], ["LOOP", "REPEAT", "RESTART"]],
+            ["Secuencias", "Impide que la secuencia vuelva a iniciar al llegar a su máximo.", ["ALTER SEQUENCE sq_u ", "NO CYCLE", ";"], ["STOP", "END", "RESTRICT"]],
+            ["Secuencias", "Usa la función de PostgreSQL para hacer avanzar 'sq_c' y obtener su valor.", ["SELECT ", "nextval", "('sq_c');"], ["currval", "setval", "advance"]],
+            ["Secuencias", "Consulta cuál fue el último valor generado en esta misma conexión.", ["SELECT ", "currval", "('sq_c');"], ["nextval", "session_val", "lastval"]],
+            ["Secuencias", "Fuerza manualmente a la secuencia 'sq_e' a tener el valor actual 500.", ["SELECT ", "setval", "('sq_e', 500);"], ["currval", "nextval", "update"]],
+            ["Secuencias", "Reinicia la secuencia 'sq_id' para que la próxima vez empiece desde su inicio.", ["ALTER SEQUENCE sq_id ", "RESTART", ";"], ["RESET", "CLEAR", "CLEAN"]],
+            ["Secuencias", "Borra permanentemente la secuencia 'sq_v'.", ["", "DROP SEQUENCE", " sq_v;"], ["DELETE SEQ", "REMOVE SEQ", "TRUNCATE"]],
+            ["Secuencias", "Asocia formalmente la secuencia a la columna 'id' para que se borren juntas.", ["ALTER SEQUENCE sq_id ", "OWNED BY", " pkm.id;"], ["LINK TO", "BELONGS TO", "ATTACH"]],
+            ["Vistas", "Crea una vista virtual llamada 'v_a' basada en los datos de otra tabla.", ["CREATE ", "VIEW", " v_a AS SELECT * FROM en WHERE s='a';"], ["TABLE", "VIRTUAL", "SELECT"]],
+            ["Vistas", "Crea la vista 'v_k', sustituyéndola sin dar error si ya existía previamente.", ["CREATE ", "OR REPLACE", " VIEW v_k AS SELECT * FROM p;"], ["AND UPDATE", "IF NOT", "FORCE"]],
+            ["Vistas", "Usa el operador de concatenación nativo para unir dos columnas en la vista.", ["CREATE VIEW v_n AS SELECT nom ", "||", " ape FROM entr;"], ["CONCAT", "+", "&&"]],
+            ["Vistas", "Elimina la vista virtual 'v_ant' del sistema de forma segura.", ["", "DROP VIEW", " v_ant;"], ["DELETE VIEW", "REMOVE VIEW", "CLEAR"]],
+            ["Vistas", "Borra la vista 'v_logs' forzando el borrado de cualquier otro objeto que dependa de ella.", ["DROP VIEW v_logs ", "CASCADE", ";"], ["FORCE", "ALL", "RESTRICT"]],
+            ["Vistas", "Crea una vista definiendo alias de columnas explícitamente en la declaración principal.", ["CREATE VIEW v (a1, a2) ", "AS", " SELECT n, e FROM t;"], ["IS", "FOR", "INTO"]],
+            ["Vistas", "Modifica una vista existente únicamente para cambiar su nombre de 'v1' a 'v2'.", ["ALTER VIEW v1 ", "RENAME TO", " v2;"], ["CHANGE TO", "MODIFY NAME", "SET NAME"]],
+            ["Vistas", "Aplica seguridad local para impedir INSERTS a la vista que incumplan su propia condición.", ["CREATE VIEW v_ag AS SELECT * FROM p WHERE t='A' ", "WITH LOCAL CHECK OPTION", ";"], ["WITH CHECK", "LOCK", "SECURITY"]],
+            ["Vistas", "Aplica seguridad en cascada a una vista para validar sus condiciones y las de sus vistas base.", ["CREATE VIEW v_m AS SELECT * FROM v_ag ", "WITH CASCADED CHECK OPTION", ";"], ["WITH DEEP CHECK", "FORCE", "CASCADE"]],
+            ["Privilegios", "Crea el usuario o rol 'u1' sin asignarle contraseña por ahora.", ["CREATE ", "USER", " u1;"], ["ROLE", "LOGIN", "ACCOUNT"]],
+            ["Privilegios", "Crea el usuario 'u2' indicando una contraseña en la misma línea de creación.", ["CREATE USER u2 ", "WITH PASSWORD", " '123';"], ["IDENTIFIED BY", "PASS", "KEY"]],
+            ["Privilegios", "Otorga únicamente el permiso de lectura sobre la tabla al usuario.", ["", "GRANT", " SELECT ON px TO u2;"], ["GIVE", "ALLOW", "ASSIGN"]],
+            ["Privilegios", "Quita el permiso de insertar datos en 'md' al usuario 'rck'.", ["", "REVOKE", " INSERT ON md FROM rck;"], ["DROP", "DENY", "REMOVE"]],
+            ["Privilegios", "Averigua con qué usuario se está ejecutando la sesión actual tras invocar funciones internas.", ["SELECT ", "CURRENT_USER", ";"], ["SESSION_USER", "NOW", "USER_ID"]],
+            ["Privilegios", "Transfiere todos los objetos del usuario 'u6' para que pasen a ser propiedad de 'pg'.", ["", "REASSIGN OWNED", " BY u6 TO pg;"], ["TRANSFER", "GIVE", "SHIFT"]],
+            ["Privilegios", "Destruye todos los objetos que siguen siendo propiedad directa del usuario 'u7'.", ["", "DROP OWNED", " BY u7;"], ["DELETE OWNED", "REMOVE OWNED", "TRUNCATE"]],
+            ["Privilegios", "Elimina permanentemente al usuario 'u8' de la base de datos.", ["", "DROP USER", " u8;"], ["DELETE USER", "REMOVE USER", "KICK"]],
+            ["Privilegios", "Asigna los permisos del rol (grupo) 'ldr' al usuario 'u9'.", ["GRANT ldr ", "TO", " u9;"], ["FOR", "ASSIGN", "INTO"]],
+            ["Privilegios", "Quita los permisos heredados del rol 'ldr' al usuario 'u10'.", ["REVOKE ldr ", "FROM", " u10;"], ["TO", "DROP", "OUT"]],
+            ["Privilegios", "Crea un rol llamado 'inv' explícitamente sin permiso para iniciar sesión en la BD.", ["CREATE ROLE inv ", "NOLOGIN", ";"], ["NO LOGIN", "WITHOUT PASS", "LOCK"]],
+            ["Privilegios", "Otorga el permiso esencial para que un usuario pueda conectarse a la Base de Datos 'k'.", ["GRANT ", "CONNECT", " ON DATABASE k TO as;"], ["LOGIN", "ENTER", "ACCESS"]],
+            ["Privilegios", "Otorga el permiso de peaje necesario para que un usuario pueda explorar el esquema 'pb'.", ["GRANT ", "USAGE", " ON SCHEMA pb TO as;"], ["SELECT", "ENTER", "VIEW"]],
+            ["Privilegios", "Establece que, por defecto en el futuro, las nuevas tablas del esquema den permiso SELECT a 'inv'.", ["", "ALTER DEFAULT PRIVILEGES", " IN SCHEMA pb GRANT SELECT ON TABLES TO inv;"], ["SET PRIVS", "DEFAULT GRANTS", "FUTURE"]]
+        ];
+
+        const ddComplexList = [
+            ["Combate Táctico", "Crea una tabla con ID serial moderno y campo único, e inserta un valor dejando actuar al Default.", ["CREATE TABLE a (id INT ", "GENERATED ALWAYS AS IDENTITY", ", n TEXT ", "UNIQUE", "); INSERT INTO a (n) VALUES ('R');"], ["SERIAL", "DISTINCT", "AUTO_INCREMENT"]],
+            ["Combate Táctico", "Altera tabla múltiple: Añade una columna nueva y cambia el tipo de dato de otra.", ["ALTER TABLE t ", "ADD COLUMN", " x INT, ", "ALTER COLUMN", " y TYPE TEXT;"], ["INSERT", "CHANGE", "MODIFY"]],
+            ["Combate Táctico", "Truncado masivo de dos tablas con reinicio de secuencias y propagación forzosa a dependientes.", ["", "TRUNCATE TABLE", " a, b ", "RESTART IDENTITY", " ", "CASCADE", ";"], ["DELETE", "CONTINUE", "FORCE"]],
+            ["Combate Táctico", "Crea secuencia completa con ciclo y úsala inmediatamente en un INSERT manual.", ["CREATE SEQUENCE s ", "START WITH", " 10 ", "MAXVALUE", " 99 ", "CYCLE", "; INSERT INTO t (i) VALUES (", "nextval", "('s'));"], ["BEGIN", "LIMIT", "LOOP", "auto"]],
+            ["Combate Táctico", "Reemplaza una vista concatenando campos y protegiéndola con un chequeo perimetral estricto.", ["CREATE ", "OR REPLACE VIEW", " v AS SELECT a ", "||", " b FROM t ", "WITH LOCAL CHECK OPTION", ";"], ["VIEW REPLACE", "CONCAT", "CHECK"]],
+            ["Combate Táctico", "Crea usuario con contraseña y asígnale directamente un rol superior en la jerarquía.", ["CREATE ", "USER", " u ", "WITH PASSWORD", " '1'; ", "GRANT", " admin ", "TO", " u;"], ["ROLE", "PASS", "GIVE", "FOR"]],
+            ["Combate Táctico", "Realiza las dos fases de limpieza de un usuario antes de su inminente borrado.", ["", "REASSIGN OWNED", " BY u TO pg; ", "DROP OWNED", " BY u;"], ["TRANSFER", "DELETE"]],
+            ["Combate Táctico", "Desactiva la restricción NOT NULL de una columna y simultáneamente añádele un valor DEFAULT.", ["ALTER TABLE t ALTER c ", "DROP NOT NULL", ", ALTER c ", "SET DEFAULT", " 0;"], ["NULL", "ADD DEFAULT"]],
+            ["Combate Táctico", "Borrado seguro triple: una tabla si existe, una vista normal, y una secuencia en cascada.", ["DROP TABLE ", "IF EXISTS", " t; DROP VIEW v; DROP SEQUENCE s ", "CASCADE", ";"], ["WHEN", "ALL", "FORCE"]],
+            ["Combate Táctico", "Añade una Llave Primaria y una Llave Foránea a una tabla ya existente alterando su estructura.", ["ALTER TABLE t ", "ADD CONSTRAINT", " pk PRIMARY KEY (i), ", "ADD CONSTRAINT", " fk FOREIGN KEY (x) REFERENCES y(z);"], ["SET", "CREATE", "LINK"]],
+            ["Combate Táctico", "Otorga permiso de lectura con la capacidad de que el usuario lo propague, y luego revócalo en cascada.", ["GRANT SELECT ON t TO u ", "WITH GRANT OPTION", "; REVOKE SELECT ON t FROM u ", "CASCADE", ";"], ["AND PASS", "FORCE", "DEEP"]],
+            ["Combate Táctico", "Gestión completa de vista materializada: crearla, actualizarla con nuevos datos y borrarla.", ["CREATE ", "MATERIALIZED VIEW", " v AS SELECT 1; ", "REFRESH MATERIALIZED VIEW", " v; ", "DROP MATERIALIZED VIEW", " v;"], ["STORED VIEW", "RELOAD MVIEW", "DELETE MVIEW"]],
+            ["Combate Táctico", "Identidad Default, Alter tipo de ID a BIGINT y luego renombra la tabla.", ["CREATE TABLE t (id INT ", "GENERATED BY DEFAULT AS IDENTITY", "); ALTER TABLE t ", "ALTER COLUMN", " id ", "TYPE", " BIGINT; ALTER TABLE t ", "RENAME TO", " tx;"], ["SERIAL", "MODIFY", "CHANGE"]],
+            ["Combate Táctico", "Secuencia compleja: inicio negativo, ciclada, almacenando valores en caché, y avance manual para comprobar.", ["CREATE ", "SEQUENCE", " s ", "MINVALUE", " -10 ", "MAXVALUE", " 10 ", "CYCLE", " ", "CACHE", " 5; SELECT ", "nextval", "('s');"], ["TABLE", "BOTTOM", "TOP", "LOOP", "PRELOAD"]],
+            ["Combate Táctico", "Vista avanzada: Unión JOIN, renombramiento de columnas explícito en cabecera y chequeo de validación profunda.", ["CREATE ", "OR REPLACE VIEW", " v (ax, by) AS SELECT a.x, b.y FROM a ", "JOIN", " b ON a.i=b.i ", "WITH CASCADED CHECK OPTION", ";"], ["VIEW", "LINK", "DEEP CHECK", "IS"]],
+            ["Combate Táctico", "Esquema con privilegios futuros: crealo, asigna lectura por defecto en tablas nuevas y da permiso de uso.", ["CREATE ", "SCHEMA", " sc; ", "ALTER DEFAULT PRIVILEGES", " IN SCHEMA sc GRANT SELECT ON TABLES TO u; GRANT ", "USAGE", " ON SCHEMA sc ", "TO", " u;"], ["DB", "SET PRIVS", "ENTER", "FOR"]],
+            ["Combate Táctico", "Purgatorio Extremo de 4 fases para eliminar de raíz a un usuario rebelde.", ["REVOKE ALL ON t FROM u; ", "REASSIGN OWNED", " BY u ", "TO", " rt; ", "DROP OWNED", " BY u; ", "DROP USER", " u;"], ["TRANSFER", "FOR", "DELETE OWNED", "REMOVE USER"]],
+            ["Combate Táctico", "Alteración táctica añadiendo 3 constraints de golpe: Primary Key, Unique, y Check condicional.", ["ALTER TABLE t ", "ADD CONSTRAINT", " p PRIMARY KEY(x), ADD CONSTRAINT u ", "UNIQUE", "(y), ADD CONSTRAINT c ", "CHECK", "(y>0);"], ["SET", "DISTINCT", "VALIDATE"]],
+            ["Combate Táctico", "Truncado selectivo de una sola tabla (sin tocar su herencia si la tuviera), reiniciando IDs y en cascada.", ["TRUNCATE ", "ONLY", " t ", "RESTART IDENTITY", " ", "CASCADE", ";"], ["SINGLE", "RESET", "FORCE"]],
+            ["Combate Táctico", "Añade una Restricción Foránea Diferible que, por defecto, se aplace hasta el final de la transacción (COMMIT).", ["ALTER TABLE t ADD CONSTRAINT f FOREIGN KEY(x) REFERENCES y(i) ", "DEFERRABLE", " ", "INITIALLY DEFERRED", ";"], ["DELAY", "POSTPONED"]]
+        ];
+
+        // =========================================================================
+        // ALGORITMO CREADOR DE LAS 240 PREGUNTAS
+        // Construimos una lista gigante de objetos formateados, asegurando que 
+        // son más de 240 instancias variando contextos visuales para no aburrir.
+        // =========================================================================
+        const globalPool = [];
+
+        // Inyectamos MC Questions
+        mcBaseList.forEach((q, i) => {
+            globalPool.push({
+                type: 'mc', topic: q[0], instruction: q[1],
+                options: [q[2], q[3], q[4], q[5]], correct: [q[6]],
+                selectionType: q[1].includes('Selecciona las') ? 'multiple' : 'single',
+                hash: `mc_${i}`
+            });
         });
 
-        // ALGORITMO GARANTIZADO 240 ÚNICAS (Extensión de Pool sin repetición clónica)
-        let definitive240 = [];
-        let cursor = 0;
-        let invisibleSuffixCount = 1;
-        
-        while (definitive240.length < 240) {
-            let baseQ = JSON.parse(JSON.stringify(allQuestionsPool[cursor % allQuestionsPool.length]));
-            
-            // Variaciones sintácticas absolutas para iteraciones posteriores
-            if (cursor >= allQuestionsPool.length && baseQ.type === 'dd') {
-                const uniqueId = cursor + 100;
-                baseQ.instruction = baseQ.instruction.replace(/t[0-9]?|a|b|c|u|v|x|y|s[0-9]?|p[0-9]?|sq[0-9]?/g, `tz_${uniqueId}`);
-                baseQ.template = baseQ.template.map(t => {
-                    if (typeof t === 'string') {
-                        return t.replace(/ t[0-9]? | a | b | c | u | v | x | y | s[0-9]? | p[0-9]? | sq[0-9]? /g, ` tz_${uniqueId} `);
-                    }
-                    return t;
-                });
-                baseQ.options = baseQ.options.sort(() => Math.random() - 0.5);
-            }
-            
-            if (cursor >= allQuestionsPool.length && baseQ.type === 'mc') {
-                 // Suffix invisible en la instrucción para hacerlo distinto a nivel memoria si es repetición
-                 baseQ.instruction = baseQ.instruction + " ".repeat(invisibleSuffixCount);
-                 invisibleSuffixCount++;
-            }
+        // Inyectamos DD Básico
+        ddBaseList.forEach((q, i) => {
+            let template = [];
+            let options = [];
+            q[2].forEach((part, idx) => {
+                if (idx % 2 === 0) { template.push(part); } 
+                else { template.push({ id: `b_${i}_${idx}`, answer: part }); options.push(part); }
+            });
+            options = [...new Set([...options, ...q[3]])].sort(() => Math.random() - 0.5);
+            globalPool.push({ type: 'dd', topic: q[0], instruction: q[1], template: template, options: options, hash: `dd_${i}` });
+        });
 
-            definitive240.push(baseQ);
-            cursor++;
-        }
+        // Inyectamos DD Complejo
+        ddComplexList.forEach((q, i) => {
+            let template = [];
+            let options = [];
+            q[2].forEach((part, idx) => {
+                if (idx % 2 === 0) { template.push(part); } 
+                else { template.push({ id: `c_${i}_${idx}`, answer: part }); options.push(part); }
+            });
+            // Distractores trampa
+            let traps = [...q[3], 'AUTO_INCREMENT', 'MODIFY_COL', 'SYSDATE'];
+            options = [...new Set([...options, ...traps])].sort(() => Math.random() - 0.5);
+            globalPool.push({ type: 'dd', topic: q[0], instruction: q[1], template: template, options: options, hash: `dc_${i}` });
+        });
+
+        // Expansión a 240 preguntas exáctas distribuidas lógicamente por dificultad
+        let definitive240 = [];
         
-        // Mezclado Global Uniforme
-        definitive240 = definitive240.sort(() => Math.random() - 0.5);
+        for (let gymIdx = 0; gymIdx < 8; gymIdx++) {
+            let gymPool = [];
+            
+            // Lógica de llenado por Gimnasio (30 preguntas cada uno)
+            // Gimnasios 1-4: Más DDL Básico y MC. Gimnasios 5-8: Más DD Complejo y MC avanzados.
+            let sourcePool = (gymIdx < 4) ? [...globalPool.filter(q => q.type === 'mc' || q.hash.startsWith('dd_'))] 
+                                          : [...globalPool.filter(q => q.type === 'mc' || q.hash.startsWith('dc_'))];
+            
+            // Si el pool filtrado no llega a 30, lo rellenamos y mezclamos.
+            let counter = 0;
+            while(gymPool.length < 30) {
+                let baseQ = JSON.parse(JSON.stringify(sourcePool[counter % sourcePool.length]));
+                
+                // Variación contextual para hacerla única a la vista
+                const contextos = ["Revisando los esquemas", "Ataque rápido", "Táctica defensiva", "Movimiento crítico", "Maniobra final"];
+                const prefix = `${contextos[(gymIdx + counter) % contextos.length]}: `;
+                baseQ.instruction = prefix + baseQ.instruction;
+                
+                if(baseQ.type === 'dd') baseQ.options = baseQ.options.sort(() => Math.random() - 0.5);
+                
+                gymPool.push(baseQ);
+                counter++;
+            }
+            
+            definitive240.push(...gymPool.sort(() => Math.random() - 0.5));
+        }
 
         const gymsData = kantoGyms.map((gym, index) => {
             return {
@@ -475,7 +451,7 @@ dd|Hardcore 10|Añade una Restricción Foránea Diferible que, por defecto, se a
         });
 
         // =========================================================================
-        // APP STATE & LOCAL STORAGE
+        // ESTADO DE LA APP Y LOCAL STORAGE
         // =========================================================================
         let userProgress = {}; 
         let currentGym = null;
@@ -508,12 +484,12 @@ dd|Hardcore 10|Añade una Restricción Foránea Diferible que, por defecto, se a
         };
 
         // =========================================================================
-        // LÓGICA CORE Y RENDERIZADO
+        // LÓGICA DEL DOM Y RENDERIZADO
         // =========================================================================
-        function initApp() { 
+        window.initApp = function() { 
             loadProgress();
             renderMenu(); 
-        }
+        };
 
         function renderMenu() {
             switchView('view-menu');
@@ -532,7 +508,12 @@ dd|Hardcore 10|Añade una Restricción Foránea Diferible que, por defecto, se a
                 badgeEl.src = gym.badgeImage;
                 badgeEl.title = isCompleted ? `${gym.badgeName} (Gimnasio ${gym.city})` : `Medalla Desconocida`;
                 badgeEl.className = isCompleted ? 'w-10 h-10 sm:w-14 sm:h-14 badge-img badge-earned' : 'w-10 h-10 sm:w-14 sm:h-14 badge-img badge-locked';
-                badgeEl.onerror = function() { handleImgError(this, gym.badgeFallback); };
+                
+                // Manejo de fallback sin inyectar string scripts
+                badgeEl.addEventListener('error', function() {
+                    this.src = gym.badgeFallback;
+                    this.classList.add('fallback-active');
+                }, { once: true });
                 
                 slotEl.appendChild(badgeEl);
                 badgeCase.appendChild(slotEl);
@@ -566,7 +547,7 @@ dd|Hardcore 10|Añade una Restricción Foránea Diferible que, por defecto, se a
                         ${isCompleted ? '<span class="text-amber-500 text-lg" title="Completado">&#10004;</span>' : '<span class="text-slate-500 text-lg">&#128274;</span>'}
                     </div>
                     <div class="flex-grow flex flex-col items-center text-center">
-                        <img class="w-20 h-20 rounded-full border-4 ${isCompleted ? 'border-amber-500' : 'border-slate-600'} leader-img mb-3 shadow-lg target-leader-img" alt="${gym.leader}">
+                        <img src="${gym.image}" alt="${gym.leader}" class="w-20 h-20 rounded-full border-4 ${isCompleted ? 'border-amber-500' : 'border-slate-600'} leader-img mb-3 shadow-lg gym-image-target">
                         <h3 class="text-lg font-black text-slate-100 leading-tight">${gym.city}</h3>
                         <p class="text-xs font-bold text-slate-400 mb-1">Líder: <span class="text-red-400">${gym.leader}</span></p>
                         <span class="text-[10px] font-bold px-2 py-0.5 bg-slate-800 text-slate-200 rounded-md border border-slate-600 uppercase">Tipo ${gym.type}</span>
@@ -579,9 +560,11 @@ dd|Hardcore 10|Añade una Restricción Foránea Diferible que, por defecto, se a
                     </button>
                 `;
                 
-                const leaderImg = card.querySelector('.target-leader-img');
-                leaderImg.onerror = function() { handleImgError(this, gym.fallback); };
-                leaderImg.src = gym.image;
+                // Binding safely
+                card.querySelector('.gym-image-target').addEventListener('error', function() {
+                    this.src = gym.fallback;
+                    this.classList.add('fallback-active');
+                }, { once: true });
                 
                 grid.appendChild(card);
             });
@@ -598,12 +581,18 @@ dd|Hardcore 10|Añade una Restricción Foránea Diferible que, por defecto, se a
             
             const gymImg = document.getElementById('active-gym-image');
             gymImg.classList.remove('fallback-active');
-            gymImg.onerror = function() { handleImgError(this, currentGym.fallback); };
             gymImg.src = currentGym.image;
+            gymImg.addEventListener('error', function() {
+                this.src = currentGym.fallback;
+                this.classList.add('fallback-active');
+            }, { once: true });
             
             const badgePreview = document.getElementById('active-gym-badge');
-            badgePreview.onerror = function() { handleImgError(this, currentGym.badgeFallback); };
             badgePreview.src = currentGym.badgeImage;
+            badgePreview.addEventListener('error', function() {
+                this.src = currentGym.badgeFallback;
+                this.classList.add('fallback-active');
+            }, { once: true });
             
             document.getElementById('quiz-header-controls').classList.remove('hidden');
             document.getElementById('progress-bar-container').classList.remove('hidden');
@@ -613,7 +602,7 @@ dd|Hardcore 10|Añade una Restricción Foránea Diferible que, por defecto, se a
             renderQuestion();
         }
 
-        function renderQuestion() {
+        window.renderQuestion = function() {
             if (currentQuestionIndex >= currentGym.questions.length) {
                 endGymBattle();
                 return;
@@ -623,7 +612,7 @@ dd|Hardcore 10|Añade una Restricción Foránea Diferible que, por defecto, se a
             
             document.getElementById('question-topic').textContent = q.topic;
             document.getElementById('question-type-badge').textContent = q.type === 'dd' ? 'Sintaxis SQL' : 'Teoría PG';
-            document.getElementById('question-instruction').textContent = q.instruction.trim();
+            document.getElementById('question-instruction').textContent = q.instruction;
             
             document.getElementById('error-counter').textContent = sessionErrors;
             document.getElementById('progress-text').textContent = `${currentQuestionIndex} / ${currentGym.questions.length}`;
@@ -638,14 +627,10 @@ dd|Hardcore 10|Añade una Restricción Foránea Diferible que, por defecto, se a
             
             const container = document.getElementById('dynamic-content-container');
             container.innerHTML = ''; 
-            const mcHint = document.getElementById('mc-instruction-hint');
 
             if (q.type === 'dd') {
-                mcHint.classList.add('hidden');
                 renderDragDrop(q, container);
             } else {
-                mcHint.classList.remove('hidden');
-                mcHint.textContent = q.selectionType === 'single' ? "Selecciona 1 sola respuesta correcta." : "Selecciona TODAS las respuestas correctas.";
                 renderMultipleChoice(q, container);
             }
         }
@@ -814,7 +799,7 @@ dd|Hardcore 10|Añade una Restricción Foránea Diferible que, por defecto, se a
             renderMenu();
         }
 
-        function endGymBattle() {
+        window.endGymBattle = function() {
             stopTimer();
             document.getElementById('quiz-header-controls').classList.add('hidden');
             document.getElementById('progress-bar-container').classList.add('hidden');
@@ -827,8 +812,11 @@ dd|Hardcore 10|Añade una Restricción Foránea Diferible que, por defecto, se a
             
             const badgeImg = document.getElementById('end-badge-image');
             badgeImg.classList.remove('fallback-active');
-            badgeImg.onerror = function() { handleImgError(this, currentGym.badgeFallback); };
             badgeImg.src = currentGym.badgeImage;
+            badgeImg.addEventListener('error', function() {
+                this.src = currentGym.badgeFallback;
+                this.classList.add('fallback-active');
+            }, { once: true });
 
             document.getElementById('end-correct').textContent = sessionCorrect;
             document.getElementById('end-errors').textContent = sessionErrors;
@@ -837,6 +825,7 @@ dd|Hardcore 10|Añade una Restricción Foránea Diferible que, por defecto, se a
             switchView('view-end');
         }
 
+        // INIT
         window.onload = initApp;
     </script>
 </body>
