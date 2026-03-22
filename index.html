@@ -238,7 +238,7 @@ dd|Secuencias 9|Usa la función nativa para hacer avanzar "{secuencia}" y obtene
 dd|Secuencias 10|Lee el último valor que generó "{secuencia}" exclusivamente en esta misma sesión.|SELECT [currval]('{secuencia}');|nextval,session_val,lastval
 dd|Secuencias 11|Crea una secuencia definiendo todos los parámetros clave (Inicio, Salto, Tope y Ciclo).|CREATE [SEQUENCE] {secuencia} [START WITH] 10 [INCREMENT BY] 5 [MAXVALUE] 1000 [CYCLE];|BEGIN,STEP,LIMIT,LOOP,auto
 dd|Vistas 1|Crea una vista llamada "{vista}" seleccionando todo de la tabla "{tabla}".|CREATE [VIEW] {vista} AS SELECT * FROM {tabla};|TABLE,VIRTUAL,SELECT
-dd|Vistas 2|Concatena las columnas nombre y apellido en la creación de la vista "{vista}".|CREATE VIEW {vista} AS SELECT nombre "[||] ' ' [||]" apellido AS completo FROM {tabla};|CONCAT,+,&&
+dd|Vistas 2|Concatena las columnas nombre y apellido en la creación de la vista "{vista}".|CREATE VIEW {vista} AS SELECT nombre [&#124;&#124;] ' ' [&#124;&#124;] apellido AS completo FROM {tabla};|CONCAT,+,&&
 dd|Vistas 3|Usa una vista ya creada "{vista}" para contar agrupando por ciudad.|SELECT ciudad, [COUNT(*)] FROM {vista} [GROUP BY] ciudad;|SUM(),ORDER BY,TOTAL
 dd|Vistas 4|Elimina la vista "{vista}" que creaste anteriormente.|[DROP VIEW] {vista};|DELETE VIEW,REMOVE VIEW,CLEAR
 dd|Vistas 5|Crea una vista uniendo dos tablas mediante JOIN basándote en la columna ID_cliente.|CREATE VIEW {vista} AS SELECT * FROM c [JOIN] p ON c.id_cli = p.id_cli;|LINK,MERGE,INNER
