@@ -7,6 +7,32 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=Fira+Code:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
+        /* =========================================================
+        VARIABLES DE DISEÑO DE LA POKÉBALL (¡Modifica esto!) 
+        ========================================================= */
+        :root {
+            /* Tamaños (Prueba a cambiar 4rem por 6rem, etc.) */
+            --pokeball-outer-size: 4rem;
+            --pokeball-inner-size: 2.5rem;
+            
+            /* Grosores de las líneas negras */
+            --pokeball-outer-border: 8px;
+            --pokeball-inner-border: 4px;
+            
+            /* Colores */
+            --pokeball-line-color: #020617; /* Color de las líneas (Negro/Azul oscuro) */
+            --pokeball-outer-bg: #e2e8f0;   /* Fondo del círculo grande (Gris claro) */
+            --pokeball-inner-bg: #ffffff;   /* Fondo del círculo pequeño (Blanco) */
+        }
+
+        /* Ajuste automático para móviles (Escala un poco hacia abajo) */
+        @media (max-width: 640px) {
+            :root {
+                --pokeball-outer-size: 3.5rem;
+                --pokeball-inner-size: 1.25rem;
+                --pokeball-inner-border: 3px;
+            }
+        }
         /* Base Dark Mode */
         body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: #e2e8f0; overflow-x: hidden; }
         .font-mono { font-family: 'Fira Code', monospace; }
@@ -34,31 +60,25 @@
         .badge-earned { filter: drop-shadow(0 0 8px rgba(251, 191, 36, 0.8)); animation: badgeShineImg 2s infinite alternate; }
         @keyframes badgeShineImg { from { filter: drop-shadow(0 0 3px rgba(251, 191, 36, 0.5)); } to { filter: drop-shadow(0 0 15px rgba(251, 191, 36, 1)); } }
         
-        /* Estilos del centro de la Pokeball (Extraídos para fácil edición manual) */
+        /* Estilos del centro de la Pokeball (Aplican las variables) */
         .pokeball-btn-outer {
-            /* Modifica aquí el tamaño, fondo y borde del círculo exterior */
-            width: 4rem; height: 4rem;
-            background-color: #e2e8f0; /* Gris claro */
-            border: 8px solid #020617; /* Negro/Azul muy oscuro */
+            width: var(--pokeball-outer-size); 
+            height: var(--pokeball-outer-size);
+            background-color: var(--pokeball-outer-bg);
+            border: var(--pokeball-outer-border) solid var(--pokeball-line-color);
             border-radius: 9999px;
             box-shadow: 0 0 10px rgba(0,0,0,0.6);
-            /* Centrado absoluto */
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
             display: flex; align-items: center; justify-content: center;
             pointer-events: none; z-index: 10;
         }
         .pokeball-btn-inner {
-            /* Modifica aquí el tamaño, fondo y borde del círculo interior */
-            width: 2.5rem; height: 2.5rem;
-            background-color: #ffffff; /* Blanco puro */
-            border: 3px solid #020617;
+            width: var(--pokeball-inner-size); 
+            height: var(--pokeball-inner-size);
+            background-color: var(--pokeball-inner-bg);
+            border: var(--pokeball-inner-border) solid var(--pokeball-line-color);
             border-radius: 9999px;
             box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.05);
-        }
-        /* Ajustes para pantallas grandes (ordenadores) */
-        @media (min-width: 640px) {
-            .pokeball-btn-outer { width: 4rem; height: 4rem; }
-            .pokeball-btn-inner { width: 2.5rem; height: 2.5rem; border-width: 4px; }
         }
         
         /* Drag & Drop */
