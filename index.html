@@ -8,7 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=Fira+Code:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
         /* =========================================================
-            VARIABLES DE DISEÑO DE LA POKÉBALL (¡Modifica esto!) 
+           VARIABLES DE DISEÑO DE LA POKÉBALL (¡Modifica esto!) 
            ========================================================= */
         :root {
             /* Tamaños (Prueba a cambiar 4rem por 6rem, etc.) */
@@ -99,8 +99,9 @@
     </button>
 
     <header class="pokeball-header shadow-2xl sticky top-0 z-40 relative">
-        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-14 h-14 sm:w-16 sm:h-16 bg-slate-200 rounded-full border-[5px] border-[#020617] flex items-center justify-center pointer-events-none z-10 shadow-[0_0_10px_rgba(0,0,0,0.6)]">
-            <div class="w-5 h-5 sm:w-6 sm:h-6 bg-white rounded-full border-[3px] sm:border-[4px] border-[#020617] shadow-inner"></div>
+        <!-- Centro visual de la Pokéball usando las variables CSS -->
+        <div class="pokeball-btn-outer">
+            <div class="pokeball-btn-inner"></div>
         </div>
 
         <div class="max-w-7xl mx-auto px-4 py-3 flex flex-col md:flex-row justify-between items-center gap-4 relative z-20">
@@ -130,7 +131,7 @@
             <div class="mb-12 max-w-4xl mx-auto">
                 <h2 class="text-center text-xl font-black text-slate-200 uppercase tracking-widest mb-4 drop-shadow-md">Estuche de Medallas</h2>
                 <div class="badge-case p-6 sm:p-8 flex justify-center flex-wrap gap-4 sm:gap-6"><div id="badge-case-container" class="flex flex-wrap justify-center gap-4 sm:gap-6"></div></div>
-                <p class="text-center text-slate-400 text-sm mt-4 font-semibold">240 preguntas claras y sin repeticiones. Entrena la sintaxis de PostgreSQL resolviendo sentencias con tus variables.</p>
+                <p class="text-center text-slate-400 text-sm mt-4 font-semibold">240 preguntas 100% únicas. Entrena con sintaxis y teoría real de PostgreSQL.</p>
             </div>
             <div id="gyms-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 pb-16"></div>
         </div>
@@ -216,80 +217,78 @@
         };
 
         document.addEventListener('DOMContentLoaded', () => {
-        // =========================================================================
-        // DATOS DE GIMNASIOS POKÉMON KANTO 
-        // =========================================================================
-        const kantoGyms = [
-            { id: 1, city: "Ciudad Plateada", type: "Roca", leader: "Brock", image: "https://images.wikidexcdn.net/mwuploads/wikidex/9/99/latest/20230902182628/Cara_de_Brock_LGPE.png", fallback: "https://play.pokemonshowdown.com/sprites/trainers/brock.png", badgeName: "Medalla Roca", badgeImage: "https://images.wikidexcdn.net/mwuploads/wikidex/3/39/latest/20180812014627/Medalla_Roca.png", badgeFallback: "https://img.pokemondb.net/sprites/items/boulder-badge.png" },
-            { id: 2, city: "Ciudad Celeste", type: "Agua", leader: "Misty", image: "https://images.wikidexcdn.net/mwuploads/wikidex/7/7f/latest/20230902182717/Cara_de_Misty_LGPE.png", fallback: "https://play.pokemonshowdown.com/sprites/trainers/misty.png", badgeName: "Medalla Cascada", badgeImage: "https://images.wikidexcdn.net/mwuploads/wikidex/6/60/latest/20180812013531/Medalla_Cascada.png", badgeFallback: "https://img.pokemondb.net/sprites/items/cascade-badge.png" },
-            { id: 3, city: "Ciudad Carmín", type: "Eléctrico", leader: "Lt. Surge", image: "https://images.wikidexcdn.net/mwuploads/wikidex/b/b7/latest/20230902182607/Cara_de_Teniente_Surge_LGPE.png", fallback: "https://play.pokemonshowdown.com/sprites/trainers/ltsurge.png", badgeName: "Medalla Trueno", badgeImage: "https://images.wikidexcdn.net/mwuploads/wikidex/e/e6/latest/20180812014833/Medalla_Trueno.png", badgeFallback: "https://img.pokemondb.net/sprites/items/thunder-badge.png" },
-            { id: 4, city: "Ciudad Azulona", type: "Planta", leader: "Erika", image: "https://images.wikidexcdn.net/mwuploads/wikidex/3/38/latest/20230902182638/Cara_de_Erika_LGPE.png", fallback: "https://play.pokemonshowdown.com/sprites/trainers/erika.png", badgeName: "Medalla Arcoíris", badgeImage: "https://images.wikidexcdn.net/mwuploads/wikidex/0/09/latest/20180812034547/Medalla_Arco%C3%ADris.png", badgeFallback: "https://img.pokemondb.net/sprites/items/rainbow-badge.png" },
-            { id: 5, city: "Ciudad Fucsia", type: "Veneno", leader: "Koga", image: "https://images.wikidexcdn.net/mwuploads/wikidex/0/01/latest/20230902182705/Cara_de_Koga_LGPE.png", fallback: "https://play.pokemonshowdown.com/sprites/trainers/koga.png", badgeName: "Medalla Alma", badgeImage: "https://images.wikidexcdn.net/mwuploads/wikidex/c/c5/latest/20180812035225/Medalla_Alma.png", badgeFallback: "https://img.pokemondb.net/sprites/items/soul-badge.png" },
-            { id: 6, city: "Ciudad Azafrán", type: "Psíquico", leader: "Sabrina", image: "https://images.wikidexcdn.net/mwuploads/wikidex/b/be/latest/20230902182727/Cara_de_Sabrina_LGPE.png", fallback: "https://play.pokemonshowdown.com/sprites/trainers/sabrina.png", badgeName: "Medalla Pantano", badgeImage: "https://images.wikidexcdn.net/mwuploads/wikidex/c/c2/latest/20180812035607/Medalla_Pantano.png", badgeFallback: "https://img.pokemondb.net/sprites/items/marsh-badge.png" },
-            { id: 7, city: "Isla Canela", type: "Fuego", leader: "Blaine", image: "https://images.wikidexcdn.net/mwuploads/wikidex/7/7b/latest/20230902182618/Cara_de_Blaine_LGPE.png", fallback: "https://play.pokemonshowdown.com/sprites/trainers/blaine.png", badgeName: "Medalla Volcán", badgeImage: "https://images.wikidexcdn.net/mwuploads/wikidex/9/93/latest/20180812035749/Medalla_Volc%C3%A1n.png", badgeFallback: "https://img.pokemondb.net/sprites/items/volcano-badge.png" },
-            { id: 8, city: "Ciudad Verde", type: "Tierra", leader: "Giovanni", image: "https://images.wikidexcdn.net/mwuploads/wikidex/6/6f/latest/20230902182649/Cara_de_Giovanni_LGPE.png", fallback: "https://play.pokemonshowdown.com/sprites/trainers/giovanni.png", badgeName: "Medalla Tierra", badgeImage: "https://images.wikidexcdn.net/mwuploads/wikidex/1/16/latest/20180812035006/Medalla_Tierra.png", badgeFallback: "https://img.pokemondb.net/sprites/items/earth-badge.png" }
-        ];
 
-            // 240 HARDCODED DISTINCT STRINGS
-            // Fíjate en el uso de los corchetes [] para definir los huecos de arrastre y llaves {} para variables temáticas.
+            const kantoGyms = [
+                { id: 1, city: "Ciudad Plateada", type: "Roca", leader: "Brock", image: "https://images.wikidexcdn.net/mwuploads/wikidex/9/99/latest/20230902182628/Cara_de_Brock_LGPE.png", fallback: "https://play.pokemonshowdown.com/sprites/trainers/brock.png", badgeName: "Medalla Roca", badgeImage: "https://images.wikidexcdn.net/mwuploads/wikidex/3/39/latest/20180812014627/Medalla_Roca.png", badgeFallback: "https://img.pokemondb.net/sprites/items/boulder-badge.png" },
+                { id: 2, city: "Ciudad Celeste", type: "Agua", leader: "Misty", image: "https://images.wikidexcdn.net/mwuploads/wikidex/7/7f/latest/20230902182717/Cara_de_Misty_LGPE.png", fallback: "https://play.pokemonshowdown.com/sprites/trainers/misty.png", badgeName: "Medalla Cascada", badgeImage: "https://images.wikidexcdn.net/mwuploads/wikidex/6/60/latest/20180812013531/Medalla_Cascada.png", badgeFallback: "https://img.pokemondb.net/sprites/items/cascade-badge.png" },
+                { id: 3, city: "Ciudad Carmín", type: "Eléctrico", leader: "Lt. Surge", image: "https://images.wikidexcdn.net/mwuploads/wikidex/b/b7/latest/20230902182607/Cara_de_Teniente_Surge_LGPE.png", fallback: "https://play.pokemonshowdown.com/sprites/trainers/ltsurge.png", badgeName: "Medalla Trueno", badgeImage: "https://images.wikidexcdn.net/mwuploads/wikidex/e/e6/latest/20180812014833/Medalla_Trueno.png", badgeFallback: "https://img.pokemondb.net/sprites/items/thunder-badge.png" },
+                { id: 4, city: "Ciudad Azulona", type: "Planta", leader: "Erika", image: "https://images.wikidexcdn.net/mwuploads/wikidex/3/38/latest/20230902182638/Cara_de_Erika_LGPE.png", fallback: "https://play.pokemonshowdown.com/sprites/trainers/erika.png", badgeName: "Medalla Arcoíris", badgeImage: "https://images.wikidexcdn.net/mwuploads/wikidex/0/09/latest/20180812034547/Medalla_Arco%C3%ADris.png", badgeFallback: "https://img.pokemondb.net/sprites/items/rainbow-badge.png" },
+                { id: 5, city: "Ciudad Fucsia", type: "Veneno", leader: "Koga", image: "https://images.wikidexcdn.net/mwuploads/wikidex/0/01/latest/20230902182705/Cara_de_Koga_LGPE.png", fallback: "https://play.pokemonshowdown.com/sprites/trainers/koga.png", badgeName: "Medalla Alma", badgeImage: "https://images.wikidexcdn.net/mwuploads/wikidex/c/c5/latest/20180812035225/Medalla_Alma.png", badgeFallback: "https://img.pokemondb.net/sprites/items/soul-badge.png" },
+                { id: 6, city: "Ciudad Azafrán", type: "Psíquico", leader: "Sabrina", image: "https://images.wikidexcdn.net/mwuploads/wikidex/b/be/latest/20230902182727/Cara_de_Sabrina_LGPE.png", fallback: "https://play.pokemonshowdown.com/sprites/trainers/sabrina.png", badgeName: "Medalla Pantano", badgeImage: "https://images.wikidexcdn.net/mwuploads/wikidex/c/c2/latest/20180812035607/Medalla_Pantano.png", badgeFallback: "https://img.pokemondb.net/sprites/items/marsh-badge.png" },
+                { id: 7, city: "Isla Canela", type: "Fuego", leader: "Blaine", image: "https://images.wikidexcdn.net/mwuploads/wikidex/7/7b/latest/20230902182618/Cara_de_Blaine_LGPE.png", fallback: "https://play.pokemonshowdown.com/sprites/trainers/blaine.png", badgeName: "Medalla Volcán", badgeImage: "https://images.wikidexcdn.net/mwuploads/wikidex/9/93/latest/20180812035749/Medalla_Volc%C3%A1n.png", badgeFallback: "https://img.pokemondb.net/sprites/items/volcano-badge.png" },
+                { id: 8, city: "Ciudad Verde", type: "Tierra", leader: "Giovanni", image: "https://images.wikidexcdn.net/mwuploads/wikidex/6/6f/latest/20230902182649/Cara_de_Giovanni_LGPE.png", fallback: "https://play.pokemonshowdown.com/sprites/trainers/giovanni.png", badgeName: "Medalla Tierra", badgeImage: "https://images.wikidexcdn.net/mwuploads/wikidex/1/16/latest/20180812035006/Medalla_Tierra.png", badgeFallback: "https://img.pokemondb.net/sprites/items/earth-badge.png" }
+            ];
+
             const rawDB = `
-mcs|Teoría DDL|Según el temario, ¿cuál es la diferencia principal entre Base de Datos y Esquema?|La BD es compartida sin reconexión; el Esquema requiere reconexión.|La BD está aislada lógicamente (requiere reconexión); los Esquemas comparten el entorno.|Son sinónimos absolutos y se usan igual.|La BD almacena los datos físicos; el Esquema solo controla permisos.|1
-mcs|Teoría Secuencias|Si una secuencia NO CYCLE llega a su valor MAXVALUE, ¿qué ocurre al ejecutar nextval()?|Reinicia al MINVALUE ignorando la restricción.|Devuelve un error indicando que se alcanzó el límite.|Devuelve NULL silenciosamente.|Aumenta dinámicamente el MAXVALUE en 1.|1
-mcs|Teoría Privilegios|¿Cuál es el superusuario por defecto de PostgreSQL (equivalente a "root")?|admin|postgres|sysdba|root_pg|1
-mcs|Teoría Monitoreo|¿Qué vista del sistema permite ver los usuarios conectados en tiempo real?|pg_stat_activity|pg_user|pg_hba_conf|current_connections|0
-mcs|Teoría DDL|¿Qué hace el modificador CASCADE en un comando TRUNCATE TABLE?|Borra la base de datos aunque contenga datos.|Vacía también las tablas que tienen claves foráneas (FK) hacia esa tabla.|Ignora las comprobaciones de seguridad del sistema.|Mantiene el valor actual de las secuencias.|1
-mcs|Teoría Privilegios|De acuerdo a los apuntes, ¿cuál es el orden correcto para borrar un usuario que es propietario de tablas?|DROP USER, luego DROP TABLES.|DROP OWNED, y luego DROP USER.|REASSIGN OWNED, luego DROP OWNED, y finalmente DROP USER.|Solo ejecutar DROP USER CASCADE.|2
-mcs|Teoría Secuencias|¿Qué función se utiliza para avanzar una secuencia y obtener su siguiente valor?|getval()|nextval()|currval()|setval()|1
-mcs|Teoría Secuencias|¿Qué función muestra el último valor generado por la secuencia en la sesión actual sin avanzar la secuencia?|lastval()|nextval()|currval()|get_current_sequence()|2
-mcs|Teoría Vistas|En PostgreSQL, ¿qué operador se usa para concatenar cadenas de texto al definir columnas en una vista?|CONCAT()|El signo más (+)|El doble ampersand (&&)|Las barras verticales dobles (||)|3
-mcs|Teoría Privilegios|¿En qué vista del sistema se puede ver información de los usuarios como "usename" y "usecreatedb"?|pg_stat_activity|pg_roles|pg_user|pg_hba_conf|2
-mcs|Teoría Secuencias|Si creas una secuencia y no especificas "START WITH", ¿cuál será el valor inicial por defecto?|0|1|El mínimo valor del tipo de dato numérico|-1|1
-mcs|Teoría DDL|Si usas TRUNCATE en una tabla que tiene claves foráneas apuntando a ella, y no especificas CASCADE, ¿qué ocurre por defecto?|Las tablas dependientes se vacían automáticamente.|El comando falla y da error (comportamiento RESTRICT).|Se ignoran las claves foráneas y solo se vacía la tabla origen.|Se borran fila a fila disparando triggers.|1
-mcs|Teoría DDL|Al añadir una columna en PostgreSQL con ADD COLUMN, ¿es posible indicar en qué posición debe ir (por ejemplo, con AFTER)?|Sí, usando la cláusula AFTER.|Sí, pero solo se puede poner al principio con FIRST.|No, en PostgreSQL no se puede especificar el orden, se añade al final.|Depende de si la tabla está vacía o tiene datos.|2
-mcs|Teoría Privilegios|¿Qué diferencia hay entre CURRENT_USER y SESSION_USER?|Son exactamente lo mismo.|CURRENT_USER puede cambiar durante la ejecución de funciones SECURITY DEFINER.|SESSION_USER solo sirve para conexiones web externas.|CURRENT_USER es sintaxis de Oracle, no de PostgreSQL.|1
-mcs|Teoría Usuarios|Según los apuntes, a diferencia de MySQL, ¿dónde se configura en PostgreSQL el acceso según la IP o el origen de la conexión?|En la tabla pg_user.|En el fichero de configuración pg_hba.conf.|En la tabla pg_stat_activity.|Añadiendo @'localhost' en el CREATE USER.|1
-mcm|Teoría DDL|Al ejecutar TRUNCATE TABLE, ¿cuáles de los siguientes modificadores son opciones válidas en PostgreSQL?|RESTART IDENTITY|CONTINUE IDENTITY|CASCADE|DELETE ROWS|0,1,2
-mcm|Teoría Vistas|Selecciona las afirmaciones VERDADERAS sobre las Vistas en PostgreSQL:|Almacenan una copia física de los datos para ser más rápidas.|Son tablas virtuales que guardan la consulta SQL, no los datos.|Ayudan a simplificar consultas complejas.|No permiten crear columnas calculadas.|1,2
-mcm|Teoría Secuencias|Al usar CREATE SEQUENCE, ¿qué parámetros son válidos para configurar la secuencia?|START WITH|MAXVALUE|CYCLE|LIMIT BOUND|0,1,2
-mcm|Teoría Usuarios|Si vas a borrar un usuario que tiene objetos y permisos a su nombre, ¿qué comandos son necesarios en el proceso correcto?|REASSIGN OWNED|DROP OWNED|DROP USER|TRUNCATE USER|0,1,2
-mcm|Teoría DDL|¿Cuáles de las siguientes sentencias forman parte del lenguaje DDL (Definición de Datos)?|CREATE|DROP|ALTER|SELECT|0,1,2
-dd|DDL 1|Escribe la instrucción para cambiar el tipo de dato de la columna "{columna}" a VARCHAR(25).|ALTER TABLE {tabla} [ALTER COLUMN] {columna} [TYPE] VARCHAR(25);|MODIFY COLUMN,CHANGE,SET TYPE
-dd|DDL 2|Establece que la columna "{columna}" tenga el valor 0 por defecto.|ALTER TABLE {tabla} ALTER COLUMN {columna} [SET DEFAULT] 0;|ADD DEFAULT,DEFAULT,UPDATE
-dd|DDL 3|Añade una columna llamada "{columna}" de tipo VARCHAR(25) a la tabla "{tabla}".|ALTER TABLE {tabla} [ADD COLUMN] {columna} VARCHAR(25);|INSERT COL,NEW COL,APPEND
-dd|DDL 4|Elimina la columna "{columna}" de la tabla "{tabla}".|ALTER TABLE {tabla} [DROP COLUMN] {columna};|DELETE COL,REMOVE COL,TRUNCATE
-dd|DDL 5|Elimina la restricción (constraint) llamada "fk_test" de la tabla "{tabla}".|ALTER TABLE {tabla} [DROP CONSTRAINT] fk_test;|DELETE CONSTRAINT,REMOVE KEY,DROP INDEX
-dd|DDL 6|Vacía la tabla "{tabla}" y reinicia el valor de sus secuencias asociadas.|TRUNCATE TABLE {tabla} [RESTART IDENTITY];|RESET IDs,CONTINUE IDENTITY,CASCADE
-dd|DDL 7|Vacía la tabla "{tabla}" y vacía también en cascada las tablas que dependen de ella.|TRUNCATE TABLE {tabla} [CASCADE];|FORCE,ALL,RESTRICT
-dd|DDL 8|Vacía la tabla "{tabla}", reiniciando secuencias y afectando a tablas dependientes en cascada.|[TRUNCATE TABLE] {tabla} [RESTART IDENTITY] [CASCADE];|DELETE ALL,RESET,FORCE
-dd|Secuencias 1|Crea la secuencia "{secuencia}" con la configuración por defecto.|CREATE [SEQUENCE] {secuencia};|TABLE,INDEX,COUNTER
-dd|Secuencias 2|Crea la secuencia "{secuencia}" haciendo que comience en el número 10.|CREATE SEQUENCE {secuencia} [START WITH] 10;|BEGIN AT,INIT,FROM
-dd|Secuencias 3|Crea la secuencia "{secuencia}" para que su valor aumente de 5 en 5.|CREATE SEQUENCE {secuencia} [INCREMENT BY] 5;|STEP,JUMP,ADD
-dd|Secuencias 4|Crea la secuencia "{secuencia}" estableciendo un valor mínimo de 10.|CREATE SEQUENCE {secuencia} [MINVALUE] 10;|BOTTOM,LOW,FLOOR
-dd|Secuencias 5|Crea la secuencia "{secuencia}" estableciendo un límite máximo de 1000.|CREATE SEQUENCE {secuencia} [MAXVALUE] 1000;|TOP,LIMIT,CEIL
-dd|Secuencias 6|Crea la secuencia "{secuencia}" y haz que reinicie su valor cuando llegue al límite máximo.|CREATE SEQUENCE {secuencia} [CYCLE];|LOOP,REPEAT,RESTART
-dd|Secuencias 7|Crea la secuencia "{secuencia}" y asegúrate explícitamente de que NO reinicie al llegar a su límite.|CREATE SEQUENCE {secuencia} [NO CYCLE];|STOP,END,RESTRICT
-dd|Secuencias 8|Elimina la secuencia "{secuencia}" de la base de datos.|[DROP SEQUENCE] {secuencia};|DELETE SEQ,REMOVE SEQ,TRUNCATE
-dd|Secuencias 9|Obtén el siguiente valor de la secuencia "{secuencia}".|SELECT [nextval]('{secuencia}');|currval,setval,advance
-dd|Secuencias 10|Consulta el último valor generado por la secuencia "{secuencia}" en la sesión actual.|SELECT [currval]('{secuencia}');|nextval,session_val,lastval
-dd|Secuencias 11|Crea la secuencia "{secuencia}" configurando: Inicio en 10, aumento de 5, tope de 1000 y que reinicie al llegar al tope.|CREATE [SEQUENCE] {secuencia} [START WITH] 10 [INCREMENT BY] 5 [MAXVALUE] 1000 [CYCLE];|BEGIN,STEP,LIMIT,LOOP,auto
-dd|Vistas 1|Crea una vista llamada "{vista}" que seleccione todos los datos de la tabla "{tabla}".|CREATE [VIEW] {vista} AS SELECT * FROM {tabla};|TABLE,VIRTUAL,SELECT
-dd|Vistas 2|Crea la vista "{vista}" concatenando las columnas nombre y apellido.|CREATE VIEW {vista} AS SELECT nombre [||] ' ' [||] apellido AS completo FROM {tabla};|CONCAT,+,&&
-dd|Vistas 3|Usando la vista "{vista}", cuenta el número de registros agrupados por ciudad.|SELECT ciudad, [COUNT(*)] FROM {vista} [GROUP BY] ciudad;|SUM(),ORDER BY,TOTAL
-dd|Vistas 4|Elimina la vista "{vista}".|[DROP VIEW] {vista};|DELETE VIEW,REMOVE VIEW,CLEAR
-dd|Vistas 5|Crea la vista "{vista}" uniendo las tablas "c" y "p" basándote en la columna "id_cli".|CREATE VIEW {vista} AS SELECT * FROM c [JOIN] p ON c.id_cli = p.id_cli;|LINK,MERGE,INNER
-dd|Usuarios 1|Consulta cuál es el usuario de ejecución actual (puede cambiar si hay funciones con Security Definer).|SELECT [CURRENT_USER];|SESSION_USER,NOW,USER_ID
-dd|Usuarios 2|Consulta el usuario con el que se abrió la conexión original a la base de datos.|SELECT [SESSION_USER];|CURRENT_USER,NOW,USER_ID
-dd|Usuarios 3|Consulta la vista del sistema que muestra los usuarios conectados y su estado.|SELECT usename, state FROM [pg_stat_activity];|pg_user,pg_roles,pg_hba_conf
-dd|Usuarios 4|Crea el usuario "{usuario}" y asígnale directamente la contraseña '1234'.|CREATE [USER] {usuario} [WITH PASSWORD] '1234';|IDENTIFIED BY,PASS,KEY,ROLE
-dd|Usuarios 5|Asigna el rol (o grupo) "rol_select" al usuario "{usuario}".|[GRANT] rol_select [TO] {usuario};|GIVE,ALLOW,ASSIGN,FOR
-dd|Usuarios 6|Otorga el permiso de inserción en la tabla "{tabla}" al rol "rol_mod".|GRANT [INSERT] ON {tabla} TO rol_mod;|UPDATE,SELECT,ADD
-dd|Usuarios 7|Revoca (quita) todos los privilegios sobre la tabla "{tabla}" al usuario "{usuario}".|[REVOKE] ALL PRIVILEGES ON {tabla} [FROM] {usuario};|DROP,DENY,REMOVE,TO
-dd|Usuarios 8|Transfiere la propiedad de los objetos del usuario "{usuario}" al rol "admin" (paso previo a borrarlo).|[REASSIGN OWNED] BY {usuario} [TO] admin;|TRANSFER,GIVE,SHIFT,FOR
-dd|Usuarios 9|Elimina todos los objetos y permisos que dependan del usuario "{usuario}".|[DROP OWNED] BY {usuario};|DELETE OWNED,REMOVE OWNED,TRUNCATE
-dd|Usuarios 10|Borra definitivamente al usuario "{usuario}" de la base de datos.|[DROP USER] {usuario};|DELETE USER,REMOVE USER,KICK
-dd|Complejos 1|Escribe en orden los tres comandos para eliminar un usuario: Reasignar objetos, eliminar propiedades y borrar cuenta.|[REASSIGN OWNED] BY {usuario} TO postgres; [DROP OWNED] BY {usuario}; [DROP USER] {usuario};|TRANSFER,FOR,DELETE OWNED,REMOVE USER
-dd|Complejos 2|Crea una secuencia completa (Inicia 10, avanza 5, tope 100 y cicla) y solicita su siguiente valor.|CREATE [SEQUENCE] {secuencia} [START WITH] 10 [INCREMENT BY] 5 MAXVALUE 100 [CYCLE]; SELECT [nextval]('{secuencia}');|BEGIN,STEP,LIMIT,LOOP,auto
-dd|Complejos 3|En una sola instrucción ALTER TABLE para "{tabla}": añade la columna A, borra la columna B y cambia el tipo de la columna C.|ALTER TABLE {tabla} [ADD COLUMN] A INT, [DROP COLUMN] B, [ALTER COLUMN] C [TYPE] TEXT;|INSERT,DELETE,MODIFY,CHANGE
+mcs|Teoría DDL|Según el PDF, ¿cuál es la diferencia fundamental entre una Base de Datos y un Esquema?|La BD es compartida sin reconexión; el Esquema requiere reconexión.|La BD está aislada lógicamente (requiere reconexión); los Esquemas comparten el entorno.|Son sinónimos absolutos y se usan igual.|La BD almacena los datos físicos; el Esquema solo controla permisos.|1
+mcs|Teoría Secuencias|Si una secuencia NO CYCLE alcanza su MAXVALUE, ¿qué ocurre al llamar a nextval()?|Reinicia al MINVALUE ignorando la restricción.|Devuelve un error indicando que se alcanzó el límite.|Devuelve NULL silenciosamente.|Aumenta dinámicamente el MAXVALUE en 1.|1
+mcs|Teoría Vistas|Selecciona la afirmación correcta sobre las Vistas según tus apuntes:|Almacenan físicamente los datos duplicados para acelerar la lectura.|Son tablas virtuales basadas en el resultado de una consulta SQL.|Sirven para evitar por completo el uso de tablas reales.|No admiten concatenación de cadenas en su interior.|1
+mcs|Teoría Usuarios|¿Cuál es el superusuario por defecto de PostgreSQL?|admin|postgres|sysdba|root_pg|1
+mcs|Teoría Privilegios|¿Qué vista de sistema se menciona en los apuntes para saber qué usuarios están conectados en tiempo real?|pg_stat_activity|pg_user|pg_hba_conf|current_connections|0
+mcs|Teoría DDL|Al usar TRUNCATE TABLE, ¿qué modificador reinicia las secuencias asociadas IDENTITY?|RESTART IDENTITY|CONTINUE IDENTITY|CASCADE|RESTRICT|0
+mcs|Teoría DDL|¿Qué hace el modificador CASCADE en un TRUNCATE TABLE?|Borra la base de datos aunque contenga datos.|Trunca también las tablas que tienen Foreign Keys (FKs) hacia esta tabla.|Ignora las comprobaciones de seguridad del sistema.|Mantiene el valor actual de las secuencias.|1
+mcs|Teoría Privilegios|De acuerdo al PDF, ¿cuál es el orden lógico para eliminar a un usuario que posee tablas?|DROP USER, luego DROP TABLES.|DROP OWNED, y luego DROP USER.|REASSIGN OWNED, luego DROP OWNED, y finalmente DROP USER.|Solo hacer DROP USER CASCADE.|2
+mcs|Teoría Secuencias|¿Qué función se usa para avanzar una secuencia y obtener el siguiente valor?|getval()|nextval()|currval()|setval()|1
+mcs|Teoría Secuencias|¿Cuál es la función que te permite ver el último valor generado por la secuencia en tu sesión actual sin hacerla avanzar?|lastval()|nextval()|currval()|get_current_sequence()|2
+mcs|Teoría Vistas|En PostgreSQL, ¿qué operador se utiliza explícitamente para concatenar cadenas de texto en las vistas?|CONCAT()|El signo más (+)|El doble ampersand (&&)|Las barras verticales (||)|3
+mcs|Teoría Privilegios|¿Qué tabla de sistema o vista contiene información como 'usename' y 'usecreatedb'?|pg_stat_activity|pg_roles|pg_user|pg_hba_conf|2
+mcs|Teoría Secuencias|En la creación de una secuencia, si no indicamos el START WITH, ¿cuál es su valor por defecto?|0|1|El mínimo valor del tipo entero|-1|1
+mcs|Teoría DDL|¿Cuál es el comportamiento POR DEFECTO de TRUNCATE si hay tablas dependientes (FKs) y no ponemos CASCADE?|Se borran en cascada automáticamente.|Falla y da error (RESTRICT).|Ignora las claves foráneas y borra solo la tabla indicada.|Se borran fila a fila disparando triggers.|1
+mcs|Teoría DDL|Si queremos añadir una columna en PostgreSQL, ¿es posible indicar con AFTER detrás de qué columna va?|Sí, se usa la cláusula AFTER nombre_columna.|Sí, pero solo con el modificador FIRST.|No, en PostgreSQL el orden no se especifica y se añade al final.|Depende de si la tabla tiene datos o está vacía.|2
+mcs|Teoría Privilegios|¿Qué diferencia principal hay entre CURRENT_USER y SESSION_USER?|Son siempre idénticos y redundantes.|CURRENT_USER puede cambiar durante la ejecución si se invocan funciones con SECURITY DEFINER.|SESSION_USER es solo para conexiones web a través de pgadmin.|CURRENT_USER no existe en PG, es de MySQL.|1
+mcs|Teoría Usuarios|Según el PDF, ¿dónde se gestiona el control de acceso por origen de conexión (host) en PostgreSQL?|En la tabla pg_user.|En el fichero pg_hba.conf.|En la tabla pg_stat_activity.|Al usar el comando CREATE USER agregando @'localhost'.|1
+mcm|Teoría DDL|Al usar TRUNCATE TABLE, ¿cuáles de estos modificadores son válidos según PostgreSQL?|RESTART IDENTITY|CONTINUE IDENTITY|CASCADE|DELETE ROWS|0,1,2
+mcm|Teoría Vistas|Selecciona las afirmaciones VERDADERAS sobre las Vistas según tus apuntes:|Almacenan físicamente los datos duplicados para acelerar la lectura.|Son tablas virtuales basadas en el resultado de una consulta SQL.|Sirven para simplificar consultas complejas.|No admiten la creación de columnas calculadas o concatenaciones.|1,2
+mcm|Teoría Secuencias|Al crear una secuencia (CREATE SEQUENCE), ¿cuáles de estas opciones son parámetros válidos para modificar su comportamiento?|START WITH|MAXVALUE|CYCLE|LIMIT BOUND|0,1,2
+mcm|Teoría Usuarios|Para borrar un usuario que posee tablas y permisos, ¿cuáles de estos comandos forman parte del proceso obligatorio y correcto?|REASSIGN OWNED|DROP OWNED|DROP USER|TRUNCATE USER|0,1,2
+mcm|Teoría DDL|¿Cuáles de las siguientes sentencias pertenecen al sublenguaje DDL (Data Definition Language)?|CREATE|DROP|ALTER|SELECT|0,1,2
+dd|DDL 1|Escribe la sentencia para modificar el tipo de dato de la columna "{columna}" a VARCHAR(25).|ALTER TABLE {tabla} [ALTER COLUMN] {columna} [TYPE] VARCHAR(25);|MODIFY COLUMN,CHANGE,SET TYPE
+dd|DDL 2|Escribe la sentencia para establecer que la columna "{columna}" tenga el valor 0 por defecto.|ALTER TABLE {tabla} ALTER COLUMN {columna} [SET DEFAULT] 0;|ADD DEFAULT,DEFAULT,UPDATE
+dd|DDL 3|En la tabla "{tabla}", añade una columna "{columna}" de tipo VARCHAR(25).|ALTER TABLE {tabla} [ADD COLUMN] {columna} VARCHAR(25);|INSERT COL,NEW COL,APPEND
+dd|DDL 4|Elimina permanentemente la columna "{columna}" de la tabla "{tabla}".|ALTER TABLE {tabla} [DROP COLUMN] {columna};|DELETE COL,REMOVE COL,TRUNCATE
+dd|DDL 5|Elimina la restricción llamada "fk_test" de la tabla "{tabla}".|ALTER TABLE {tabla} [DROP CONSTRAINT] fk_test;|DELETE CONSTRAINT,REMOVE KEY,DROP INDEX
+dd|DDL 6|Vacía la tabla "{tabla}" y reinicia las secuencias vinculadas a ella.|TRUNCATE TABLE {tabla} [RESTART IDENTITY];|RESET IDs,CONTINUE IDENTITY,CASCADE
+dd|DDL 7|Vacía la tabla "{tabla}" y trunca también las tablas que tienen FKs hacia ella.|TRUNCATE TABLE {tabla} [CASCADE];|FORCE,ALL,RESTRICT
+dd|DDL 8|Vacía la tabla "{tabla}", reiniciando IDs y afectando a tablas dependientes en una sola línea.|[TRUNCATE TABLE] {tabla} [RESTART IDENTITY] [CASCADE];|DELETE ALL,RESET,FORCE
+dd|Secuencias 1|Crea la secuencia "{secuencia}" usando las opciones por defecto.|CREATE [SEQUENCE] {secuencia};|TABLE,INDEX,COUNTER
+dd|Secuencias 2|Crea la secuencia "{secuencia}" especificando que empiece en el número 10.|CREATE SEQUENCE {secuencia} [START WITH] 10;|BEGIN AT,INIT,FROM
+dd|Secuencias 3|Crea la secuencia "{secuencia}" para que avance de 5 en 5.|CREATE SEQUENCE {secuencia} [INCREMENT BY] 5;|STEP,JUMP,ADD
+dd|Secuencias 4|Al crear la secuencia "{secuencia}", define un valor mínimo de 10.|CREATE SEQUENCE {secuencia} [MINVALUE] 10;|BOTTOM,LOW,FLOOR
+dd|Secuencias 5|Al crear la secuencia "{secuencia}", define un límite máximo de 1000.|CREATE SEQUENCE {secuencia} [MAXVALUE] 1000;|TOP,LIMIT,CEIL
+dd|Secuencias 6|Asegura que la secuencia "{secuencia}" vuelva al principio tras llegar a su valor máximo.|CREATE SEQUENCE {secuencia} [CYCLE];|LOOP,REPEAT,RESTART
+dd|Secuencias 7|Indica explícitamente que la secuencia "{secuencia}" no debe volver a empezar al llegar al tope.|CREATE SEQUENCE {secuencia} [NO CYCLE];|STOP,END,RESTRICT
+dd|Secuencias 8|Borra del sistema la secuencia "{secuencia}".|[DROP SEQUENCE] {secuencia};|DELETE SEQ,REMOVE SEQ,TRUNCATE
+dd|Secuencias 9|Usa la función nativa para hacer avanzar "{secuencia}" y obtener el nuevo valor.|SELECT [nextval]('{secuencia}');|currval,setval,advance
+dd|Secuencias 10|Lee el último valor que generó "{secuencia}" exclusivamente en esta misma sesión.|SELECT [currval]('{secuencia}');|nextval,session_val,lastval
+dd|Secuencias 11|Crea una secuencia definiendo todos los parámetros clave (Inicio, Salto, Tope y Ciclo).|CREATE [SEQUENCE] {secuencia} [START WITH] 10 [INCREMENT BY] 5 [MAXVALUE] 1000 [CYCLE];|BEGIN,STEP,LIMIT,LOOP,auto
+dd|Vistas 1|Crea una vista llamada "{vista}" seleccionando todo de la tabla "{tabla}".|CREATE [VIEW] {vista} AS SELECT * FROM {tabla};|TABLE,VIRTUAL,SELECT
+dd|Vistas 2|Concatena las columnas nombre y apellido en la creación de la vista "{vista}".|CREATE VIEW {vista} AS SELECT nombre [||] ' ' [||] apellido AS completo FROM {tabla};|CONCAT,+,&&
+dd|Vistas 3|Usa una vista ya creada "{vista}" para contar agrupando por ciudad.|SELECT ciudad, [COUNT(*)] FROM {vista} [GROUP BY] ciudad;|SUM(),ORDER BY,TOTAL
+dd|Vistas 4|Elimina la vista "{vista}" que creaste anteriormente.|[DROP VIEW] {vista};|DELETE VIEW,REMOVE VIEW,CLEAR
+dd|Vistas 5|Crea una vista uniendo dos tablas mediante JOIN basándote en la columna ID_cliente.|CREATE VIEW {vista} AS SELECT * FROM c [JOIN] p ON c.id_cli = p.id_cli;|LINK,MERGE,INNER
+dd|Usuarios 1|Consulta cuál es tu usuario actual teniendo en cuenta posibles Security Definers.|SELECT [CURRENT_USER];|SESSION_USER,NOW,USER_ID
+dd|Usuarios 2|Consulta el usuario con el que se abrió inicialmente la conexión a la base de datos.|SELECT [SESSION_USER];|CURRENT_USER,NOW,USER_ID
+dd|Usuarios 3|Muestra todos los usuarios y sus estados desde la vista de actividad del sistema.|SELECT usename, state FROM [pg_stat_activity];|pg_user,pg_roles,pg_hba_conf
+dd|Usuarios 4|Crea el usuario "{usuario}" asignándole directamente la contraseña '1234'.|CREATE [USER] {usuario} [WITH PASSWORD] '1234';|IDENTIFIED BY,PASS,KEY,ROLE
+dd|Usuarios 5|Asigna el rol (o permisos) "rol_select" al usuario "{usuario}".|[GRANT] rol_select [TO] {usuario};|GIVE,ALLOW,ASSIGN,FOR
+dd|Usuarios 6|Otorga el permiso de inserción sobre la tabla "{tabla}" al rol "rol_mod".|GRANT [INSERT] ON {tabla} TO rol_mod;|UPDATE,SELECT,ADD
+dd|Usuarios 7|Quita todos los privilegios sobre la tabla "{tabla}" al usuario "{usuario}".|[REVOKE] ALL PRIVILEGES ON {tabla} [FROM] {usuario};|DROP,DENY,REMOVE,TO
+dd|Usuarios 8|Traspasa la propiedad de los objetos de "{usuario}" al rol "admin" antes de borrarlo.|[REASSIGN OWNED] BY {usuario} [TO] admin;|TRANSFER,GIVE,SHIFT,FOR
+dd|Usuarios 9|Destruye todos los objetos que dependan directamente de "{usuario}" en la base de datos.|[DROP OWNED] BY {usuario};|DELETE OWNED,REMOVE OWNED,TRUNCATE
+dd|Usuarios 10|Elimina definitivamente de la base de datos al usuario "{usuario}".|[DROP USER] {usuario};|DELETE USER,REMOVE USER,KICK
+dd|Complejos 1|Pasos completos para eliminar un usuario: Reasignar, Eliminar objetos, y Borrar usuario.|[REASSIGN OWNED] BY {usuario} TO postgres; [DROP OWNED] BY {usuario}; [DROP USER] {usuario};|TRANSFER,FOR,DELETE OWNED,REMOVE USER
+dd|Complejos 2|Crea una secuencia completa (Inicia en 10, avanza 5, máximo 100, con ciclo) y luego pide su siguiente valor.|CREATE [SEQUENCE] {secuencia} [START WITH] 10 [INCREMENT BY] 5 MAXVALUE 100 [CYCLE]; SELECT [nextval]('{secuencia}');|BEGIN,STEP,LIMIT,LOOP,auto
+dd|Complejos 3|Altera la tabla "{tabla}": añade la columna A, elimina la columna B y cambia el tipo de la columna C.|ALTER TABLE {tabla} [ADD COLUMN] A INT, [DROP COLUMN] B, [ALTER COLUMN] C [TYPE] TEXT;|INSERT,DELETE,MODIFY,CHANGE
 `;
 
             let allQuestionsPool = [];
@@ -314,7 +313,6 @@ dd|Complejos 3|En una sola instrucción ALTER TABLE para "{tabla}": añade la co
                         selectionType: 'multiple', hash: i
                     });
                 } else if (parts[0] === 'dd') {
-                    // Split por CORCHETES [] para identificar las zonas de drop
                     const tmplParts = parts[3].split(/\[|\]/);
                     let template = [], options = [];
                     tmplParts.forEach((p, idx) => {
@@ -349,7 +347,6 @@ dd|Complejos 3|En una sola instrucción ALTER TABLE para "{tabla}": añade la co
                     const rs = s_vars[cursor % s_vars.length];
                     const rv = v_vars[cursor % v_vars.length];
 
-                    // Sustituimos las llaves {} con los nombres propios de Pokemon, pero NUNCA en las opciones arrastrables
                     baseQ.instruction = baseQ.instruction
                         .replace(/\{tabla\}/g, rt).replace(/\{columna\}/g, rc)
                         .replace(/\{usuario\}/g, ru).replace(/\{secuencia\}/g, rs)
@@ -367,7 +364,6 @@ dd|Complejos 3|En una sola instrucción ALTER TABLE para "{tabla}": añade la co
                     baseQ.options = baseQ.options.sort(() => Math.random() - 0.5);
                     
                 } else if (baseQ.type === 'mc') {
-                    // Barajar opciones y remapear la respuesta correcta
                     let mappedCorrectStrings = baseQ.correct.map(idx => baseQ.options[idx]);
                     baseQ.options = baseQ.options.sort(() => Math.random() - 0.5);
                     baseQ.correct = mappedCorrectStrings.map(str => baseQ.options.indexOf(str));
@@ -379,7 +375,6 @@ dd|Complejos 3|En una sola instrucción ALTER TABLE para "{tabla}": añade la co
                 cursor++;
             }
             
-            // Mezclar las 240 preguntas para que salgan en orden aleatorio
             definitive240 = definitive240.sort(() => Math.random() - 0.5);
 
             const gymsData = kantoGyms.map((gym, index) => {
@@ -406,13 +401,6 @@ dd|Complejos 3|En una sola instrucción ALTER TABLE para "{tabla}": añade la co
             function saveProgress() {
                 try { localStorage.setItem(STORAGE_KEY, JSON.stringify(userProgress)); } catch (e) {}
             }
-
-            window.clearSave = function() {
-                if(confirm("⚠️ ¿Estás seguro de que quieres borrar tu partida? Perderás todas tus medallas.")) {
-                    localStorage.removeItem(STORAGE_KEY);
-                    location.reload();
-                }
-            };
 
             function renderMenu() {
                 switchView('view-menu');
