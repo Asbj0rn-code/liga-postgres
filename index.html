@@ -7,6 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=Fira+Code:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
+        /* Base Dark Mode */
         body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: #e2e8f0; overflow-x: hidden; }
         .font-mono { font-family: 'Fira Code', monospace; }
         .no-select { user-select: none; }
@@ -14,10 +15,7 @@
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .hidden-view { display: none !important; }
         
-        .pokeball-header {
-            background: linear-gradient(to bottom, #b91c1c 0%, #b91c1c 48%, #000000 48%, #000000 52%, #fff 52%, #2c3e66 100%);
-            border-bottom: 4px solid #020617;
-        }
+        .pokeball-header { background: linear-gradient(to bottom, #b91c1c 0%, #b91c1c 48%, #020617 48%, #020617 52%, #1e293b 52%, #1e293b 100%); border-bottom: 4px solid #020617; }
         .gym-card { transition: border-color 0.2s, background-color 0.2s; background-color: #1e293b; border: 2px solid #334155; }
         .gym-card:hover { border-color: #ef4444; background-color: #1c2438; }
         .gym-completed { border-color: #f59e0b; background-color: #27272a; }
@@ -58,14 +56,19 @@
         &#9888; Borrar Partida
     </button>
 
-    <header class="pokeball-header shadow-2xl sticky top-0 z-40">
-        <div class="max-w-7xl mx-auto px-4 py-3 flex flex-col md:flex-row justify-between items-center gap-4">
+    <header class="pokeball-header shadow-2xl sticky top-0 z-40 relative">
+        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-14 h-14 sm:w-16 sm:h-16 bg-slate-200 rounded-full border-[5px] border-[#020617] flex items-center justify-center pointer-events-none z-10 shadow-[0_0_10px_rgba(0,0,0,0.6)]">
+            <div class="w-5 h-5 sm:w-6 sm:h-6 bg-white rounded-full border-[3px] sm:border-[4px] border-[#020617] shadow-inner"></div>
+        </div>
+
+        <div class="max-w-7xl mx-auto px-4 py-3 flex flex-col md:flex-row justify-between items-center gap-4 relative z-20">
             <div class="flex items-center space-x-3 cursor-pointer bg-slate-900/90 px-4 py-2 rounded-full backdrop-blur-md border border-slate-700" onclick="quitToMenu()">
                 <div class="w-8 h-8 rounded-full bg-slate-800 border-4 border-slate-950 flex items-center justify-center shadow-inner">
                     <div class="w-3 h-3 rounded-full bg-red-500 shadow-[0_0_5px_rgba(239,68,68,0.8)]"></div>
                 </div>
                 <h1 class="text-xl sm:text-2xl font-black uppercase tracking-wider text-white">Liga <span class="text-red-500">PostgreSQL</span></h1>
             </div>
+            
             <div id="quiz-header-controls" class="hidden flex flex-wrap justify-center items-center gap-3">
                 <button onclick="quitToMenu()" class="text-xs font-bold text-slate-300 hover:text-white uppercase tracking-wider bg-slate-800 hover:bg-red-600 px-3 py-2 rounded-full transition-colors border border-slate-600 shadow-md">Huir</button>
                 <div class="flex items-center gap-2 bg-slate-950 px-4 py-2 rounded-full border border-slate-700 shadow-inner">
@@ -85,7 +88,7 @@
             <div class="mb-12 max-w-4xl mx-auto">
                 <h2 class="text-center text-xl font-black text-slate-200 uppercase tracking-widest mb-4 drop-shadow-md">Estuche de Medallas</h2>
                 <div class="badge-case p-6 sm:p-8 flex justify-center flex-wrap gap-4 sm:gap-6"><div id="badge-case-container" class="flex flex-wrap justify-center gap-4 sm:gap-6"></div></div>
-                <p class="text-center text-slate-400 text-sm mt-4 font-semibold">240 preguntas 100% únicas. Entrena con sintaxis y teoría real de PostgreSQL.</p>
+                <p class="text-center text-slate-400 text-sm mt-4 font-semibold">240 preguntas claras y sin repeticiones. Entrena la sintaxis de PostgreSQL resolviendo sentencias con tus variables.</p>
             </div>
             <div id="gyms-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 pb-16"></div>
         </div>
@@ -140,11 +143,40 @@
         </div>
     </main>
 
+    <template id="tpl-drag-drop">
+        <div class="bg-slate-950 rounded-2xl shadow-inner overflow-hidden border border-slate-800 flex flex-col">
+            <div class="bg-slate-900 px-4 py-2 flex items-center border-b border-slate-800">
+                <span class="text-xs font-bold text-slate-500 uppercase tracking-widest">Terminal_PostgreSQL.sql</span>
+            </div>
+            <div class="p-5 overflow-x-auto flex-grow">
+                <div id="code-container" class="font-mono text-sm sm:text-base leading-[2.5rem] text-sky-100 whitespace-pre-wrap"></div>
+            </div>
+        </div>
+        <div class="mt-4">
+            <h3 class="text-xs font-black text-slate-400 mb-2 uppercase tracking-wider flex items-center">
+                <span class="mr-2 text-red-500">&#129520;</span> Mochila de Fragmentos
+            </h3>
+            <div id="word-bank" class="word-bank shadow-inner"></div>
+        </div>
+    </template>
+    
+    <template id="tpl-multiple-choice">
+        <div id="mc-container" class="space-y-3"></div>
+    </template>
+
     <script>
         window.handleImgError = function(img, fallbackUrl) {
-            img.onerror = null; img.src = fallbackUrl; img.classList.add('fallback-active');
+            if (img.src !== fallbackUrl) {
+                img.onerror = null; 
+                img.src = fallbackUrl; 
+                img.classList.add('fallback-active');
+            }
         };
 
+        document.addEventListener('DOMContentLoaded', () => {
+        // =========================================================================
+        // DATOS DE GIMNASIOS POKÉMON KANTO 
+        // =========================================================================
         const kantoGyms = [
             { id: 1, city: "Ciudad Plateada", type: "Roca", leader: "Brock", image: "https://images.wikidexcdn.net/mwuploads/wikidex/9/99/latest/20230902182628/Cara_de_Brock_LGPE.png", fallback: "https://play.pokemonshowdown.com/sprites/trainers/brock.png", badgeName: "Medalla Roca", badgeImage: "https://images.wikidexcdn.net/mwuploads/wikidex/3/39/latest/20180812014627/Medalla_Roca.png", badgeFallback: "https://img.pokemondb.net/sprites/items/boulder-badge.png" },
             { id: 2, city: "Ciudad Celeste", type: "Agua", leader: "Misty", image: "https://images.wikidexcdn.net/mwuploads/wikidex/7/7f/latest/20230902182717/Cara_de_Misty_LGPE.png", fallback: "https://play.pokemonshowdown.com/sprites/trainers/misty.png", badgeName: "Medalla Cascada", badgeImage: "https://images.wikidexcdn.net/mwuploads/wikidex/6/60/latest/20180812013531/Medalla_Cascada.png", badgeFallback: "https://img.pokemondb.net/sprites/items/cascade-badge.png" },
@@ -156,502 +188,524 @@
             { id: 8, city: "Ciudad Verde", type: "Tierra", leader: "Giovanni", image: "https://images.wikidexcdn.net/mwuploads/wikidex/6/6f/latest/20230902182649/Cara_de_Giovanni_LGPE.png", fallback: "https://play.pokemonshowdown.com/sprites/trainers/giovanni.png", badgeName: "Medalla Tierra", badgeImage: "https://images.wikidexcdn.net/mwuploads/wikidex/1/16/latest/20180812035006/Medalla_Tierra.png", badgeFallback: "https://img.pokemondb.net/sprites/items/earth-badge.png" }
         ];
 
-        // 240 HARDCODED DISTINCT STRINGS
-        // Format: type|topic|instruction|template_or_opts|distractors|correctIdx
-        const rawDB = `
-mc|Teoría DDL|Según el PDF, ¿cuál es la diferencia fundamental entre una Base de Datos y un Esquema?|La BD es compartida sin reconexión; el Esquema requiere reconexión.|La BD está aislada lógicamente (requiere reconexión); los Esquemas comparten el entorno.|Son sinónimos absolutos y se usan igual.|La BD almacena los datos físicos; el Esquema solo controla permisos.|1
-mc|Teoría Secuencias|Si una secuencia NO CYCLE alcanza su MAXVALUE, ¿qué ocurre al llamar a nextval()?|Reinicia al MINVALUE ignorando la restricción.|Devuelve un error indicando que se alcanzó el límite.|Devuelve NULL silenciosamente.|Aumenta dinámicamente el MAXVALUE en 1.|1
-mc|Teoría Vistas|Selecciona la afirmación correcta sobre las Vistas según tus apuntes:|Almacenan físicamente los datos duplicados para acelerar la lectura.|Son tablas virtuales basadas en el resultado de una consulta SQL.|Sirven para evitar por completo el uso de tablas reales.|No admiten concatenación de cadenas en su interior.|1
-mc|Teoría Usuarios|¿Cuál es el superusuario por defecto de PostgreSQL?|admin|postgres|sysdba|root_pg|1
-mc|Teoría Privilegios|¿Qué vista de sistema se menciona en los apuntes para saber qué usuarios están conectados en tiempo real?|pg_stat_activity|pg_user|pg_hba_conf|current_connections|0
-mc|Teoría DDL|Al usar TRUNCATE TABLE, ¿qué modificador reinicia las secuencias asociadas IDENTITY?|RESTART IDENTITY|CONTINUE IDENTITY|CASCADE|RESTRICT|0
-mc|Teoría DDL|¿Qué hace el modificador CASCADE en un TRUNCATE TABLE?|Borra la base de datos aunque contenga datos.|Trunca también las tablas que tienen Foreign Keys (FKs) hacia esta tabla.|Ignora las comprobaciones de seguridad del sistema.|Mantiene el valor actual de las secuencias.|1
-mc|Teoría Privilegios|De acuerdo al PDF, ¿cuál es el orden lógico para eliminar a un usuario que posee tablas?|DROP USER, luego DROP TABLES.|DROP OWNED, y luego DROP USER.|REASSIGN OWNED, luego DROP OWNED, y finalmente DROP USER.|Solo hacer DROP USER CASCADE.|2
-mc|Teoría Secuencias|¿Qué función se usa para avanzar una secuencia y obtener el siguiente valor?|getval()|nextval()|currval()|setval()|1
-mc|Teoría Secuencias|¿Cuál es la función que te permite ver el último valor generado por la secuencia en tu sesión actual sin hacerla avanzar?|lastval()|nextval()|currval()|get_current_sequence()|2
-mc|Teoría Vistas|En PostgreSQL, ¿qué operador se utiliza explícitamente para concatenar cadenas de texto?|CONCAT()|El signo más (+)|El doble ampersand (&&)|Las barras verticales (||)|3
-mc|Teoría Privilegios|¿Qué tabla de sistema o vista contiene información como 'usename' y 'usecreatedb'?|pg_stat_activity|pg_roles|pg_user|pg_hba_conf|2
-mc|Teoría Secuencias|En la creación de una secuencia, si no indicamos el START WITH, ¿cuál es su valor por defecto?|0|1|El mínimo valor del tipo entero|-1|1
-mc|Teoría DDL|¿Cuál es el comportamiento POR DEFECTO de TRUNCATE si hay tablas dependientes (FKs) y no ponemos CASCADE?|Se borran en cascada automáticamente.|Falla y da error (RESTRICT).|Ignora las claves foráneas y borra solo la tabla indicada.|Se borran fila a fila disparando triggers.|1
-mc|Teoría DDL|Si queremos añadir una columna en PostgreSQL, ¿es posible indicar con AFTER detrás de qué columna va?|Sí, se usa la cláusula AFTER nombre_columna.|Sí, pero solo con el modificador FIRST.|No, en PostgreSQL el orden no se especifica y se añade al final.|Depende de si la tabla tiene datos o está vacía.|2
-mc|Teoría Privilegios|¿Qué diferencia principal hay entre CURRENT_USER y SESSION_USER?|Son siempre idénticos y redundantes.|CURRENT_USER puede cambiar durante la ejecución si se invocan funciones con SECURITY DEFINER.|SESSION_USER es solo para conexiones web a través de pgadmin.|CURRENT_USER no existe en PG, es de MySQL.|1
-mc|Teoría Usuarios|Según el PDF, ¿dónde se gestiona el control de acceso por origen de conexión (host) en PostgreSQL?|En la tabla pg_user.|En el fichero pg_hba.conf.|En la tabla pg_stat_activity.|Al usar el comando CREATE USER agregando @'localhost'.|1
-mc|Teoría Secuencias|¿Qué comando SQL borra una secuencia del sistema?|DELETE SEQUENCE seq;|REMOVE SEQUENCE seq;|DROP SEQUENCE seq;|TRUNCATE SEQUENCE seq;|2
-mc|Teoría Vistas|¿Qué comando usas para borrar una vista en PostgreSQL?|DELETE VIEW v;|DROP VIEW v;|REMOVE VIEW v;|TRUNCATE VIEW v;|1
-mc|Teoría DDL|Para cambiar el tipo de dato de una columna en una tabla existente, se usa:|ALTER TABLE t MODIFY c TYPE t;|ALTER TABLE t CHANGE c TYPE t;|ALTER TABLE t ALTER COLUMN c TYPE t;|ALTER TABLE t UPDATE c TYPE t;|2
-mc|Teoría Privilegios|El comando para quitar un permiso previamente otorgado a un usuario es:|DELETE PERMISSION|REVOKE|DROP GRANT|REMOVE ACCESS|1
-mc|Teoría Privilegios|El comando REASSIGN OWNED BY user1 TO user2 sirve para:|Borrar los objetos de user1.|Copiar los objetos de user1 a user2.|Transferir la propiedad de todos los objetos de user1 a user2.|Cambiar el nombre del usuario.|2
-mc|Teoría DDL|¿Qué hace ALTER TABLE t ALTER COLUMN c SET DEFAULT 0?|Pone todos los valores existentes a 0.|Asegura que los nuevos registros sin ese dato tomen el valor 0.|Borra la columna si es 0.|Da error de sintaxis.|1
-mc|Teoría Vistas|Una vista se puede considerar como:|Una tabla física de solo lectura.|Una consulta almacenada que se ejecuta dinámicamente.|Un backup de una tabla.|Una secuencia de caracteres.|1
-dd|DDL 1|Escribe la sentencia para modificar el tipo de dato de la columna "nombre" a VARCHAR(25).|ALTER TABLE t1 {ALTER COLUMN} nombre {TYPE} VARCHAR(25);|MODIFY COLUMN,CHANGE,SET TYPE
-dd|DDL 2|Escribe la sentencia para establecer que la columna "comision" tenga el valor 0 por defecto.|ALTER TABLE t2 ALTER COLUMN comision {SET DEFAULT} 0;|ADD DEFAULT,DEFAULT,UPDATE
-dd|DDL 3|En la tabla "empleados", añade una columna "apellido2" de tipo VARCHAR(25).|ALTER TABLE empleados {ADD COLUMN} apellido2 VARCHAR(25);|INSERT COL,NEW COL,APPEND
-dd|DDL 4|Elimina permanentemente la columna "apellido2" de la tabla "empleados".|ALTER TABLE empleados {DROP COLUMN} apellido2;|DELETE COL,REMOVE COL,TRUNCATE
-dd|DDL 5|Elimina la restricción llamada "fk2" de una tabla.|ALTER TABLE t3 {DROP CONSTRAINT} fk2;|DELETE CONSTRAINT,REMOVE KEY,DROP INDEX
-dd|DDL 6|Vacía la tabla "categoria" y reinicia las secuencias vinculadas a ella.|TRUNCATE TABLE categoria {RESTART IDENTITY};|RESET IDs,CONTINUE IDENTITY,CASCADE
-dd|DDL 7|Vacía la tabla "pieza" y trunca también las tablas que tienen FKs hacia ella.|TRUNCATE TABLE pieza {CASCADE};|FORCE,ALL,RESTRICT
-dd|DDL 8|Vacía la tabla "pedidos", reiniciando IDs y afectando a tablas dependientes.|{TRUNCATE TABLE} pedidos {RESTART IDENTITY} {CASCADE};|DELETE ALL,RESET,FORCE
-dd|Secuencias 1|Crea la secuencia "seq_1" usando las opciones por defecto.|CREATE {SEQUENCE} seq_1;|TABLE,INDEX,COUNTER
-dd|Secuencias 2|Crea la secuencia "seq_2" especificando que empiece en el número 10.|CREATE SEQUENCE seq_2 {START WITH} 10;|BEGIN AT,INIT,FROM
-dd|Secuencias 3|Crea la secuencia "seq_3" para que avance de 5 en 5.|CREATE SEQUENCE seq_3 {INCREMENT BY} 5;|STEP,JUMP,ADD
-dd|Secuencias 4|Al crear la secuencia "seq_4", define un valor mínimo de 10.|CREATE SEQUENCE seq_4 {MINVALUE} 10;|BOTTOM,LOW,FLOOR
-dd|Secuencias 5|Al crear la secuencia "seq_5", define un límite máximo de 1000.|CREATE SEQUENCE seq_5 {MAXVALUE} 1000;|TOP,LIMIT,CEIL
-dd|Secuencias 6|Asegura que la secuencia "seq_6" vuelva al principio tras llegar a su valor máximo.|CREATE SEQUENCE seq_6 {CYCLE};|LOOP,REPEAT,RESTART
-dd|Secuencias 7|Indica explícitamente que la secuencia "seq_7" no debe volver a empezar al llegar al tope.|CREATE SEQUENCE seq_7 {NO CYCLE};|STOP,END,RESTRICT
-dd|Secuencias 8|Borra del sistema la secuencia "seq_8".|{DROP SEQUENCE} seq_8;|DELETE SEQ,REMOVE SEQ,TRUNCATE
-dd|Secuencias 9|Usa la función nativa para hacer avanzar "seq_9" y obtener el nuevo valor.|SELECT {nextval}('seq_9');|currval,setval,advance
-dd|Secuencias 10|Lee el último valor que generó "seq_10" en esta misma sesión.|SELECT {currval}('seq_10');|nextval,session_val,lastval
-dd|Secuencias 11|Crea una secuencia definiendo parámetros clave: Inicia en 10, salta 5, tope 1000 y reinicia.|CREATE {SEQUENCE} sq {START WITH} 10 {INCREMENT BY} 5 {MAXVALUE} 1000 {CYCLE};|BEGIN,STEP,LIMIT,LOOP,auto
-dd|Vistas 1|Crea una vista llamada "v1" seleccionando todo de la tabla "t1".|CREATE {VIEW} v1 AS SELECT * FROM t1;|TABLE,VIRTUAL,SELECT
-dd|Vistas 2|Concatena las columnas nombre y apellido en la creación de la vista "v2".|CREATE VIEW v2 AS SELECT nombre {||} ' ' {||} apellido AS completo FROM t2;|CONCAT,+,&&
-dd|Vistas 3|Usa una vista ya creada "v3" para contar agrupando por ciudad.|SELECT ciudad, {COUNT(*)} FROM v3 {GROUP BY} ciudad;|SUM(),ORDER BY,TOTAL
-dd|Vistas 4|Elimina la vista "v4" que creaste anteriormente.|{DROP VIEW} v4;|DELETE VIEW,REMOVE VIEW,CLEAR
-dd|Vistas 5|Crea una vista uniendo dos tablas mediante JOIN basándote en la columna id_cli.|CREATE VIEW v5 AS SELECT * FROM c {JOIN} p ON c.id_cli = p.id_cli;|LINK,MERGE,INNER
-dd|Usuarios 1|Consulta cuál es tu usuario actual teniendo en cuenta posibles Security Definers.|SELECT {CURRENT_USER};|SESSION_USER,NOW,USER_ID
-dd|Usuarios 2|Consulta el usuario con el que se abrió inicialmente la conexión a la base de datos.|SELECT {SESSION_USER};|CURRENT_USER,NOW,USER_ID
-dd|Usuarios 3|Muestra los usuarios desde la vista de actividad del sistema.|SELECT usename FROM {pg_stat_activity};|pg_user,pg_roles,pg_hba_conf
-dd|Usuarios 4|Crea el usuario "u1" asignándole directamente la contraseña '1234'.|CREATE {USER} u1 {WITH PASSWORD} '1234';|IDENTIFIED BY,PASS,KEY,ROLE
-dd|Usuarios 5|Asigna el rol (o permisos) "rol_s" al usuario "u2".|{GRANT} rol_s {TO} u2;|GIVE,ALLOW,ASSIGN,FOR
-dd|Usuarios 6|Otorga el permiso de inserción sobre la tabla "t1" al rol "rol_m".|GRANT {INSERT} ON t1 TO rol_m;|UPDATE,SELECT,ADD
-dd|Usuarios 7|Quita todos los privilegios sobre la tabla "t2" al usuario "u3".|{REVOKE} ALL PRIVILEGES ON t2 {FROM} u3;|DROP,DENY,REMOVE,TO
-dd|Usuarios 8|Traspasa la propiedad de los objetos de "u4" al rol "admin" antes de borrarlo.|{REASSIGN OWNED} BY u4 {TO} admin;|TRANSFER,GIVE,SHIFT,FOR
-dd|Usuarios 9|Destruye todos los objetos que dependan directamente de "u5" en la base de datos.|{DROP OWNED} BY u5;|DELETE OWNED,REMOVE OWNED,TRUNCATE
-dd|Usuarios 10|Elimina definitivamente de la base de datos al usuario "u6".|{DROP USER} u6;|DELETE USER,REMOVE USER,KICK
-dd|Complejos 1|Pasos para eliminar un usuario: Reasignar, Eliminar objetos, y Borrar usuario.|{REASSIGN OWNED} BY u7 TO postgres; {DROP OWNED} BY u7; {DROP USER} u7;|TRANSFER,FOR,DELETE OWNED,REMOVE USER
-dd|Complejos 2|Crea una secuencia (Inicia en 10, avanza 5, máximo 100, con ciclo) y luego pide su siguiente valor.|CREATE {SEQUENCE} sq_c {START WITH} 10 {INCREMENT BY} 5 MAXVALUE 100 {CYCLE}; SELECT {nextval}('sq_c');|BEGIN,STEP,LIMIT,LOOP,auto
-dd|Complejos 3|Altera tabla: añade columna A, elimina columna B y cambia tipo de C.|ALTER TABLE tx {ADD COLUMN} A INT, {DROP COLUMN} B, {ALTER COLUMN} C {TYPE} TEXT;|INSERT,DELETE,MODIFY,CHANGE
+            // 240 HARDCODED DISTINCT STRINGS
+            // Fíjate en el uso de los corchetes [] para definir los huecos de arrastre y llaves {} para variables temáticas.
+            const rawDB = `
+mcs|Teoría DDL|Según el temario, ¿cuál es la diferencia principal entre Base de Datos y Esquema?|La BD es compartida sin reconexión; el Esquema requiere reconexión.|La BD está aislada lógicamente (requiere reconexión); los Esquemas comparten el entorno.|Son sinónimos absolutos y se usan igual.|La BD almacena los datos físicos; el Esquema solo controla permisos.|1
+mcs|Teoría Secuencias|Si una secuencia NO CYCLE llega a su valor MAXVALUE, ¿qué ocurre al ejecutar nextval()?|Reinicia al MINVALUE ignorando la restricción.|Devuelve un error indicando que se alcanzó el límite.|Devuelve NULL silenciosamente.|Aumenta dinámicamente el MAXVALUE en 1.|1
+mcs|Teoría Privilegios|¿Cuál es el superusuario por defecto de PostgreSQL (equivalente a "root")?|admin|postgres|sysdba|root_pg|1
+mcs|Teoría Monitoreo|¿Qué vista del sistema permite ver los usuarios conectados en tiempo real?|pg_stat_activity|pg_user|pg_hba_conf|current_connections|0
+mcs|Teoría DDL|¿Qué hace el modificador CASCADE en un comando TRUNCATE TABLE?|Borra la base de datos aunque contenga datos.|Vacía también las tablas que tienen claves foráneas (FK) hacia esa tabla.|Ignora las comprobaciones de seguridad del sistema.|Mantiene el valor actual de las secuencias.|1
+mcs|Teoría Privilegios|De acuerdo a los apuntes, ¿cuál es el orden correcto para borrar un usuario que es propietario de tablas?|DROP USER, luego DROP TABLES.|DROP OWNED, y luego DROP USER.|REASSIGN OWNED, luego DROP OWNED, y finalmente DROP USER.|Solo ejecutar DROP USER CASCADE.|2
+mcs|Teoría Secuencias|¿Qué función se utiliza para avanzar una secuencia y obtener su siguiente valor?|getval()|nextval()|currval()|setval()|1
+mcs|Teoría Secuencias|¿Qué función muestra el último valor generado por la secuencia en la sesión actual sin avanzar la secuencia?|lastval()|nextval()|currval()|get_current_sequence()|2
+mcs|Teoría Vistas|En PostgreSQL, ¿qué operador se usa para concatenar cadenas de texto al definir columnas en una vista?|CONCAT()|El signo más (+)|El doble ampersand (&&)|Las barras verticales dobles (||)|3
+mcs|Teoría Privilegios|¿En qué vista del sistema se puede ver información de los usuarios como "usename" y "usecreatedb"?|pg_stat_activity|pg_roles|pg_user|pg_hba_conf|2
+mcs|Teoría Secuencias|Si creas una secuencia y no especificas "START WITH", ¿cuál será el valor inicial por defecto?|0|1|El mínimo valor del tipo de dato numérico|-1|1
+mcs|Teoría DDL|Si usas TRUNCATE en una tabla que tiene claves foráneas apuntando a ella, y no especificas CASCADE, ¿qué ocurre por defecto?|Las tablas dependientes se vacían automáticamente.|El comando falla y da error (comportamiento RESTRICT).|Se ignoran las claves foráneas y solo se vacía la tabla origen.|Se borran fila a fila disparando triggers.|1
+mcs|Teoría DDL|Al añadir una columna en PostgreSQL con ADD COLUMN, ¿es posible indicar en qué posición debe ir (por ejemplo, con AFTER)?|Sí, usando la cláusula AFTER.|Sí, pero solo se puede poner al principio con FIRST.|No, en PostgreSQL no se puede especificar el orden, se añade al final.|Depende de si la tabla está vacía o tiene datos.|2
+mcs|Teoría Privilegios|¿Qué diferencia hay entre CURRENT_USER y SESSION_USER?|Son exactamente lo mismo.|CURRENT_USER puede cambiar durante la ejecución de funciones SECURITY DEFINER.|SESSION_USER solo sirve para conexiones web externas.|CURRENT_USER es sintaxis de Oracle, no de PostgreSQL.|1
+mcs|Teoría Usuarios|Según los apuntes, a diferencia de MySQL, ¿dónde se configura en PostgreSQL el acceso según la IP o el origen de la conexión?|En la tabla pg_user.|En el fichero de configuración pg_hba.conf.|En la tabla pg_stat_activity.|Añadiendo @'localhost' en el CREATE USER.|1
+mcm|Teoría DDL|Al ejecutar TRUNCATE TABLE, ¿cuáles de los siguientes modificadores son opciones válidas en PostgreSQL?|RESTART IDENTITY|CONTINUE IDENTITY|CASCADE|DELETE ROWS|0,1,2
+mcm|Teoría Vistas|Selecciona las afirmaciones VERDADERAS sobre las Vistas en PostgreSQL:|Almacenan una copia física de los datos para ser más rápidas.|Son tablas virtuales que guardan la consulta SQL, no los datos.|Ayudan a simplificar consultas complejas.|No permiten crear columnas calculadas.|1,2
+mcm|Teoría Secuencias|Al usar CREATE SEQUENCE, ¿qué parámetros son válidos para configurar la secuencia?|START WITH|MAXVALUE|CYCLE|LIMIT BOUND|0,1,2
+mcm|Teoría Usuarios|Si vas a borrar un usuario que tiene objetos y permisos a su nombre, ¿qué comandos son necesarios en el proceso correcto?|REASSIGN OWNED|DROP OWNED|DROP USER|TRUNCATE USER|0,1,2
+mcm|Teoría DDL|¿Cuáles de las siguientes sentencias forman parte del lenguaje DDL (Definición de Datos)?|CREATE|DROP|ALTER|SELECT|0,1,2
+dd|DDL 1|Escribe la instrucción para cambiar el tipo de dato de la columna "{columna}" a VARCHAR(25).|ALTER TABLE {tabla} [ALTER COLUMN] {columna} [TYPE] VARCHAR(25);|MODIFY COLUMN,CHANGE,SET TYPE
+dd|DDL 2|Establece que la columna "{columna}" tenga el valor 0 por defecto.|ALTER TABLE {tabla} ALTER COLUMN {columna} [SET DEFAULT] 0;|ADD DEFAULT,DEFAULT,UPDATE
+dd|DDL 3|Añade una columna llamada "{columna}" de tipo VARCHAR(25) a la tabla "{tabla}".|ALTER TABLE {tabla} [ADD COLUMN] {columna} VARCHAR(25);|INSERT COL,NEW COL,APPEND
+dd|DDL 4|Elimina la columna "{columna}" de la tabla "{tabla}".|ALTER TABLE {tabla} [DROP COLUMN] {columna};|DELETE COL,REMOVE COL,TRUNCATE
+dd|DDL 5|Elimina la restricción (constraint) llamada "fk_test" de la tabla "{tabla}".|ALTER TABLE {tabla} [DROP CONSTRAINT] fk_test;|DELETE CONSTRAINT,REMOVE KEY,DROP INDEX
+dd|DDL 6|Vacía la tabla "{tabla}" y reinicia el valor de sus secuencias asociadas.|TRUNCATE TABLE {tabla} [RESTART IDENTITY];|RESET IDs,CONTINUE IDENTITY,CASCADE
+dd|DDL 7|Vacía la tabla "{tabla}" y vacía también en cascada las tablas que dependen de ella.|TRUNCATE TABLE {tabla} [CASCADE];|FORCE,ALL,RESTRICT
+dd|DDL 8|Vacía la tabla "{tabla}", reiniciando secuencias y afectando a tablas dependientes en cascada.|[TRUNCATE TABLE] {tabla} [RESTART IDENTITY] [CASCADE];|DELETE ALL,RESET,FORCE
+dd|Secuencias 1|Crea la secuencia "{secuencia}" con la configuración por defecto.|CREATE [SEQUENCE] {secuencia};|TABLE,INDEX,COUNTER
+dd|Secuencias 2|Crea la secuencia "{secuencia}" haciendo que comience en el número 10.|CREATE SEQUENCE {secuencia} [START WITH] 10;|BEGIN AT,INIT,FROM
+dd|Secuencias 3|Crea la secuencia "{secuencia}" para que su valor aumente de 5 en 5.|CREATE SEQUENCE {secuencia} [INCREMENT BY] 5;|STEP,JUMP,ADD
+dd|Secuencias 4|Crea la secuencia "{secuencia}" estableciendo un valor mínimo de 10.|CREATE SEQUENCE {secuencia} [MINVALUE] 10;|BOTTOM,LOW,FLOOR
+dd|Secuencias 5|Crea la secuencia "{secuencia}" estableciendo un límite máximo de 1000.|CREATE SEQUENCE {secuencia} [MAXVALUE] 1000;|TOP,LIMIT,CEIL
+dd|Secuencias 6|Crea la secuencia "{secuencia}" y haz que reinicie su valor cuando llegue al límite máximo.|CREATE SEQUENCE {secuencia} [CYCLE];|LOOP,REPEAT,RESTART
+dd|Secuencias 7|Crea la secuencia "{secuencia}" y asegúrate explícitamente de que NO reinicie al llegar a su límite.|CREATE SEQUENCE {secuencia} [NO CYCLE];|STOP,END,RESTRICT
+dd|Secuencias 8|Elimina la secuencia "{secuencia}" de la base de datos.|[DROP SEQUENCE] {secuencia};|DELETE SEQ,REMOVE SEQ,TRUNCATE
+dd|Secuencias 9|Obtén el siguiente valor de la secuencia "{secuencia}".|SELECT [nextval]('{secuencia}');|currval,setval,advance
+dd|Secuencias 10|Consulta el último valor generado por la secuencia "{secuencia}" en la sesión actual.|SELECT [currval]('{secuencia}');|nextval,session_val,lastval
+dd|Secuencias 11|Crea la secuencia "{secuencia}" configurando: Inicio en 10, aumento de 5, tope de 1000 y que reinicie al llegar al tope.|CREATE [SEQUENCE] {secuencia} [START WITH] 10 [INCREMENT BY] 5 [MAXVALUE] 1000 [CYCLE];|BEGIN,STEP,LIMIT,LOOP,auto
+dd|Vistas 1|Crea una vista llamada "{vista}" que seleccione todos los datos de la tabla "{tabla}".|CREATE [VIEW] {vista} AS SELECT * FROM {tabla};|TABLE,VIRTUAL,SELECT
+dd|Vistas 2|Crea la vista "{vista}" concatenando las columnas nombre y apellido.|CREATE VIEW {vista} AS SELECT nombre [||] ' ' [||] apellido AS completo FROM {tabla};|CONCAT,+,&&
+dd|Vistas 3|Usando la vista "{vista}", cuenta el número de registros agrupados por ciudad.|SELECT ciudad, [COUNT(*)] FROM {vista} [GROUP BY] ciudad;|SUM(),ORDER BY,TOTAL
+dd|Vistas 4|Elimina la vista "{vista}".|[DROP VIEW] {vista};|DELETE VIEW,REMOVE VIEW,CLEAR
+dd|Vistas 5|Crea la vista "{vista}" uniendo las tablas "c" y "p" basándote en la columna "id_cli".|CREATE VIEW {vista} AS SELECT * FROM c [JOIN] p ON c.id_cli = p.id_cli;|LINK,MERGE,INNER
+dd|Usuarios 1|Consulta cuál es el usuario de ejecución actual (puede cambiar si hay funciones con Security Definer).|SELECT [CURRENT_USER];|SESSION_USER,NOW,USER_ID
+dd|Usuarios 2|Consulta el usuario con el que se abrió la conexión original a la base de datos.|SELECT [SESSION_USER];|CURRENT_USER,NOW,USER_ID
+dd|Usuarios 3|Consulta la vista del sistema que muestra los usuarios conectados y su estado.|SELECT usename, state FROM [pg_stat_activity];|pg_user,pg_roles,pg_hba_conf
+dd|Usuarios 4|Crea el usuario "{usuario}" y asígnale directamente la contraseña '1234'.|CREATE [USER] {usuario} [WITH PASSWORD] '1234';|IDENTIFIED BY,PASS,KEY,ROLE
+dd|Usuarios 5|Asigna el rol (o grupo) "rol_select" al usuario "{usuario}".|[GRANT] rol_select [TO] {usuario};|GIVE,ALLOW,ASSIGN,FOR
+dd|Usuarios 6|Otorga el permiso de inserción en la tabla "{tabla}" al rol "rol_mod".|GRANT [INSERT] ON {tabla} TO rol_mod;|UPDATE,SELECT,ADD
+dd|Usuarios 7|Revoca (quita) todos los privilegios sobre la tabla "{tabla}" al usuario "{usuario}".|[REVOKE] ALL PRIVILEGES ON {tabla} [FROM] {usuario};|DROP,DENY,REMOVE,TO
+dd|Usuarios 8|Transfiere la propiedad de los objetos del usuario "{usuario}" al rol "admin" (paso previo a borrarlo).|[REASSIGN OWNED] BY {usuario} [TO] admin;|TRANSFER,GIVE,SHIFT,FOR
+dd|Usuarios 9|Elimina todos los objetos y permisos que dependan del usuario "{usuario}".|[DROP OWNED] BY {usuario};|DELETE OWNED,REMOVE OWNED,TRUNCATE
+dd|Usuarios 10|Borra definitivamente al usuario "{usuario}" de la base de datos.|[DROP USER] {usuario};|DELETE USER,REMOVE USER,KICK
+dd|Complejos 1|Escribe en orden los tres comandos para eliminar un usuario: Reasignar objetos, eliminar propiedades y borrar cuenta.|[REASSIGN OWNED] BY {usuario} TO postgres; [DROP OWNED] BY {usuario}; [DROP USER] {usuario};|TRANSFER,FOR,DELETE OWNED,REMOVE USER
+dd|Complejos 2|Crea una secuencia completa (Inicia 10, avanza 5, tope 100 y cicla) y solicita su siguiente valor.|CREATE [SEQUENCE] {secuencia} [START WITH] 10 [INCREMENT BY] 5 MAXVALUE 100 [CYCLE]; SELECT [nextval]('{secuencia}');|BEGIN,STEP,LIMIT,LOOP,auto
+dd|Complejos 3|En una sola instrucción ALTER TABLE para "{tabla}": añade la columna A, borra la columna B y cambia el tipo de la columna C.|ALTER TABLE {tabla} [ADD COLUMN] A INT, [DROP COLUMN] B, [ALTER COLUMN] C [TYPE] TEXT;|INSERT,DELETE,MODIFY,CHANGE
 `;
 
-        let allQuestionsPool = [];
-        rawDB.trim().split('\n').filter(l => l.length > 5).forEach((line, i) => {
-            const parts = line.split('|');
-            if (parts[0] === 'mc') {
-                allQuestionsPool.push({
-                    type: 'mc', topic: parts[1], instruction: parts[2],
-                    options: [parts[3], parts[4], parts[5], parts[6]],
-                    correct: [parseInt(parts[7])],
-                    selectionType: parts[1].includes('Múltiple') ? 'multiple' : 'single'
-                });
-            } else if (parts[0] === 'dd') {
-                const tmplParts = parts[3].split(/\{|\}/);
-                let template = [], options = [];
-                tmplParts.forEach((p, idx) => {
-                    if (idx % 2 === 0) { if(p) template.push(p); } 
-                    else { template.push({ id: `b_${i}_${idx}`, answer: p }); options.push(p); }
-                });
-                let distractors = parts[4] ? parts[4].split(',') : [];
-                distractors.push('AUTO_INCREMENT', 'MODIFY_COL');
-                options = [...new Set([...options, ...distractors])].sort(() => Math.random() - 0.5);
-                allQuestionsPool.push({ type: 'dd', topic: parts[1], instruction: parts[2], template, options });
-            }
-        });
-
-        // Generar 240 ÚNICAS variando variables sintácticas si hace falta ciclar el pool
-        let definitive240 = [];
-        const t_vars = ['pokemon', 'entrenadores', 'objetos', 'medallas', 'cajas_pc', 'movimientos', 'gimnasios', 'equipos'];
-        const c_vars = ['nivel', 'hp_max', 'ataque', 'defensa', 'velocidad', 'precio', 'cantidad', 'estado'];
-        const u_vars = ['red', 'blue', 'oak', 'giovanni', 'rocket', 'joy', 'jenny', 'lance'];
-        
-        for (let i = 0; i < 240; i++) {
-            let q = JSON.parse(JSON.stringify(allQuestionsPool[i % allQuestionsPool.length]));
+            let allQuestionsPool = [];
             
-            if (i >= allQuestionsPool.length && q.type === 'dd') {
-                const rt = t_vars[i % t_vars.length];
-                const rc = c_vars[i % c_vars.length];
-                const ru = u_vars[i % u_vars.length];
+            rawDB.trim().split('\n').filter(l => l.length > 5).forEach((line, i) => {
+                const parts = line.split('|');
                 
-                q.instruction = q.instruction.replace(/t[1-9]|categoria|pieza|pedidos|empleados|tx/, rt)
-                                             .replace(/apellido2|comision|nombre/, rc)
-                                             .replace(/u[1-9]/, ru);
-                                             
-                q.template = q.template.map(t => {
-                    if (typeof t === 'string') {
-                        return t.replace(/t[1-9]|categoria|pieza|pedidos|empleados|tx/g, rt)
-                                .replace(/apellido2|comision|nombre/g, rc)
-                                .replace(/u[1-9]/g, ru);
-                    }
-                    return t;
-                });
-                q.options = q.options.sort(() => Math.random() - 0.5);
-            } else if (i >= allQuestionsPool.length && q.type === 'mc') {
-                 q.instruction = q.instruction + " ".repeat((i%5)+1);
-            }
-            definitive240.push(q);
-        }
-        
-        // Distribución Aleatoria Global
-        definitive240 = definitive240.sort(() => Math.random() - 0.5);
-
-        const gymsData = kantoGyms.map((gym, index) => {
-            return { ...gym, questions: definitive240.slice(index * 30, (index + 1) * 30) };
-        });
-
-        // =========================================================================
-        // ESTADO DE LA APP Y LOCAL STORAGE
-        // =========================================================================
-        let userProgress = {}; 
-        let currentGym = null;
-        let currentQuestionIndex = 0;
-        let sessionErrors = 0;
-        let sessionCorrect = 0;
-        let timerInterval;
-        let timeSeconds = 0;
-        let selectedOptionsMC = [];
-
-        const STORAGE_KEY = 'pgLigaKantoSyllabusProgFixed';
-
-        function loadProgress() {
-            try { const stored = localStorage.getItem(STORAGE_KEY); if (stored) userProgress = JSON.parse(stored); } catch (e) {}
-        }
-        function saveProgress() {
-            try { localStorage.setItem(STORAGE_KEY, JSON.stringify(userProgress)); } catch (e) {}
-        }
-
-        window.clearSave = function() {
-            if(confirm("⚠️ ¿Estás seguro de que quieres borrar tu partida? Perderás todas tus medallas.")) {
-                localStorage.removeItem(STORAGE_KEY);
-                location.reload();
-            }
-        };
-
-        // =========================================================================
-        // LÓGICA DEL DOM Y RENDERIZADO
-        // =========================================================================
-        window.initApp = function() { 
-            loadProgress();
-            renderMenu(); 
-        };
-
-        function renderMenu() {
-            switchView('view-menu');
-            stopTimer();
-            document.getElementById('quiz-header-controls').classList.add('hidden');
-            document.getElementById('progress-bar-container').classList.add('hidden');
-            
-            const badgeCase = document.getElementById('badge-case-container');
-            badgeCase.innerHTML = '';
-            gymsData.forEach(gym => {
-                const isCompleted = userProgress[gym.id] && userProgress[gym.id].completed;
-                const slotEl = document.createElement('div');
-                slotEl.className = 'w-14 h-14 sm:w-20 sm:h-20 badge-slot';
-                
-                const badgeEl = document.createElement('img');
-                badgeEl.src = gym.badgeImage;
-                badgeEl.title = isCompleted ? `${gym.badgeName} (Gimnasio ${gym.city})` : `Medalla Desconocida`;
-                badgeEl.className = isCompleted ? 'w-10 h-10 sm:w-14 sm:h-14 badge-img badge-earned' : 'w-10 h-10 sm:w-14 sm:h-14 badge-img badge-locked';
-                badgeEl.addEventListener('error', function() { handleImgError(this, gym.badgeFallback); }, { once: true });
-                
-                slotEl.appendChild(badgeEl);
-                badgeCase.appendChild(slotEl);
+                if (parts[0] === 'mcs') {
+                    const correctIdx = parseInt(parts.pop());
+                    const options = parts.slice(3).filter(Boolean);
+                    allQuestionsPool.push({
+                        type: 'mc', topic: parts[1], instruction: parts[2],
+                        options: options, correct: [correctIdx],
+                        selectionType: 'single', hash: i
+                    });
+                } else if (parts[0] === 'mcm') {
+                    const correctIndices = parts.pop().split(',').map(n => parseInt(n));
+                    const options = parts.slice(3).filter(Boolean);
+                    allQuestionsPool.push({
+                        type: 'mc', topic: parts[1], instruction: parts[2],
+                        options: options, correct: correctIndices,
+                        selectionType: 'multiple', hash: i
+                    });
+                } else if (parts[0] === 'dd') {
+                    // Split por CORCHETES [] para identificar las zonas de drop
+                    const tmplParts = parts[3].split(/\[|\]/);
+                    let template = [], options = [];
+                    tmplParts.forEach((p, idx) => {
+                        if (idx % 2 === 0) { if(p) template.push(p); } 
+                        else { template.push({ id: `b_${i}_${idx}`, answer: p }); options.push(p); }
+                    });
+                    let distractors = parts[4] ? parts[4].split(',') : [];
+                    distractors.push('AUTO_INCREMENT', 'MODIFY_COL'); 
+                    
+                    options = [...new Set([...options, ...distractors])].sort(() => Math.random() - 0.5);
+                    
+                    allQuestionsPool.push({ type: 'dd', topic: parts[1], instruction: parts[2], template, options, hash: i });
+                }
             });
 
-            const grid = document.getElementById('gyms-grid');
-            grid.innerHTML = '';
+            let definitive240 = [];
+            let cursor = 0;
+            
+            const t_vars = ['pokemon', 'entrenadores', 'objetos', 'medallas', 'cajas_pc', 'movimientos', 'gimnasios', 'equipos'];
+            const c_vars = ['nivel', 'hp_max', 'ataque', 'defensa', 'velocidad', 'precio', 'cantidad', 'estado'];
+            const u_vars = ['red', 'blue', 'oak', 'giovanni', 'rocket', 'joy', 'jenny', 'lance'];
+            const s_vars = ['seq_batalla', 'seq_ticket', 'seq_pc', 'seq_item', 'seq_medalla', 'seq_ruta'];
+            const v_vars = ['v_fuertes', 'v_equipo', 'v_ranking', 'v_log', 'v_cajas', 'v_stats'];
 
-            gymsData.forEach(gym => {
-                const p = userProgress[gym.id];
-                const isCompleted = p && p.completed;
-                let statsHtml = `<p class="text-xs text-slate-400 mt-2 font-medium">Estado: <span class="text-red-500 font-bold">Pendiente</span></p>`;
-                if (isCompleted) {
-                    statsHtml = `
-                        <div class="mt-3 flex flex-wrap justify-center gap-1 text-[10px] font-bold uppercase">
-                            <span class="bg-emerald-900/50 text-emerald-400 border border-emerald-700 px-2 py-0.5 rounded-full">✓ ${p.correct}</span>
-                            <span class="bg-red-900/50 text-red-400 border border-red-700 px-2 py-0.5 rounded-full">✗ ${p.errors}</span>
-                            <span class="bg-slate-800 text-slate-300 border border-slate-600 px-2 py-0.5 rounded-full">⏱ ${formatTime(p.timeSeconds)}</span>
-                        </div>
-                    `;
+            while (definitive240.length < 240) {
+                let baseQ = JSON.parse(JSON.stringify(allQuestionsPool[cursor % allQuestionsPool.length]));
+                
+                if (baseQ.type === 'dd') {
+                    const rt = t_vars[cursor % t_vars.length];
+                    const rc = c_vars[cursor % c_vars.length];
+                    const ru = u_vars[cursor % u_vars.length];
+                    const rs = s_vars[cursor % s_vars.length];
+                    const rv = v_vars[cursor % v_vars.length];
+
+                    // Sustituimos las llaves {} con los nombres propios de Pokemon, pero NUNCA en las opciones arrastrables
+                    baseQ.instruction = baseQ.instruction
+                        .replace(/\{tabla\}/g, rt).replace(/\{columna\}/g, rc)
+                        .replace(/\{usuario\}/g, ru).replace(/\{secuencia\}/g, rs)
+                        .replace(/\{vista\}/g, rv);
+
+                    baseQ.template = baseQ.template.map(t => {
+                        if (typeof t === 'string') {
+                            return t.replace(/\{tabla\}/g, rt).replace(/\{columna\}/g, rc)
+                                .replace(/\{usuario\}/g, ru).replace(/\{secuencia\}/g, rs)
+                                .replace(/\{vista\}/g, rv);
+                        }
+                        return t;
+                    });
+                    
+                    baseQ.options = baseQ.options.sort(() => Math.random() - 0.5);
+                    
+                } else if (baseQ.type === 'mc') {
+                    // Barajar opciones y remapear la respuesta correcta
+                    let mappedCorrectStrings = baseQ.correct.map(idx => baseQ.options[idx]);
+                    baseQ.options = baseQ.options.sort(() => Math.random() - 0.5);
+                    baseQ.correct = mappedCorrectStrings.map(str => baseQ.options.indexOf(str));
+                    
+                    baseQ.instruction = baseQ.instruction + " ".repeat((cursor % 10) + 1);
                 }
 
-                const card = document.createElement('div');
-                card.className = `gym-card rounded-2xl p-4 flex flex-col h-full cursor-pointer ${isCompleted ? 'gym-completed' : ''}`;
-                card.onclick = () => startGymBattle(gym.id);
-                card.innerHTML = `
-                    <div class="flex justify-between items-center mb-3 w-full border-b border-slate-700/50 pb-2">
-                        <span class="text-[11px] font-black ${isCompleted ? 'text-amber-500' : 'text-slate-400'} uppercase tracking-widest bg-slate-900/80 px-2 py-1 rounded shadow-sm">Gimnasio ${gym.id}</span>
-                        ${isCompleted ? '<span class="text-amber-500 text-lg" title="Completado">&#10004;</span>' : '<span class="text-slate-500 text-lg">&#128274;</span>'}
-                    </div>
-                    <div class="flex-grow flex flex-col items-center text-center">
-                        <img src="${gym.image}" alt="${gym.leader}" class="w-20 h-20 rounded-full border-4 ${isCompleted ? 'border-amber-500' : 'border-slate-600'} leader-img mb-3 shadow-lg gym-image-target">
-                        <h3 class="text-lg font-black text-slate-100 leading-tight">${gym.city}</h3>
-                        <p class="text-xs font-bold text-slate-400 mb-1">Líder: <span class="text-red-400">${gym.leader}</span></p>
-                        <span class="text-[10px] font-bold px-2 py-0.5 bg-slate-800 text-slate-200 rounded-md border border-slate-600 uppercase">Tipo ${gym.type}</span>
-                        <div class="mt-auto w-full">${statsHtml}</div>
-                    </div>
-                    <button class="mt-4 w-full py-2.5 ${isCompleted ? 'bg-amber-600 text-white hover:bg-amber-500' : 'bg-slate-700 text-white hover:bg-red-600'} rounded-full font-black transition-all shadow-md uppercase tracking-wider text-xs border border-transparent ${!isCompleted?'hover:border-red-500':''}">
-                        ${isCompleted ? 'Revancha' : 'Desafiar'}
-                    </button>
-                `;
-                card.querySelector('.gym-image-target').addEventListener('error', function() { handleImgError(this, gym.fallback); }, { once: true });
-                grid.appendChild(card);
+                definitive240.push(baseQ);
+                cursor++;
+            }
+            
+            // Mezclar las 240 preguntas para que salgan en orden aleatorio
+            definitive240 = definitive240.sort(() => Math.random() - 0.5);
+
+            const gymsData = kantoGyms.map((gym, index) => {
+                return { ...gym, questions: definitive240.slice(index * 30, (index + 1) * 30) };
             });
-        }
 
-        window.startGymBattle = function(id) {
-            currentGym = gymsData.find(c => c.id === id);
-            currentQuestionIndex = 0;
-            sessionErrors = 0;
-            sessionCorrect = 0;
-            
-            document.getElementById('active-gym-name').textContent = `Gimnasio ${currentGym.city}`;
-            document.getElementById('active-gym-leader').textContent = `Líder: ${currentGym.leader} - Desafíos: 30`;
-            
-            const gymImg = document.getElementById('active-gym-image');
-            gymImg.classList.remove('fallback-active');
-            gymImg.src = currentGym.image;
-            gymImg.addEventListener('error', function() { handleImgError(this, currentGym.fallback); }, { once: true });
-            
-            const badgePreview = document.getElementById('active-gym-badge');
-            badgePreview.src = currentGym.badgeImage;
-            badgePreview.addEventListener('error', function() { handleImgError(this, currentGym.badgeFallback); }, { once: true });
-            
-            document.getElementById('quiz-header-controls').classList.remove('hidden');
-            document.getElementById('progress-bar-container').classList.remove('hidden');
-            
-            startTimer();
-            switchView('view-quiz');
-            renderQuestion();
-        }
+            // =========================================================================
+            // LÓGICA DE APLICACIÓN
+            // =========================================================================
+            let userProgress = {}; 
+            let currentGym = null;
+            let currentQuestionIndex = 0;
+            let sessionErrors = 0;
+            let sessionCorrect = 0;
+            let timerInterval;
+            let timeSeconds = 0;
+            let selectedOptionsMC = [];
 
-        window.renderQuestion = function() {
-            if (currentQuestionIndex >= currentGym.questions.length) {
-                endGymBattle();
-                return;
+            const STORAGE_KEY = 'pgLigaKantoSyllabusProg3';
+
+            function loadProgress() {
+                try { const stored = localStorage.getItem(STORAGE_KEY); if (stored) userProgress = JSON.parse(stored); } catch (e) {}
+            }
+            function saveProgress() {
+                try { localStorage.setItem(STORAGE_KEY, JSON.stringify(userProgress)); } catch (e) {}
             }
 
-            const q = currentGym.questions[currentQuestionIndex];
-            
-            document.getElementById('question-topic').textContent = q.topic;
-            document.getElementById('question-type-badge').textContent = q.type === 'dd' ? 'Sintaxis SQL' : 'Teoría PG';
-            document.getElementById('question-instruction').textContent = q.instruction.trim();
-            
-            document.getElementById('error-counter').textContent = sessionErrors;
-            document.getElementById('progress-text').textContent = `${currentQuestionIndex} / ${currentGym.questions.length}`;
-            document.getElementById('progress-bar').style.width = `${(currentQuestionIndex / currentGym.questions.length) * 100}%`;
+            window.clearSave = function() {
+                if(confirm("⚠️ ¿Estás seguro de que quieres borrar tu partida? Perderás todas tus medallas.")) {
+                    localStorage.removeItem(STORAGE_KEY);
+                    location.reload();
+                }
+            };
 
-            document.getElementById('btn-check').classList.remove('hidden');
-            document.getElementById('btn-check').disabled = false;
-            document.getElementById('btn-next').classList.add('hidden');
-            
-            const feedbackMsg = document.getElementById('feedback-msg');
-            feedbackMsg.className = 'font-bold text-sm sm:text-base opacity-0 transition-opacity text-center sm:text-left flex-grow';
-            
-            const container = document.getElementById('dynamic-content-container');
-            container.innerHTML = ''; 
-            
-            const mcHint = document.getElementById('mc-instruction-hint');
+            function renderMenu() {
+                switchView('view-menu');
+                stopTimer();
+                document.getElementById('quiz-header-controls').classList.add('hidden');
+                document.getElementById('progress-bar-container').classList.add('hidden');
+                
+                const badgeCase = document.getElementById('badge-case-container');
+                badgeCase.innerHTML = '';
+                gymsData.forEach(gym => {
+                    const isCompleted = userProgress[gym.id] && userProgress[gym.id].completed;
+                    const slotEl = document.createElement('div');
+                    slotEl.className = 'w-14 h-14 sm:w-20 sm:h-20 badge-slot';
+                    
+                    const badgeEl = document.createElement('img');
+                    badgeEl.src = gym.badgeImage;
+                    badgeEl.title = isCompleted ? `${gym.badgeName} (Gimnasio ${gym.city})` : `Medalla Desconocida`;
+                    badgeEl.className = isCompleted ? 'w-10 h-10 sm:w-14 sm:h-14 badge-img badge-earned' : 'w-10 h-10 sm:w-14 sm:h-14 badge-img badge-locked';
+                    badgeEl.addEventListener('error', function() { handleImgError(this, gym.badgeFallback); }, { once: true });
+                    
+                    slotEl.appendChild(badgeEl);
+                    badgeCase.appendChild(slotEl);
+                });
 
-            if (q.type === 'dd') {
-                mcHint.classList.add('hidden');
-                
-                // Renderizar D&D
-                const wrap = document.createElement('div');
-                wrap.className = 'bg-slate-950 rounded-2xl shadow-inner overflow-hidden border border-slate-800 flex flex-col';
-                wrap.innerHTML = `<div class="bg-slate-900 px-4 py-2 flex items-center border-b border-slate-800"><span class="text-xs font-bold text-slate-500 uppercase tracking-widest">Terminal_PostgreSQL.sql</span></div>`;
-                
-                const codeBlock = document.createElement('div');
-                codeBlock.className = 'p-5 overflow-x-auto flex-grow font-mono text-sm sm:text-base leading-[2.5rem] text-sky-100 whitespace-pre-wrap';
-                
-                q.template.forEach(part => {
-                    if (typeof part === 'string') {
-                        codeBlock.appendChild(document.createTextNode(part));
-                    } else {
-                        const dropzone = document.createElement('div');
-                        dropzone.id = part.id;
-                        dropzone.className = 'dropzone';
-                        dropzone.dataset.answer = part.answer;
-                        dropzone.textContent = '...';
-                        dropzone.ondragover = allowDrop;
-                        dropzone.ondragleave = dragLeave;
-                        dropzone.ondrop = (e) => drop(e, 'zone');
-                        codeBlock.appendChild(dropzone);
+                const grid = document.getElementById('gyms-grid');
+                grid.innerHTML = '';
+
+                gymsData.forEach(gym => {
+                    const p = userProgress[gym.id];
+                    const isCompleted = p && p.completed;
+                    let statsHtml = `<p class="text-xs text-slate-400 mt-2 font-medium">Estado: <span class="text-red-500 font-bold">Pendiente</span></p>`;
+                    if (isCompleted) {
+                        statsHtml = `
+                            <div class="mt-3 flex flex-wrap justify-center gap-1 text-[10px] font-bold uppercase">
+                                <span class="bg-emerald-900/50 text-emerald-400 border border-emerald-700 px-2 py-0.5 rounded-full">✓ ${p.correct}</span>
+                                <span class="bg-red-900/50 text-red-400 border border-red-700 px-2 py-0.5 rounded-full">✗ ${p.errors}</span>
+                                <span class="bg-slate-800 text-slate-300 border border-slate-600 px-2 py-0.5 rounded-full">⏱ ${formatTime(p.timeSeconds)}</span>
+                            </div>
+                        `;
                     }
-                });
-                wrap.appendChild(codeBlock);
-                container.appendChild(wrap);
 
-                const bankWrap = document.createElement('div');
-                bankWrap.className = 'mt-4';
-                bankWrap.innerHTML = `<h3 class="text-xs font-black text-slate-400 mb-2 uppercase tracking-wider flex items-center"><span class="mr-2 text-red-500">&#129520;</span> Mochila de Fragmentos</h3>`;
-                
-                const wordBank = document.createElement('div');
-                wordBank.id = 'word-bank';
-                wordBank.className = 'word-bank shadow-inner';
-                wordBank.ondragover = allowDrop;
-                wordBank.ondragleave = dragLeave;
-                wordBank.ondrop = (e) => drop(e, 'bank');
-                
-                q.options.forEach((opt, idx) => {
-                    const chip = document.createElement('div');
-                    chip.id = `chip-${currentQuestionIndex}-${idx}`;
-                    chip.className = 'draggable-chip';
-                    chip.draggable = true;
-                    chip.ondragstart = drag;
-                    chip.textContent = opt;
-                    wordBank.appendChild(chip);
-                });
-                bankWrap.appendChild(wordBank);
-                container.appendChild(bankWrap);
-
-            } else {
-                mcHint.classList.remove('hidden');
-                mcHint.textContent = q.selectionType === 'single' ? "Selecciona 1 sola respuesta correcta." : "Selecciona TODAS las respuestas correctas.";
-                
-                const mcContainer = document.createElement('div');
-                mcContainer.className = 'space-y-3';
-                selectedOptionsMC = []; 
-                
-                q.options.forEach((optText, idx) => {
-                    const btn = document.createElement('button');
-                    btn.className = 'mc-option w-full text-left p-3 sm:p-4 rounded-xl font-bold shadow-sm text-sm sm:text-base flex items-center';
-                    btn.dataset.idx = idx;
-                    btn.innerHTML = `<span class="text-red-500 mr-3 opacity-50 shrink-0 text-xl leading-none">■</span> <span class="leading-tight">${optText}</span>`;
-                    btn.onclick = () => {
-                        if (q.selectionType === 'single') {
-                            selectedOptionsMC = [idx];
-                            mcContainer.querySelectorAll('.mc-option').forEach(el => el.classList.remove('selected'));
-                            btn.classList.add('selected');
-                        } else {
-                            const pos = selectedOptionsMC.indexOf(idx);
-                            if (pos === -1) { selectedOptionsMC.push(idx); btn.classList.add('selected'); }
-                            else { selectedOptionsMC.splice(pos, 1); btn.classList.remove('selected'); }
-                        }
-                    };
-                    mcContainer.appendChild(btn);
-                });
-                container.appendChild(mcContainer);
-            }
-        }
-
-        window.drag = function(ev) { ev.dataTransfer.setData("text", ev.target.id); ev.dataTransfer.effectAllowed = "move"; }
-        window.allowDrop = function(ev) { ev.preventDefault(); if(ev.currentTarget.classList.contains('dropzone') || ev.currentTarget.id === 'word-bank') ev.currentTarget.classList.add('drag-over'); }
-        window.dragLeave = function(ev) { ev.currentTarget.classList.remove('drag-over'); }
-        window.drop = function(ev, targetType) {
-            ev.preventDefault();
-            const target = ev.currentTarget;
-            target.classList.remove('drag-over');
-            const dataId = ev.dataTransfer.getData("text");
-            const draggedElement = document.getElementById(dataId);
-            if (!draggedElement) return;
-
-            if (targetType === 'zone') {
-                if (target.children.length > 0 && target.firstChild.nodeType === 1) document.getElementById('word-bank').appendChild(target.firstChild);
-                if (target.childNodes.length > 0 && target.firstChild.nodeType === 3) target.innerHTML = '';
-                target.appendChild(draggedElement);
-                target.classList.remove('correct', 'incorrect');
-            } else if (targetType === 'bank') {
-                target.appendChild(draggedElement);
-                document.querySelectorAll('.dropzone').forEach(z => {
-                    if(z.children.length === 0) z.textContent = '...';
-                    z.classList.remove('correct', 'incorrect');
+                    const card = document.createElement('div');
+                    card.className = `gym-card rounded-2xl p-4 flex flex-col h-full cursor-pointer ${isCompleted ? 'gym-completed' : ''}`;
+                    card.onclick = () => startGymBattle(gym.id);
+                    
+                    card.innerHTML = `
+                        <div class="flex justify-between items-center mb-3 w-full border-b border-slate-700/50 pb-2">
+                            <span class="text-[11px] font-black ${isCompleted ? 'text-amber-500' : 'text-slate-400'} uppercase tracking-widest bg-slate-900/80 px-2 py-1 rounded shadow-sm">Gimnasio ${gym.id}</span>
+                            ${isCompleted ? '<span class="text-amber-500 text-lg" title="Completado">&#10004;</span>' : '<span class="text-slate-500 text-lg">&#128274;</span>'}
+                        </div>
+                        <div class="flex-grow flex flex-col items-center text-center">
+                            <img src="${gym.image}" alt="${gym.leader}" class="w-20 h-20 rounded-full border-4 ${isCompleted ? 'border-amber-500' : 'border-slate-600'} leader-img mb-3 shadow-lg gym-image-target">
+                            <h3 class="text-lg font-black text-slate-100 leading-tight">${gym.city}</h3>
+                            <p class="text-xs font-bold text-slate-400 mb-1">Líder: <span class="text-red-400">${gym.leader}</span></p>
+                            <span class="text-[10px] font-bold px-2 py-0.5 bg-slate-800 text-slate-200 rounded-md border border-slate-600 uppercase">Tipo ${gym.type}</span>
+                            <div class="mt-auto w-full">${statsHtml}</div>
+                        </div>
+                        <button class="mt-4 w-full py-2.5 ${isCompleted ? 'bg-amber-600 text-white hover:bg-amber-500' : 'bg-slate-700 text-white hover:bg-red-600'} rounded-full font-black transition-all shadow-md uppercase tracking-wider text-xs border border-transparent ${!isCompleted?'hover:border-red-500':''}">
+                            ${isCompleted ? 'Revancha' : 'Desafiar'}
+                        </button>
+                    `;
+                    
+                    card.querySelector('.gym-image-target').addEventListener('error', function() { handleImgError(this, gym.fallback); }, { once: true });
+                    grid.appendChild(card);
                 });
             }
-        }
 
-        window.checkAnswers = function() {
-            const q = currentGym.questions[currentQuestionIndex];
-            let isCorrect = false, missingFields = false;
+            window.startGymBattle = function(id) {
+                currentGym = gymsData.find(c => c.id === id);
+                currentQuestionIndex = 0;
+                sessionErrors = 0;
+                sessionCorrect = 0;
+                
+                document.getElementById('active-gym-name').textContent = `Gimnasio ${currentGym.city}`;
+                document.getElementById('active-gym-leader').textContent = `Líder: ${currentGym.leader} - Desafíos: 30`;
+                
+                const gymImg = document.getElementById('active-gym-image');
+                gymImg.classList.remove('fallback-active');
+                gymImg.src = currentGym.image;
+                gymImg.addEventListener('error', function() { handleImgError(this, currentGym.fallback); }, { once: true });
+                
+                const badgePreview = document.getElementById('active-gym-badge');
+                badgePreview.src = currentGym.badgeImage;
+                badgePreview.addEventListener('error', function() { handleImgError(this, currentGym.badgeFallback); }, { once: true });
+                
+                document.getElementById('quiz-header-controls').classList.remove('hidden');
+                document.getElementById('progress-bar-container').classList.remove('hidden');
+                
+                startTimer();
+                switchView('view-quiz');
+                renderQuestion();
+            }
 
-            if (q.type === 'dd') {
-                const dropzones = document.querySelectorAll('.dropzone');
-                let allCorrect = true;
-                dropzones.forEach(zone => {
-                    if (zone.children.length === 0 || zone.textContent === '...') {
-                        missingFields = true; zone.classList.add('incorrect');
-                    } else {
-                        if (zone.firstChild.textContent === zone.dataset.answer) {
-                            zone.classList.add('correct'); zone.classList.remove('incorrect');
+            function renderQuestion() {
+                if (currentQuestionIndex >= currentGym.questions.length) {
+                    endGymBattle();
+                    return;
+                }
+
+                const q = currentGym.questions[currentQuestionIndex];
+                
+                document.getElementById('question-topic').textContent = q.topic;
+                document.getElementById('question-type-badge').textContent = q.type === 'dd' ? 'Sintaxis SQL' : 'Teoría PG';
+                document.getElementById('question-instruction').textContent = q.instruction.trim();
+                
+                document.getElementById('error-counter').textContent = sessionErrors;
+                document.getElementById('progress-text').textContent = `${currentQuestionIndex} / ${currentGym.questions.length}`;
+                document.getElementById('progress-bar').style.width = `${(currentQuestionIndex / currentGym.questions.length) * 100}%`;
+
+                document.getElementById('btn-check').classList.remove('hidden');
+                document.getElementById('btn-check').disabled = false;
+                document.getElementById('btn-next').classList.add('hidden');
+                
+                const feedbackMsg = document.getElementById('feedback-msg');
+                feedbackMsg.className = 'font-bold text-sm sm:text-base opacity-0 transition-opacity text-center sm:text-left flex-grow';
+                
+                const container = document.getElementById('dynamic-content-container');
+                container.innerHTML = ''; 
+                
+                const mcHint = document.getElementById('mc-instruction-hint');
+
+                if (q.type === 'dd') {
+                    mcHint.classList.add('hidden');
+                    
+                    const wrap = document.createElement('div');
+                    wrap.className = 'bg-slate-950 rounded-2xl shadow-inner overflow-hidden border border-slate-800 flex flex-col';
+                    wrap.innerHTML = `<div class="bg-slate-900 px-4 py-2 flex items-center border-b border-slate-800"><span class="text-xs font-bold text-slate-500 uppercase tracking-widest">Terminal_PostgreSQL.sql</span></div>`;
+                    
+                    const codeBlock = document.createElement('div');
+                    codeBlock.className = 'p-5 overflow-x-auto flex-grow font-mono text-sm sm:text-base leading-[2.5rem] text-sky-100 whitespace-pre-wrap';
+                    
+                    q.template.forEach(part => {
+                        if (typeof part === 'string') {
+                            codeBlock.appendChild(document.createTextNode(part));
                         } else {
-                            zone.classList.add('incorrect'); zone.classList.remove('correct'); allCorrect = false;
+                            const dropzone = document.createElement('div');
+                            dropzone.id = part.id;
+                            dropzone.className = 'dropzone';
+                            dropzone.dataset.answer = part.answer;
+                            dropzone.textContent = '...';
+                            dropzone.ondragover = window.allowDrop;
+                            dropzone.ondragleave = window.dragLeave;
+                            dropzone.ondrop = (e) => window.drop(e, 'zone');
+                            codeBlock.appendChild(dropzone);
                         }
-                    }
-                });
-                if (!missingFields) isCorrect = allCorrect;
-            } else {
-                if (selectedOptionsMC.length === 0) missingFields = true;
-                else {
-                    const userSorted = [...selectedOptionsMC].sort(), correctSorted = [...q.correct].sort();
-                    isCorrect = userSorted.length === correctSorted.length && userSorted.every((val, i) => val === correctSorted[i]);
-                    document.querySelectorAll('.mc-option').forEach((n, i) => {
-                        if(isCorrect && q.correct.includes(i)) n.classList.add('correct-reveal');
-                        if(!isCorrect && selectedOptionsMC.includes(i)) n.classList.add('incorrect-reveal');
+                    });
+                    wrap.appendChild(codeBlock);
+                    container.appendChild(wrap);
+
+                    const bankWrap = document.createElement('div');
+                    bankWrap.className = 'mt-4';
+                    bankWrap.innerHTML = `<h3 class="text-xs font-black text-slate-400 mb-2 uppercase tracking-wider flex items-center"><span class="mr-2 text-red-500">&#129520;</span> Mochila de Fragmentos</h3>`;
+                    
+                    const wordBank = document.createElement('div');
+                    wordBank.id = 'word-bank';
+                    wordBank.className = 'word-bank shadow-inner';
+                    wordBank.ondragover = window.allowDrop;
+                    wordBank.ondragleave = window.dragLeave;
+                    wordBank.ondrop = (e) => window.drop(e, 'bank');
+                    
+                    q.options.forEach((opt, idx) => {
+                        const chip = document.createElement('div');
+                        chip.id = `chip-${currentQuestionIndex}-${idx}`;
+                        chip.className = 'draggable-chip';
+                        chip.draggable = true;
+                        chip.ondragstart = window.drag;
+                        chip.textContent = opt;
+                        wordBank.appendChild(chip);
+                    });
+                    bankWrap.appendChild(wordBank);
+                    container.appendChild(bankWrap);
+
+                } else {
+                    mcHint.classList.remove('hidden');
+                    mcHint.textContent = q.selectionType === 'single' ? "Selecciona 1 sola respuesta correcta." : "⚠️ Selecciona TODAS las respuestas que sean correctas.";
+                    
+                    const mcContainer = document.createElement('div');
+                    mcContainer.className = 'space-y-3';
+                    selectedOptionsMC = []; 
+                    
+                    q.options.forEach((optText, idx) => {
+                        const btn = document.createElement('button');
+                        btn.className = 'mc-option w-full text-left p-3 sm:p-4 rounded-xl font-bold shadow-sm text-sm sm:text-base flex items-center';
+                        btn.dataset.idx = idx;
+                        btn.innerHTML = `<span class="text-red-500 mr-3 opacity-50 shrink-0 text-xl leading-none">■</span> <span class="leading-tight">${optText}</span>`;
+                        btn.onclick = () => {
+                            if (q.selectionType === 'single') {
+                                selectedOptionsMC = [idx];
+                                mcContainer.querySelectorAll('.mc-option').forEach(el => el.classList.remove('selected'));
+                                btn.classList.add('selected');
+                            } else {
+                                const pos = selectedOptionsMC.indexOf(idx);
+                                if (pos === -1) { selectedOptionsMC.push(idx); btn.classList.add('selected'); }
+                                else { selectedOptionsMC.splice(pos, 1); btn.classList.remove('selected'); }
+                            }
+                        };
+                        mcContainer.appendChild(btn);
+                    });
+                    container.appendChild(mcContainer);
+                }
+            }
+
+            window.drag = function(ev) { ev.dataTransfer.setData("text", ev.target.id); ev.dataTransfer.effectAllowed = "move"; }
+            window.allowDrop = function(ev) { ev.preventDefault(); if(ev.currentTarget.classList.contains('dropzone') || ev.currentTarget.id === 'word-bank') ev.currentTarget.classList.add('drag-over'); }
+            window.dragLeave = function(ev) { ev.currentTarget.classList.remove('drag-over'); }
+            window.drop = function(ev, targetType) {
+                ev.preventDefault();
+                const target = ev.currentTarget;
+                target.classList.remove('drag-over');
+                const dataId = ev.dataTransfer.getData("text");
+                const draggedElement = document.getElementById(dataId);
+                if (!draggedElement) return;
+
+                if (targetType === 'zone') {
+                    if (target.children.length > 0 && target.firstChild.nodeType === 1) document.getElementById('word-bank').appendChild(target.firstChild);
+                    if (target.childNodes.length > 0 && target.firstChild.nodeType === 3) target.innerHTML = '';
+                    target.appendChild(draggedElement);
+                    target.classList.remove('correct', 'incorrect');
+                } else if (targetType === 'bank') {
+                    target.appendChild(draggedElement);
+                    document.querySelectorAll('.dropzone').forEach(z => {
+                        if(z.children.length === 0) z.textContent = '...';
+                        z.classList.remove('correct', 'incorrect');
                     });
                 }
             }
 
-            const fb = document.getElementById('feedback-msg');
-            fb.classList.remove('opacity-0');
+            window.checkAnswers = function() {
+                const q = currentGym.questions[currentQuestionIndex];
+                let isCorrect = false, missingFields = false;
 
-            if (missingFields) {
-                fb.textContent = "⚠️ Faltan datos por introducir.";
-                fb.className = "font-bold text-sm sm:text-base text-amber-500 opacity-100 flex-grow text-center sm:text-left";
-                return;
+                if (q.type === 'dd') {
+                    const dropzones = document.querySelectorAll('.dropzone');
+                    let allCorrect = true;
+                    dropzones.forEach(zone => {
+                        if (zone.children.length === 0 || zone.textContent === '...') {
+                            missingFields = true; zone.classList.add('incorrect');
+                        } else {
+                            if (zone.firstChild.textContent === zone.dataset.answer) {
+                                zone.classList.add('correct'); zone.classList.remove('incorrect');
+                            } else {
+                                zone.classList.add('incorrect'); zone.classList.remove('correct'); allCorrect = false;
+                            }
+                        }
+                    });
+                    if (!missingFields) isCorrect = allCorrect;
+                } else {
+                    if (selectedOptionsMC.length === 0) missingFields = true;
+                    else {
+                        const userSorted = [...selectedOptionsMC].sort(), correctSorted = [...q.correct].sort();
+                        isCorrect = userSorted.length === correctSorted.length && userSorted.every((val, i) => val === correctSorted[i]);
+                        document.querySelectorAll('.mc-option').forEach((n, i) => {
+                            if(isCorrect && q.correct.includes(i)) n.classList.add('correct-reveal');
+                            if(!isCorrect && selectedOptionsMC.includes(i)) n.classList.add('incorrect-reveal');
+                        });
+                    }
+                }
+
+                const fb = document.getElementById('feedback-msg');
+                fb.classList.remove('opacity-0');
+
+                if (missingFields) {
+                    fb.textContent = "⚠️ Faltan datos por introducir o seleccionar.";
+                    fb.className = "font-bold text-sm sm:text-base text-amber-500 opacity-100 flex-grow text-center sm:text-left";
+                    return;
+                }
+
+                if (isCorrect) {
+                    fb.innerHTML = "&#10024; ¡Ataque Efectivo!";
+                    fb.className = "font-bold text-sm sm:text-base text-emerald-500 opacity-100 flex-grow text-center sm:text-left";
+                    sessionCorrect++;
+                    if(q.type === 'dd') document.querySelectorAll('.draggable-chip').forEach(c => c.draggable = false);
+                    else document.querySelectorAll('.mc-option').forEach(c => c.onclick = null);
+                    document.getElementById('btn-check').classList.add('hidden');
+                    document.getElementById('btn-next').classList.remove('hidden');
+                } else {
+                    sessionErrors++;
+                    document.getElementById('error-counter').textContent = sessionErrors;
+                    fb.innerHTML = "&#10060; Error en la respuesta.";
+                    fb.className = "font-bold text-sm sm:text-base text-red-500 opacity-100 flex-grow text-center sm:text-left";
+                    if (q.type === 'mc') setTimeout(() => document.querySelectorAll('.mc-option').forEach(el => el.classList.remove('incorrect-reveal')), 1500);
+                }
             }
 
-            if (isCorrect) {
-                fb.innerHTML = "&#10024; ¡Ataque Efectivo!";
-                fb.className = "font-bold text-sm sm:text-base text-emerald-500 opacity-100 flex-grow text-center sm:text-left";
-                sessionCorrect++;
-                if(q.type === 'dd') document.querySelectorAll('.draggable-chip').forEach(c => c.draggable = false);
-                else document.querySelectorAll('.mc-option').forEach(c => c.onclick = null);
-                document.getElementById('btn-check').classList.add('hidden');
-                document.getElementById('btn-next').classList.remove('hidden');
-            } else {
-                sessionErrors++;
-                document.getElementById('error-counter').textContent = sessionErrors;
-                fb.innerHTML = "&#10060; Sintaxis errónea.";
-                fb.className = "font-bold text-sm sm:text-base text-red-500 opacity-100 flex-grow text-center sm:text-left";
-                if (q.type === 'mc') setTimeout(() => document.querySelectorAll('.mc-option').forEach(el => el.classList.remove('incorrect-reveal')), 1500);
+            window.nextQuestion = function() { currentQuestionIndex++; renderQuestion(); }
+
+            function startTimer() {
+                clearInterval(timerInterval); timeSeconds = 0; updateTimerUI();
+                timerInterval = setInterval(() => { timeSeconds++; updateTimerUI(); }, 1000);
             }
-        }
+            function stopTimer() { clearInterval(timerInterval); }
+            function updateTimerUI() { document.getElementById('timer-display').textContent = formatTime(timeSeconds); }
+            function formatTime(s) { return `${Math.floor(s / 60).toString().padStart(2, '0')}:${(s % 60).toString().padStart(2, '0')}`; }
 
-        window.nextQuestion = function() { currentQuestionIndex++; renderQuestion(); }
+            function switchView(viewId) {
+                ['view-menu', 'view-quiz', 'view-end'].forEach(id => document.getElementById(id).classList.add('hidden-view'));
+                const target = document.getElementById(viewId);
+                target.classList.remove('hidden-view', 'fade-in'); void target.offsetWidth; target.classList.add('fade-in');
+            }
 
-        function startTimer() {
-            clearInterval(timerInterval); timeSeconds = 0; updateTimerUI();
-            timerInterval = setInterval(() => { timeSeconds++; updateTimerUI(); }, 1000);
-        }
-        function stopTimer() { clearInterval(timerInterval); }
-        function updateTimerUI() { document.getElementById('timer-display').textContent = formatTime(timeSeconds); }
-        function formatTime(s) { return `${Math.floor(s / 60).toString().padStart(2, '0')}:${(s % 60).toString().padStart(2, '0')}`; }
+            window.quitToMenu = function() {
+                stopTimer();
+                document.getElementById('quiz-header-controls').classList.add('hidden');
+                document.getElementById('progress-bar-container').classList.add('hidden');
+                renderMenu();
+            }
 
-        function switchView(viewId) {
-            ['view-menu', 'view-quiz', 'view-end'].forEach(id => document.getElementById(id).classList.add('hidden-view'));
-            const target = document.getElementById(viewId);
-            target.classList.remove('hidden-view', 'fade-in'); void target.offsetWidth; target.classList.add('fade-in');
-        }
+            window.endGymBattle = function() {
+                stopTimer();
+                document.getElementById('quiz-header-controls').classList.add('hidden');
+                document.getElementById('progress-bar-container').classList.add('hidden');
+                
+                userProgress[currentGym.id] = { completed: true, correct: sessionCorrect, errors: sessionErrors, timeSeconds: timeSeconds };
+                saveProgress();
 
-        window.quitToMenu = function() {
-            stopTimer();
-            document.getElementById('quiz-header-controls').classList.add('hidden');
-            document.getElementById('progress-bar-container').classList.add('hidden');
-            renderMenu();
-        }
+                document.getElementById('end-title').textContent = `¡Has derrotado a ${currentGym.leader}!`;
+                document.getElementById('end-badge-name').textContent = `Obtuviste la ${currentGym.badgeName}`;
+                
+                const badgeImg = document.getElementById('end-badge-image');
+                badgeImg.classList.remove('fallback-active');
+                badgeImg.addEventListener('error', function() { handleImgError(this, currentGym.badgeFallback); }, { once: true });
+                badgeImg.src = currentGym.badgeImage;
 
-        window.endGymBattle = function() {
-            stopTimer();
-            document.getElementById('quiz-header-controls').classList.add('hidden');
-            document.getElementById('progress-bar-container').classList.add('hidden');
-            
-            userProgress[currentGym.id] = { completed: true, correct: sessionCorrect, errors: sessionErrors, timeSeconds: timeSeconds };
-            saveProgress();
+                document.getElementById('end-correct').textContent = sessionCorrect;
+                document.getElementById('end-errors').textContent = sessionErrors;
+                document.getElementById('end-time').textContent = formatTime(timeSeconds);
 
-            document.getElementById('end-title').textContent = `¡Has derrotado a ${currentGym.leader}!`;
-            document.getElementById('end-badge-name').textContent = `Obtuviste la ${currentGym.badgeName}`;
-            
-            const badgeImg = document.getElementById('end-badge-image');
-            badgeImg.classList.remove('fallback-active');
-            badgeImg.addEventListener('error', function() { handleImgError(this, currentGym.badgeFallback); }, { once: true });
-            badgeImg.src = currentGym.badgeImage;
+                switchView('view-end');
+            }
 
-            document.getElementById('end-correct').textContent = sessionCorrect;
-            document.getElementById('end-errors').textContent = sessionErrors;
-            document.getElementById('end-time').textContent = formatTime(timeSeconds);
+            // Iniciar aplicación
+            loadProgress();
+            renderMenu(); 
 
-            switchView('view-end');
-        }
-
-        // INIT
-        window.onload = initApp;
+        }); // Fin del DOMContentLoaded
     </script>
 </body>
 </html>
