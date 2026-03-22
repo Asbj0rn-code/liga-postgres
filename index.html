@@ -206,7 +206,7 @@ mcs|Teoría DDL|¿Qué hace el modificador CASCADE en un TRUNCATE TABLE?|Borra l
 mcs|Teoría Privilegios|De acuerdo al PDF, ¿cuál es el orden lógico para eliminar a un usuario que posee tablas?|DROP USER, luego DROP TABLES.|DROP OWNED, y luego DROP USER.|REASSIGN OWNED, luego DROP OWNED, y finalmente DROP USER.|Solo hacer DROP USER CASCADE.|2
 mcs|Teoría Secuencias|¿Qué función se usa para avanzar una secuencia y obtener el siguiente valor?|getval()|nextval()|currval()|setval()|1
 mcs|Teoría Secuencias|¿Cuál es la función que te permite ver el último valor generado por la secuencia en tu sesión actual sin hacerla avanzar?|lastval()|nextval()|currval()|get_current_sequence()|2
-mcs|Teoría Vistas|En PostgreSQL, ¿qué operador se utiliza explícitamente para concatenar cadenas de texto en las vistas?|CONCAT()|El signo más (+)|El doble ampersand (&&)|Las barras verticales ("||")|3
+mcs|Teoría Vistas|En PostgreSQL, ¿qué operador se utiliza explícitamente para concatenar cadenas de texto en las vistas?|CONCAT()|El signo más (+)|El doble ampersand (&&)|Las barras verticales (&#124;&#124;)|3
 mcs|Teoría Privilegios|¿Qué tabla de sistema o vista contiene información como 'usename' y 'usecreatedb'?|pg_stat_activity|pg_roles|pg_user|pg_hba_conf|2
 mcs|Teoría Secuencias|En la creación de una secuencia, si no indicamos el START WITH, ¿cuál es su valor por defecto?|0|1|El mínimo valor del tipo entero|-1|1
 mcs|Teoría DDL|¿Cuál es el comportamiento POR DEFECTO de TRUNCATE si hay tablas dependientes (FKs) y no ponemos CASCADE?|Se borran en cascada automáticamente.|Falla y da error (RESTRICT).|Ignora las claves foráneas y borra solo la tabla indicada.|Se borran fila a fila disparando triggers.|1
